@@ -1,31 +1,16 @@
 version: '3.3'
-
-volumes:
-  vpp_data: {}
-
+name: django
 services:
   backend:
     build:
       context: ./backend
+    restart: always
     depends_on:
       - postgres
     volumes:
       - ./backend:/opt
-      - ~/.aws:/root/.aws:ro
+      # - ~/.aws:/root/.aws:ro
     command: /opt/scripts/start.sh
-    entrypoint: /opt/scripts/entrypoint.sh
-    restart: always
-
-  postgres:
-    image:
-    env:
-      - POSTGRES_DB=postgres
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PORT=5432
-    ports:
-      - "5432:5432"
 
   nginx:
     build:
@@ -39,3 +24,21 @@ services:
       - ./backend/staticfiles/:/staticfiles/
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/log:/var/log/nginx/
+
+  postgres:
+    image: postgres:13
+    restart: always
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PORT=5432
+    ports:
+      - "54321:5432"
+
+  redis:
+    image: redis:7.0.7
+
+#docker-compose up --build
+#docker-compose down --volumes --remove-orphans

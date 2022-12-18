@@ -1,0 +1,10 @@
+Django==4.1.4
+djangorestframework
+markdown
+django-filter
+channels
+channels_redis
+djangorestframework-simplejwt
+psycopg2
+psycopg2-binary
+gunicorn
