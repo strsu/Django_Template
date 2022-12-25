@@ -26,8 +26,7 @@ SECRET_KEY = "django-insecure-z^y14w-b*meb*%64-9zjy_dc3qmk)ddn)b$2z)2w_c(8h_c6qn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -38,6 +37,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "chat",
+    "channels",
 ]
 
 MIDDLEWARE = [
@@ -69,7 +70,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
-
+ASGI_APPLICATION = "config.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -83,6 +84,15 @@ DATABASES = {
         "HOST": "postgres",
         "PORT": 5432,
     }
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+        },
+    },
 }
 
 
@@ -119,7 +129,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
-STATIC_ROOT = os.path.join(BASE_DIR, "/staticfiles")
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles/")
 STATIC_URL = "/staticfiles/"
 
 # MEDIA CONFIGURATION

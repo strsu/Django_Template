@@ -11,6 +11,8 @@ services:
       - ./backend:/opt
       # - ~/.aws:/root/.aws:ro
     command: /opt/scripts/start.sh
+    #networks:
+    #  - websocket
 
   nginx:
     build:
@@ -24,6 +26,8 @@ services:
       - ./backend/staticfiles/:/staticfiles/
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/log:/var/log/nginx/
+    #networks:
+    #  - websocket
 
   postgres:
     image: postgres:13
@@ -36,9 +40,15 @@ services:
       - POSTGRES_PORT=5432
     ports:
       - "54321:5432"
+    #networks:
+    #  - websocket
 
   redis:
     image: redis:7.0.7
+    #networks:
+    #  - websocket
 
-#docker-compose up --build
-#docker-compose down --volumes --remove-orphans
+    #networks: websocket
+
+    #docker-compose up --build
+    #docker-compose down --volumes --remove-orphans
