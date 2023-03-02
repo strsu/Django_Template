@@ -13,12 +13,7 @@ from config.exceptions.exception_codes import STATUS_RSP_INTERNAL_ERROR
 
 
 def custom_exception_handler(exc, context):
-    logger.error(f"[CUSTOM_EXCEPTION_HANDLER_ERROR]")
-    logger.error(f"[{datetime.now()}]")
-    logger.error(f"> exc")
-    logger.error(f"{exc}")
-    logger.error(f"> context")
-    logger.error(f"{context}")
+    logger.error(f"exc: {str(exc)}, context: {str(context)}")
 
     response = exception_handler(exc, context)
 
@@ -77,7 +72,7 @@ def custom_exception_handler(exc, context):
 
             print(exc.detail)
 
-            code = exc.detail.get("status_code")
+            code = exc.detail.get("code")
 
             if hasattr(context["request"], "LANGUAGE_CODE"):
                 language_code = context["request"].LANGUAGE_CODE

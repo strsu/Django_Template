@@ -191,19 +191,27 @@ LOGGING = {
             "filters": ["require_debug_false"],
             "class": "django.utils.log.AdminEmailHandler",
         },
-        "logstash": {
+        "logstash_info": {
             "level": "INFO",
             "class": "logstash.TCPLogstashHandler",
             "host": "192.168.1.243",
             "port": 5000,  # Default value: 5959
             "version": 1,
-            "message_type": "django",
+            "message_type": "django_info",
+        },
+        "logstash_error": {
+            "level": "ERROR",
+            "class": "logstash.TCPLogstashHandler",
+            "host": "192.168.1.243",
+            "port": 5000,  # Default value: 5959
+            "version": 1,
+            "message_type": "django_error",
         },
     },
     "loggers": {
         "logstash": {
             # "handlers": ["console", "mail_admins", "file"],
-            "handlers": ["logstash"],
+            "handlers": ["logstash_info", "logstash_error"],
             "level": "INFO",
         },
         "django.server": {
