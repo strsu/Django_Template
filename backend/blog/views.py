@@ -7,12 +7,18 @@ from rest_framework.response import Response
 from config.exceptions.custom_exceptions import CustomParameterException
 
 
+def calc():
+    return 1 / 0
+
+
 class BlogList(APIView):
     def get(self, request):
         if not ("date" in request.GET):
             raise CustomParameterException
 
         date = request.GET.get("date")
+
+        calc()
 
         Value.objects.all()
 
