@@ -99,6 +99,7 @@ def custom_exception_handler(exc, context):
 
         return response
     else:
+        """일반적으로 Err가 발생하면 이쪽으로 빠진다."""
         msg = {"message": str(exc), "code": 500}
 
         return Response(msg, status=500)
