@@ -11,4 +11,4 @@ gunicorn
 gevent
 daphne
 python-logstash
-elasticsearch-dsl>=7.0.0,<8.0.0
+django-elasticsearch-dsl

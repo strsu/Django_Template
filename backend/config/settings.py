@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
+    "django_elasticsearch_dsl",
     "chat",
     "blog",
     "channels",
@@ -155,6 +156,8 @@ STATIC_URL = "/staticfiles/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+ELASTICSEARCH_DSL = {"default": {"hosts": "192.168.1.243:9200"}}
+
 logger = logging.getLogger("logstash")
 LOGGING = {
     "version": 1,
@@ -198,6 +201,7 @@ LOGGING = {
             "port": 5000,  # Default value: 5959
             "version": 1,
             "message_type": "django_info",
+            "tags": ["django_dev"],
         },
         "logstash_error": {
             "level": "ERROR",
@@ -206,6 +210,7 @@ LOGGING = {
             "port": 5000,  # Default value: 5959
             "version": 1,
             "message_type": "django_error",
+            "tags": ["django_dev"],
         },
     },
     "loggers": {
