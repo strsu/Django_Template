@@ -201,7 +201,7 @@ LOGGING = {
             "port": 5000,  # Default value: 5959
             "version": 1,
             "message_type": "django_info",
-            "tags": ["django_dev"],
+            "tags": ["django", "dev"],
         },
         "logstash_error": {
             "level": "ERROR",
@@ -210,7 +210,7 @@ LOGGING = {
             "port": 5000,  # Default value: 5959
             "version": 1,
             "message_type": "django_error",
-            "tags": ["django_dev"],
+            "tags": ["django", "dev"],
         },
     },
     "loggers": {
