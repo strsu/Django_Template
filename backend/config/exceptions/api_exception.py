@@ -13,7 +13,21 @@ from config.exceptions.exception_codes import STATUS_RSP_INTERNAL_ERROR
 
 
 def custom_exception_handler(exc, context):
-    logger.error(f"exc: {str(exc)}, context: {str(context)}")
+    message = {"message": str(exc)}
+
+    if "view" in context:
+        if "head" in context["view"].__dict__:
+            message["head"] = context["view"].__dict__["head"].__dict__
+        if "headers" in context["view"].__dict__:
+            message["headers"] = context["view"].__dict__["headers"]
+        if "request" in context["view"].__dict__:
+            message["request"] = context["view"].__dict__["request"]
+        if "args" in context["view"].__dict__:
+            message["args"] = context["view"].__dict__["args"]
+        if "kwargs" in context["view"].__dict__:
+            message["kwargs"] = context["view"].__dict__["kwargs"]
+
+    logger.error(message)
 
     response = exception_handler(exc, context)
 
