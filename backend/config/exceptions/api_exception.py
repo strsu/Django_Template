@@ -8,7 +8,7 @@ from config.exceptions.custom_exceptions import (
     CustomDictException,
     CustomParameterException,
 )
-from config.settings import logger
+from config.settings import logstash_error
 from config.exceptions.exception_codes import STATUS_RSP_INTERNAL_ERROR
 
 
@@ -27,7 +27,7 @@ def custom_exception_handler(exc, context):
         if "kwargs" in context["view"].__dict__:
             message["kwargs"] = context["view"].__dict__["kwargs"]
 
-    logger.error(message)
+    logstash_error.error(message)
 
     response = exception_handler(exc, context)
 
@@ -83,9 +83,6 @@ def custom_exception_handler(exc, context):
             CustomDictException(STATUS_RSP_INTERNAL_ERROR, {"키": "내용", "키": "내용"}) 으로 추가 가능
             code 부분을 추가적인 내용을 넣는 방식으로 사용
             """
-
-            print(exc.detail)
-
             code = exc.detail.get("code")
 
             if hasattr(context["request"], "LANGUAGE_CODE"):

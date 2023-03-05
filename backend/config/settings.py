@@ -195,7 +195,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 ELASTICSEARCH_DSL = {"default": {"hosts": "192.168.1.243:9200"}}
 
-logger = logging.getLogger("logstash")
+logstash_error = logging.getLogger("logstash_error")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -251,10 +251,17 @@ LOGGING = {
         },
     },
     "loggers": {
-        "logstash": {
+        "logstash_info": {
             # "handlers": ["console", "mail_admins", "file"],
-            "handlers": ["logstash_info", "logstash_error"],
+            # 위 처럼 handler가 여러개면 중복으로 로그가 쌓인다
+            # 때문에 분리가 필요!!
+            "handlers": ["logstash_info"],
             "level": "INFO",
+        },
+        "logstash_error": {
+            # "handlers": ["console", "mail_admins", "file"],
+            "handlers": ["logstash_error"],
+            "level": "ERROR",
         },
         "django.server": {
             "handlers": ["django.server"],
