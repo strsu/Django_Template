@@ -195,7 +195,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 ELASTICSEARCH_DSL = {"default": {"hosts": "192.168.1.243:9200"}}
 
-logstash_error = logging.getLogger("logstash_error")
+logger_error = logging.getLogger("logstash_error")
+logger_info = logging.getLogger("logstash_info")
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
