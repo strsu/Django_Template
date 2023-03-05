@@ -218,9 +218,18 @@ LOGGING = {
     },
     "handlers": {
         "console": {
+            # "level": "INFO",
+            # "filters": ["require_debug_true"],
+            # "class": "logging.StreamHandler",
+            # 콘솔에 뜨는 err를 elk로 넘김
             "level": "INFO",
-            "filters": ["require_debug_true"],
-            "class": "logging.StreamHandler",
+            "class": "logstash.TCPLogstashHandler",
+            "host": "192.168.1.243",
+            "port": 5000,  # Default value: 5959
+            "filters": ["require_debug_false", "require_debug_true"],
+            "version": 1,
+            "message_type": "console",
+            "tags": ["django", "dev"],
         },
         "django.server": {
             "level": "INFO",
@@ -252,6 +261,15 @@ LOGGING = {
         },
     },
     "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
+        "django.server": {
+            "handlers": ["django.server"],
+            "level": "INFO",
+            "propagate": False,
+        },
         "logstash_info": {
             # "handlers": ["console", "mail_admins", "file"],
             # 위 처럼 handler가 여러개면 중복으로 로그가 쌓인다
@@ -263,11 +281,6 @@ LOGGING = {
             # "handlers": ["console", "mail_admins", "file"],
             "handlers": ["logstash_error"],
             "level": "ERROR",
-        },
-        "django.server": {
-            "handlers": ["django.server"],
-            "level": "INFO",
-            "propagate": False,
         },
     },
 }
