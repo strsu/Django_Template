@@ -6,7 +6,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
 
-        # Add custom claims
+        # 토큰에 추가로 주고 싶은 필드 넣기
         token["name"] = user.username
         # ...
 
