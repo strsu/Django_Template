@@ -12,3 +12,4 @@ gevent
 daphne
 python-logstash
 django-elasticsearch-dsl
+debugpy
