@@ -7,6 +7,10 @@ from django.core.exceptions import ValidationError
 
 from .models import User
 
+"""
+    custom user model을 만들었기 때문에, Admin페이지에 이를 등록해줘야 사용할 수 있다.
+"""
+
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
