@@ -1,10 +1,10 @@
 import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.models import UserManager
+from django.contrib.auth.models import BaseUserManager
 
 
-class CustomUserManager(UserManager):
+class CustomUserManager(BaseUserManager):
     def create_user(self, username, email, password, **kwargs):
         if not email:
             raise ValueError("Users must have an email address")
@@ -37,6 +37,13 @@ class CustomUserManager(UserManager):
 
 
 class User(AbstractBaseUser):
+    """
+    AbstractUser: Use this option if you are happy with the existing fields on the user model and just want to remove the username field.
+    AbstractBaseUser: Use this option if you want to start from scratch by creating your own, completely new user model.
+
+    PermissionsMixin 을 함께 상속하면 Django의 기본그룹, 허가권 관리 등을 사용할 수 있습니다.
+    """
+
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = models.CharField(max_length=20)
     email = models.CharField(max_length=30, unique=True)
@@ -51,6 +58,27 @@ class User(AbstractBaseUser):
         사용자를 저장하려면 내 user model에 맞도록 manager를 재 정의 해줘야 한다.
     """
     objects = CustomUserManager()
+
+    """
+        'User' object has no attribute 'is_staff'
+        'User' object has no attribute 'has_perm'
+        'User' object has no attribute 'has_module_perms'
+        아래 함수를 넣어야 위 오류가 해결된다.
+        
+        이럴거면 그냥 is_staff, is_admin, is_superuser 를 넣는게 낫지 않나?
+    """
+
+    @property
+    def is_staff(self):
+        return self.auth
+
+    def has_perm(self, perm, obj=None):
+        # return self.is_superuser
+        return self.auth
+
+    def has_module_perms(self, app_label):
+        # return self.is_superuser
+        return self.auth
 
     class Meta:
         """
