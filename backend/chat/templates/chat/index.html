@@ -1,26 +1,43 @@
 <!DOCTYPE html>
 <html>
+
+{% load static %}
+
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <title>Chat Rooms</title>
+    <link rel="stylesheet" href="{% static 'chat/css/main.css' %}">
 </head>
+
 <body>
-    What chat room would you like to enter?<br/>
-    <input id="room-name-input" type="text" size="100"/><br/>
-    <input id="room-name-submit" type="button" value="Enter"/>
+    <div class="chat">
+        <div>
+            <div class="chat(row)">
+                <div>이름</div>
+                <div><input id="room-name-input" type="text" size="100" /></div>
+            </div>
+            <div class="chat(row)">
+                <div>방명</div>
+                <div><input id="room-name-input" type="text" size="100" /></div>
+            </div>
+        </div>
+        <div><input id="room-name-submit" type="button" value="Enter" /></div>
+    </div>
+
 
     <script>
         document.querySelector("#room-name-input").focus();
-        document.querySelector("#room-name-input").addEventListener("keyup",(e) => {
-            if(e.keyCode === 13){
+        document.querySelector("#room-name-input").addEventListener("keyup", (e) => {
+            if (e.keyCode === 13) {
                 document.querySelector("#room-name-submit").click();
             }
         });
 
-        document.querySelector("#room-name-submit").addEventListener("click",(e) => {
+        document.querySelector("#room-name-submit").addEventListener("click", (e) => {
             let roomName = document.querySelector("#room-name-input").value;
             window.location.pathname = `api/chat/${roomName}/`;
         });
     </script>
 </body>
+
 </html>
