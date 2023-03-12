@@ -20,6 +20,9 @@ class BlogSerializer(serializers.ModelSerializer):
         user는 null=True라서 상관이 없는거고
         time은 null=False라서 fields에 time을 넣으면 is_valid가 False를 준다
             -> date를 안 넘길시!
+
+        ## 문제점
+            이렇게 하면 serializing하면서 time을 안 가져옴 ^^;
         """
 
         model = Blog
