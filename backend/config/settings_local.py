@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
+    "drf_yasg",
     "django_elasticsearch_dsl",
     "channels",
     "api.v1.chat",

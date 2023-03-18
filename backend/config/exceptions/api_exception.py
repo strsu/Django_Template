@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from rest_framework.views import exception_handler
 from rest_framework import exceptions
 from rest_framework.response import Response
@@ -11,8 +9,14 @@ from config.exceptions.custom_exceptions import (
 from config.settings import logger_error
 from config.exceptions.exception_codes import STATUS_RSP_INTERNAL_ERROR
 
+import traceback
+
 
 def custom_exception_handler(exc, context):
+    print(traceback.format_exc())
+    print("#", str(exc))
+    print("##", repr(exc))
+
     message = {"message": str(exc)}
 
     if "view" in context:
