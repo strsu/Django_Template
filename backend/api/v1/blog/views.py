@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import BasicAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from config.exceptions.custom_exceptions import CustomParameterException
 
@@ -20,6 +22,34 @@ class BlogApiView(APIView):
     # permission_classes = [AllowAny] # Auth가 전역으로 되어 있어서 해당 view에 Auth를 없애려면 이렇게 넣어주면 된다.
     authentication_classes = (JWTAuthentication, BasicAuthentication)
 
+    @swagger_auto_schema(
+        operation_id="시스템설정 옵션 조희",
+        manual_parameters=[
+            openapi.Parameter(
+                "id",
+                openapi.IN_QUERY,
+                description="api/v1/blog/",
+                required=True,
+                type=openapi.TYPE_STRING,
+            ),
+        ],
+        responses={
+            "200": openapi.Response(
+                description="요청 성공",
+                examples={
+                    "application/json": {
+                        "results": {
+                            "generation_hour": "05-21",
+                        }
+                    },
+                },
+            ),
+            "400": openapi.Response(
+                description="잘못된 요청",
+                examples={"application/json": {"message": "요청 실패"}},
+            ),
+        },
+    )
     def get(self, request):
         if not ("id" in request.GET):
             raise CustomParameterException
@@ -30,10 +60,27 @@ class BlogApiView(APIView):
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+        operation_id="블로그",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "content": openapi.Schema(type=openapi.TYPE_STRING, description="글 내용"),
+                "tags": openapi.Schema(type=openapi.TYPE_STRING, description="글 태그"),
+            },
+        ),
+        responses={
+            "200": BlogSerializer,
+            "400": openapi.Response(
+                description="잘못된 요청",
+                examples={"application/json": {"message": "요청 실패"}},
+            ),
+        },
+    )
     def post(self, request):
         """
         request.data에
-            context, tags 있어야한다.
+            content, tags 있어야한다.
             date, user는 back에서 설정
         """
         if not ("content" in request.data):
