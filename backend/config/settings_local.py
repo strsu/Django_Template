@@ -44,9 +44,9 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "django_elasticsearch_dsl",
     "channels",
-    "chat",
-    "blog",
-    "user",
+    "api.v1.chat",
+    "api.v1.blog",
+    "api.v1.user",
 ]
 
 MIDDLEWARE = [
@@ -91,7 +91,7 @@ REST_FRAMEWORK = {
 }
 
 WSGI_APPLICATION = "config.wsgi.application"
-ASGI_APPLICATION = "config.asgi.application"
+ASGI_APPLICATION = "config.asgi_local.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases

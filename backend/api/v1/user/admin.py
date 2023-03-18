@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from .models import User
+from api.v1.user.models import User
 
 """
     custom user model을 만들었기 때문에, Admin페이지에 이를 등록해줘야 사용할 수 있다.

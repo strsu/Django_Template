@@ -1,5 +1,5 @@
 from django.urls import path, re_path
-from blog import views
+from api.v1.blog import views
 
 """
     re_path: 정규식을 적용한 path

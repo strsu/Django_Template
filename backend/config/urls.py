@@ -19,7 +19,7 @@ from django.urls import path, re_path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/chat/", include("chat.urls")),
-    re_path("api/blog/", include("blog.urls")),
-    re_path("api/user/", include("user.urls")),
+    path("api/chat/", include("api.v1.chat.urls")),
+    re_path("api/blog/", include("api.v1.blog.urls")),
+    re_path("api/user/", include("api.v1.user.urls")),
 ]

@@ -9,8 +9,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from config.exceptions.custom_exceptions import CustomParameterException
 
-from blog.models import Blog
-from blog.serializer import BlogSerializer
+from api.v1.blog.models import Blog
+from api.v1.blog.serializer import BlogSerializer
 
 from datetime import datetime
 

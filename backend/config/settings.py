@@ -44,9 +44,9 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "django_elasticsearch_dsl",
     "channels",
-    "chat",
-    "blog",
-    "user",
+    "api.v1.chat",
+    "api.v1.blog",
+    "api.v1.user",
 ]
 
 MIDDLEWARE = [

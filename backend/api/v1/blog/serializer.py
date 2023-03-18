@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from blog.models import Blog
+from api.v1.blog.models import Blog
 
 from datetime import datetime
 
