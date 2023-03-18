@@ -95,13 +95,12 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi_local.application"
 
 SWAGGER_SETTINGS = {
-    # "DEFAULT_AUTO_SCHEMA_CLASS": "apps.vpp.common.utils.CustomAutoSchema",
+    # "DEFAULT_AUTO_SCHEMA_CLASS": "CustomAutoSchema",
     "USE_SESSION_AUTH": True,
     "REFETCH_SCHEMA_WITH_AUTH": True,
     "DEFAULT_MODEL_RENDERING": ["example", "model"],
     "SECURITY_DEFINITIONS": {
         "Basic": {"type": "basic"},
-        # "Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"},
     },
     "OPERATIONS_SORTER": "alpha",
 }
