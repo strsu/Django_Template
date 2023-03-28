@@ -19,6 +19,7 @@ services:
       context: ./nginx
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - backend
     volumes:
@@ -26,6 +27,7 @@ services:
       - ./backend/staticfiles/:/staticfiles/
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/log:/var/log/nginx/
+      - ./nginx/ssl:/usr/share/nginx/ssl/
     #networks:
     #  - websocket
 

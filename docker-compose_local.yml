@@ -5,7 +5,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile_local
-    restart: always
+    #restart: always
     depends_on:
       - postgres
     volumes:
@@ -19,6 +19,7 @@ services:
       context: ./nginx
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - backend
     volumes:
@@ -26,6 +27,7 @@ services:
       - ./backend/staticfiles/:/staticfiles/
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/log:/var/log/nginx/
+      - ./nginx/ssl:/usr/share/nginx/ssl/
 
   postgres:
     image: postgres:13
