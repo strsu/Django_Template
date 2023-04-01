@@ -231,18 +231,18 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            # "level": "INFO",
-            # "filters": ["require_debug_true"],
-            # "class": "logging.StreamHandler",
-            # 콘솔에 뜨는 err를 elk로 넘김
             "level": "INFO",
-            "class": "logstash.TCPLogstashHandler",
-            "host": "192.168.1.243",
-            "port": 5000,  # Default value: 5959
-            "filters": ["require_debug_false", "require_debug_true"],
-            "version": 1,
-            "message_type": "console",
-            "tags": ["django", "dev"],
+            "filters": ["require_debug_true"],
+            "class": "logging.StreamHandler",
+            ## 콘솔에 뜨는 err를 elk로 넘김
+            # "level": "INFO",
+            # "class": "logstash.TCPLogstashHandler",
+            # "host": "192.168.1.243",
+            # "port": 5000,  # Default value: 5959
+            # "filters": ["require_debug_false", "require_debug_true"],
+            # "version": 1,
+            # "message_type": "console",
+            # "tags": ["django", "dev"],
         },
         "django.server": {
             "level": "INFO",

@@ -4,12 +4,21 @@ import json
 
 
 # https://blog.logrocket.com/django-channels-and-websockets/
+"""
+    consumer의 코드반영은 바로 이루어 지지 않는다.
+     -> websocket 특성이라는 것 같음
+     
+    그래서 코드를 반영하려면 dephan을 restart해줘야 한다.
+"""
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+        self.user_name = self.scope["url_route"]["kwargs"]["user_name"]
         self.room_group_name = "chat_%s" % self.room_name
+
+        logger_info.info(f"{self.room_name} - {self.user_name}")
 
         # Join room group
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
@@ -24,6 +33,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
+        name = text_data_json["name"]
 
         # if message:
         #     text = message["text"]
@@ -32,15 +42,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Send message to room group - 나를 포함 모든 멤버
         await self.channel_layer.group_send(
             self.room_group_name,
-            {"type": "chat_message", "message": message},
+            {"type": "chat_message", "message": message, "name": name},
         )
 
     async def send_to_other_members(self, message):
         members = await self.get_group_members(self.group_name)
         for member in members:
-            f = open("/opt/text.log", "a", encoding="utf-8")
-            f.write(member + "\n")
-            f.close()
             if member != self.channel_name:
                 await self.channel_layer.send(
                     member,
@@ -53,9 +60,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from room group
     async def chat_message(self, event):
         message = event["message"]
+        name = event["name"]
 
         # Send message to WebSocket
-        await self.send(text_data=json.dumps({"message": message}))
+        await self.send(text_data=json.dumps({"message": message, "name": name}))
 
     @staticmethod
     async def get_group_members(group_name):
