@@ -1,19 +1,152 @@
 <!-- chat/templates/chat/room.html -->
 <!DOCTYPE html>
+
+{% load static %}
+
 <html>
 <head>
     <meta charset="utf-8"/>
     <title>Chat Room</title>
+    <link rel="stylesheet" href="{% static 'chat/css/chat.css' %}">
 </head>
 <body>
-    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
-    <input id="chat-message-input" type="text" size="100"><br>
-    <input id="chat-message-submit" type="button" value="Send">
+    <div id="chat-container">
+        <div id="chat-user"></div>
+        <div id="chat-log"></div>
+        <div id="chat-input">
+            <div id="chat-file">
+                <label className="input-file-button" for="filename" style="cursor: pointer !important;">
+                    &#x1F4C2
+                </label>
+                <input type="file" id="filename" accept="image/*" style="display: none;" />
+            </div>
+            <div id="chat-content">
+                <input id="chat-message-input" type="text" size="100">
+            </div>
+            <div id="chat-send">
+                <input id="chat-message-submit" type="button" value="&#x1F6AC">
+            </div>
+        </div>
+        <div id="preview"><img id="preview-img"/><button onclick="closeBtn()">X</button></div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <table>
+            <thead>
+                <tr>
+                    <th>일시</th>
+                    <th>작업내용</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>23.04.01</td>
+                    <td>내 메세지 / 상대방 메세지 분리해서 표현</td>
+                </tr>
+                <tr>
+                    <td>23.04.01</td>
+                    <td>이미지 전송 기능 추가 -> resize해서 용량 줄여서</td>
+                </tr>
+                <tr>
+                    <td>23.04.02</td>
+                    <td>메세지 디자인, 시간 추가</td>
+                </tr>
+                <tr>
+                    <td>23.04.02</td>
+                    <td>현재 접속자 수 표시 -> redis로 했는데, 좀 부정확 함</br>(서버 다운되면 redis 초기화 해주는 기능 필요)</td>
+                </tr>
+                <tr>
+                    <td>23.04.02</td>
+                    <td>오늘 뭐 먹지 -> 음식추천해줌</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+
     {{ room_name|json_script:"room-name" }}
     {{ user_name|json_script:"user-name" }}
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         const userName = JSON.parse(document.getElementById('user-name').textContent);
+
+        function generateRandomString(length) {
+            let result = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const charactersLength = characters.length;
+            for (let i = 0; i < length; i++) {
+              result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+          }
+
+        const authToken = generateRandomString(10);
+        document.cookie = 'X-Authorization=' + authToken + '; path=/';
+
+        const info = {
+            userCount: (data) => {
+                document.getElementById('chat-user').innerText = `현재 접속 인원: ${data.user_cnt}`;
+            }
+        };
+
+        const msg = {
+            msg: (data) => {
+                let log = document.querySelector('#chat-log');
+
+                let chat = document.createElement("div");
+                let usr = document.createElement("div");
+                let msg_container = document.createElement("div");
+                let msg = document.createElement("div");
+                let time = document.createElement("div");
+    
+                if(data.token == authToken) {
+                    chat.id = "msg-container-my";
+                    msg_container.id = "msg-inner-container-my";
+                    msg.id = "msg-msg-my";
+                } else {
+                    chat.id = "msg-container";
+                    msg_container.id = "msg-inner-container";
+                    msg.id = "msg-msg";
+                }
+                
+                usr.id = "msg-usr";
+                usr.innerText = data.name;
+                msg.innerText = data.message;
+    
+                const now = new Date(data.time);
+                const hours = now.getHours().toString().padStart(2, 0);
+                const minutes = now.getMinutes().toString().padStart(2, 0);
+                time.innerText = `${hours}:${minutes}`;
+                time.style.fontSize = "13px";
+    
+                chat.appendChild(usr);
+    
+                if(data.image) {
+                    let img = document.createElement("img");
+                    img.src = data.image;
+                    img.id = "chat-img";
+                    img.setAttribute("onclick", "window.open(this.src)");
+                    chat.appendChild(img);
+    
+                    if(!data.message) {
+                        img.appendChild(time);
+                    }
+                }
+    
+                if(data.message) {
+                    msg_container.appendChild(msg);
+                    msg_container.appendChild(time);
+                    chat.appendChild(msg_container);
+                }
+    
+                log.appendChild(chat);
+                log.scrollTop = log.scrollHeight + log.clientHeight; // msg오면 제일 하단으로 이동
+            }
+        }
 
         const chatSocket = new WebSocket(
             'wss://'
@@ -28,8 +161,13 @@
         chatSocket.onmessage = function(e) {
             console.log(e);
             const data = JSON.parse(e.data);
-            const content = `${data.name}: ${data.message}`;
-            document.querySelector('#chat-log').value += (content + '\n');
+
+            if(data.info) {
+                info.userCount(data.info);
+            } else if(data.msg) {
+                msg.msg(data.msg);
+            }
+            
         };
 
         chatSocket.onclose = function(e) {
@@ -46,12 +184,80 @@
         document.querySelector('#chat-message-submit').onclick = function(e) {
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
+
+            var file = document.getElementById('filename').files[0];
+            if(file) {
+                sendFile();
+                return;
+            }
+
+            if (!message) {
+                return;
+            }
+
             chatSocket.send(JSON.stringify({
-                'name': userName,
-                'message': message
+                "data": {
+                    'name': userName,
+                    'message': message,
+                    "token": authToken,
+                    "time": new Date()
+                }                
             }));
             messageInputDom.value = '';
         };
+
+        function resizeImage(file, maxWidth, maxHeight, callback) {
+            let reader = new FileReader();
+            reader.onload = function() {
+              let image = new Image();
+              image.onload = function() {
+                let canvas = document.createElement('canvas');
+                let context = canvas.getContext('2d');
+                let ratio = Math.min(maxWidth / image.width, maxHeight / image.height);
+                canvas.width = image.width * ratio;
+                canvas.height = image.height * ratio;
+                context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                callback(canvas.toDataURL());
+              };
+              image.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+          }
+
+        function sendFile() {
+            var file = document.getElementById('filename').files[0];
+            resizeImage(file, 300, 300, function(resizedImage) {
+                const messageInputDom = document.querySelector('#chat-message-input');
+                const message = messageInputDom.value;
+                chatSocket.send(JSON.stringify({
+                    "data": {
+                        'name': userName,
+                        'message': message,
+                        "image": resizedImage,
+                        "token": authToken,
+                        "time": new Date()
+                    }   
+                }));
+                messageInputDom.value = "";
+                document.getElementById('filename').value = ''; // 전송 후 file 초기화
+                document.getElementById("preview").style.display = "none";
+              });
+        }
+
+        function closeBtn() {
+            document.getElementById("preview").style.display = "none";
+            document.getElementById('filename').value = ''; // 전송 후 file 초기화
+        }
+
+        document.getElementById('filename').addEventListener('change', function(e) {
+            if (e.target.files[0]) {
+                document.getElementById("preview").style.display = "flex";
+                resizeImage(e.target.files[0], 300, 300, function(resizedImage) {
+                    document.getElementById("preview-img").src = resizedImage;
+                  });
+            }
+        });
+
     </script>
 </body>
 </html>
