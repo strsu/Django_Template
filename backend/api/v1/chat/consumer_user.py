@@ -6,6 +6,7 @@ import string
 
 from api.v1.chat.service.food_recommand import foodRecommand
 from api.v1.chat.service.user_counter import userCounter
+from api.v1.chat.service.file_saver import save_image
 
 
 # https://blog.logrocket.com/django-channels-and-websockets/
@@ -63,8 +64,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "data": text_data_json["data"],
         }
 
-        # Send message to room group - 나를 포함 모든 멤버
+        if text_data_json["data"]["image"]:
+            save_image(text_data_json["data"]["image"], self.room_name)
 
+        # Send message to room group - 나를 포함 모든 멤버
         if "오늘뭐먹지" in data["data"]["message"].replace(" ", ""):
             data["data"] = {
                 **data["data"],
