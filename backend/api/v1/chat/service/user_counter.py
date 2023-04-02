@@ -9,7 +9,6 @@ class userCounter:
 
     async def connect(self):
         self.redis = await aioredis.from_url("redis://redis")
-        await self.redis.set(self.cache_key, 1)
         # key_list = await self.redis.keys(f"{self.cache_key}*")
 
     async def close(self):

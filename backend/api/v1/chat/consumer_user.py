@@ -23,11 +23,6 @@ from api.v1.chat.service.file_saver import save_image
 """
 
 
-def generate_random_string(length):
-    letters = string.ascii_lowercase
-    return "".join(random.choice(letters) for i in range(length))
-
-
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
@@ -37,7 +32,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # logger_info.info(str(self.scope["headers"]))
 
         # 사용자 현황
-        token = generate_random_string(10)
         self.uc = userCounter(self.room_group_name)
         await self.uc.connect()
 
