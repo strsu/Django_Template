@@ -1,3 +1,25 @@
+table {
+    border: solid black thin;
+    border-collapse: collapse;
+}
+
+table th {
+    border: solid black thin;
+}
+
+table td {
+    border: solid black thin;
+    padding: 0 10px;
+}
+
+#container {
+    display: flex;
+}
+
+#update {
+    margin-left: 20px;
+}
+
 #chat-container {
     display: flex;
     flex-direction: column;
@@ -13,7 +35,7 @@
     padding: 0 10px;
 }
 
-#chat-log::-webkit-scrollbar {
+/* #chat-log::-webkit-scrollbar {
     width: 0px;
     height: 0px;
 }
@@ -24,7 +46,7 @@
 
 #chat-log::-webkit-scrollbar-track {
     background-color: transparent;
-}
+} */
 
 #chat-input {
     display: flex;
@@ -164,5 +186,46 @@
     background-color: #FF6600;
     border-radius: 4px;
     color: white;
+    cursor: pointer;
+}
+
+.modal {
+    display: none;
+    /* 모달 초기값 설정 */
+    position: fixed;
+    /* 모달을 화면에 고정 */
+    z-index: 1;
+    /* 모달을 최상위로 표시 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    /* 배경색을 불투명하게 설정 */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    height: auto;
+    max-width: 500px;
+}
+
+.modal-close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-close:hover,
+.modal-close:focus {
+    color: black;
+    text-decoration: none;
     cursor: pointer;
 }

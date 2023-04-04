@@ -63,14 +63,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
         # Send message to room group - 나를 포함 모든 멤버
         if "오늘뭐먹지" in data["data"]["message"].replace(" ", ""):
-            data = {
-                "type": "food_message",
-                "data": {
-                    **text_data_json["data"],
-                    "message": self.fr.get_random_store(),
-                    "name": "음식추천해줌",
-                    "token": "",
-                },
+            data["data"] = {
+                **data["data"],
+                "message": self.fr.get_random_store(),
+                "name": "음식추천해줌",
+                "token": "",
             }
 
         """
@@ -106,8 +103,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # Send message to WebSocket
         await self.send(text_data=json.dumps({"msg": event["data"]}))
 
+    # Receive message from room group
     async def info_message(self, event):
+        # Send message to WebSocket
         await self.send(text_data=json.dumps({"info": event["data"]}))
-
-    async def food_message(self, event):
-        await self.send(text_data=json.dumps({"food": event["data"]}))

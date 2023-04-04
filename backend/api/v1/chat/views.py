@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from config.settings import logger_info
+import time
 
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -20,4 +21,12 @@ def roomWithUser(request, room_name, user_name):
         request,
         "chat/roomWithUser.html",
         {"room_name": room_name, "user_name": user_name},
+    )
+
+
+def roomRandom(request):
+    return render(
+        request,
+        "chat/roomRandom.html",
+        # {"room_name": room_name, "user_name": user_name},
     )

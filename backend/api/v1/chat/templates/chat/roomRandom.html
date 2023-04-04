@@ -10,128 +10,24 @@
     <link rel="stylesheet" href="{% static 'chat/css/chat.css' %}">
 </head>
 <body>
-    <!-- 모달 -->
-	<div id="myModal" class="modal">
-		<div class="modal-content">
-            <div style="display: flex; flex-direction: column;" onclick="closeModal()">
-                <img id="img-modal" style="width: 100%" onclick="closeModal()"/>
+    <div id="chat-container">
+        <div id="chat-user"></div>
+        <div id="chat-log"></div>
+        <div id="chat-input">
+            <div id="chat-file">
+                <label className="input-file-button" for="filename" style="cursor: pointer !important;">
+                    &#x1F4C2
+                </label>
+                <input type="file" id="filename" accept="image/*" style="display: none;" />
             </div>
-			
-		</div>
-	</div>
-
-    <div id="container">
-        <div id="chat-container">
-            <div id="chat-user"></div>
-            <div id="chat-log"></div>
-            <div id="chat-input">
-                <div id="chat-file">
-                    <label className="input-file-button" for="filename" style="cursor: pointer !important;">
-                        &#x1F4C2
-                    </label>
-                    <input type="file" id="filename" accept="image/*" style="display: none;" />
-                </div>
-                <div id="chat-content">
-                    <input id="chat-message-input" type="text" size="100">
-                </div>
-                <div id="chat-send">
-                    <input id="chat-message-submit" type="button" value="&#x1F6AC">
-                </div>
+            <div id="chat-content">
+                <input id="chat-message-input" type="text" size="100">
             </div>
-            <div id="preview"><img id="preview-img"/><button onclick="closeBtn()">X</button></div>
+            <div id="chat-send">
+                <input id="chat-message-submit" type="button" value="&#x1F6AC">
+            </div>
         </div>
-        <div id="update">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Will be..</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>gif 전송</td>
-                    </tr>
-                    <tr>
-                        <td>파이썬 인터프리터</td>
-                    </tr>
-                    <tr>
-                        <td>음식/술집/커피점 추천해줘</td>
-                    </tr>
-                    <tr>
-                        <td>사다리/룰렛</td>
-                    </tr>
-                    <tr>
-                        <td>포커/뿌요뿌요</td>
-                    </tr>
-                    <tr>
-                        <td>마블 영화 제공</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                    </tr>
-                </tbody>
-    
-            </table>
-        </div>
-    </div>
-    
-
-    <div style="margin-top: 20px;">
-        <table>
-            <thead>
-                <tr>
-                    <th>일시</th>
-                    <th>작업내용</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>23.04.01</td>
-                    <td>내 메세지 / 상대방 메세지 분리해서 표현</td>
-                </tr>
-                <tr>
-                    <td>23.04.01</td>
-                    <td>이미지 전송 기능 추가 -> resize해서 용량 줄여서</td>
-                </tr>
-                <tr>
-                    <td>23.04.02</td>
-                    <td>메세지 디자인, 시간 추가</td>
-                </tr>
-                <tr>
-                    <td>23.04.02</td>
-                    <td>현재 접속자 수 표시 -> redis로 했는데, 좀 부정확 함</br>(서버 다운되면 redis 초기화 해주는 기능 필요)</td>
-                </tr>
-                <tr>
-                    <td>23.04.02</td>
-                    <td>오늘 뭐 먹지 -> 음식추천해줌</td>
-                </tr>
-                <tr>
-                    <td>23.04.04</td>
-                    <td>오늘 뭐 먹지 -> 다음 검색 결과 표시</td>
-                </tr>
-                <tr>
-                    <td>23.04.05</td>
-                    <td>이미지 확대 기능</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tbody>
-
-        </table>
+        <div id="preview"><img id="preview-img"/><button onclick="closeBtn()">X</button></div>
     </div>
 
     {{ room_name|json_script:"room-name" }}
@@ -139,15 +35,6 @@
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         const userName = JSON.parse(document.getElementById('user-name').textContent);
-
-        function openModal(name) {
-			document.getElementById("myModal").style.display = "block";
-            document.getElementById("img-modal").src = document.getElementsByName(name)[0].src;
-		}
-
-		function closeModal() {
-			document.getElementById("myModal").style.display = "none";
-		}
 
         function generateRandomString(length) {
             let result = '';
@@ -170,7 +57,6 @@
 
         const msg = {
             msg: (data) => {
-                console.log(data);
                 let log = document.querySelector('#chat-log');
 
                 let chat = document.createElement("div");
@@ -205,8 +91,7 @@
                     let img = document.createElement("img");
                     img.src = data.image;
                     img.id = "chat-img";
-                    img.name = generateRandomString(10);
-                    img.setAttribute("onclick", `openModal("${img.name}")`);
+                    img.setAttribute("onclick", "window.open(this.src)");
                     chat.appendChild(img);
     
                     if(!data.message) {
@@ -222,22 +107,6 @@
     
                 log.appendChild(chat);
                 log.scrollTop = log.scrollHeight + log.clientHeight; // msg오면 제일 하단으로 이동
-            },
-            food: (data) => {
-                let log = document.querySelector('#chat-log');
-                let container = document.createElement("div");
-                let iframe = document.createElement("iframe");
-
-                container.id = "msg-container";
-
-                iframe.src = `https://search.daum.net/search?nil_suggest=btn&w=tot&DA=SBC&q=${data.message} 문정`;
-                iframe.width = "460px";
-                iframe.height = "400px";
-                iframe.minHeight = "400px"
-                
-                container.appendChild(iframe);
-                log.appendChild(container);
-                log.scrollTop = log.scrollHeight + log.clientHeight; // msg오면 제일 하단으로 이동
             }
         }
 
@@ -252,15 +121,13 @@
         );
 
         chatSocket.onmessage = function(e) {
+            console.log(e);
             const data = JSON.parse(e.data);
 
             if(data.info) {
                 info.userCount(data.info);
             } else if(data.msg) {
                 msg.msg(data.msg);
-            } else if(data.food) {
-                msg.msg(data.food);
-                msg.food(data.food);
             }
             
         };
@@ -322,7 +189,7 @@
 
         function sendFile() {
             var file = document.getElementById('filename').files[0];
-            resizeImage(file, 500, 500, function(resizedImage) {
+            resizeImage(file, 300, 300, function(resizedImage) {
                 const messageInputDom = document.querySelector('#chat-message-input');
                 const message = messageInputDom.value;
                 chatSocket.send(JSON.stringify({
@@ -348,7 +215,7 @@
         document.getElementById('filename').addEventListener('change', function(e) {
             if (e.target.files[0]) {
                 document.getElementById("preview").style.display = "flex";
-                resizeImage(e.target.files[0], 500, 500, function(resizedImage) {
+                resizeImage(e.target.files[0], 300, 300, function(resizedImage) {
                     document.getElementById("preview-img").src = resizedImage;
                   });
             }
