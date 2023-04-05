@@ -2,12 +2,14 @@
 <!DOCTYPE html>
 
 {% load static %}
+{% load sass_tags %}
 
 <html>
 <head>
     <meta charset="utf-8"/>
     <title>Chat Room</title>
     <link rel="stylesheet" href="{% static 'chat/css/chat.css' %}">
+    <link href="{% sass_src 'chat/css/chat.scss' %}" rel="stylesheet" type="text/css" />
 </head>
 <body>
     <!-- 모달 -->
@@ -41,6 +43,16 @@
             <div id="preview"><img id="preview-img"/><button onclick="closeBtn()">X</button></div>
         </div>
         <div id="update">
+            <table style="margin-bottom: 10px;"> 
+                <thead> <tr> <th>Position</th> <th>Member</th> <th>Role</th> <th>Salary</th> </tr> </thead> 
+                <tbody> 
+                    <tr> <td>CEO</td> <td>박찎찎</td> <td>직원관리,백,데브옵스</td> <td> <strong>━</string>아아 4잔 - 7샷</td> </tr> 
+                        <tr> <td>CTO</td> <td>진딱딱</td> <td>기술고문</td> <td>아아 1잔 - 2샷</td> </tr> 
+                        <tr> <td>CCO(Chief Cleaner Officer)</td> <td>연경(배구선수)</td> <td>청소부 - 책상, 스파게티 코드 등</td> <td>아아 1잔 - 2샷</td> </tr> 
+                        <tr> <td>CFO(Chief Frontend Officer)</td> <td>열애중~</td> <td>프론트</td> <td>아아 1잔 - 2샷</td> </tr> 
+                        <tr> <td>Intern</td> <td>또 인턴</td> <td>채팅 Data 분석</td> <td>아아 1잔 - 1샷</td> </tr> 
+                </tbody>
+            </table>
             <table>
                 <thead>
                     <tr>

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "api.v1.chat",
     "api.v1.blog",
     "api.v1.user",
+    'sass_processor',
 ]
 
 MIDDLEWARE = [
@@ -195,6 +196,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles/")
 STATIC_URL = "/staticfiles/"
+
+SASS_OUTPUT_STYLE = 'compact'
+SASS_PROCESSOR_ENABLED = True
+SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, 'staticfiles/')
+
+STATICFILES_FINDERS  = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'sass_processor.finders.CssFinder',
+]
 
 # MEDIA CONFIGURATION
 # ------------------------------------------------------------------------------

@@ -1,231 +1,65 @@
-table {
-    border: solid black thin;
-    border-collapse: collapse;
-}
+@charset "UTF-8";
+table { border: solid black thin; border-collapse: collapse; }
 
-table th {
-    border: solid black thin;
-}
+table th { border: solid black thin; }
 
-table td {
-    border: solid black thin;
-    padding: 0 10px;
-}
+table td { border: solid black thin; padding: 0 10px; }
 
-#container {
-    display: flex;
-}
+#container { display: flex; }
 
-#update {
-    margin-left: 20px;
-}
+#update { margin-left: 20px; }
 
-#chat-container {
-    display: flex;
-    flex-direction: column;
-}
+#chat-container { display: flex; flex-direction: column; }
 
-#chat-log {
-    display: flex;
-    flex-direction: column;
-    width: 480px;
-    height: 600px;
-    border: solid black thin;
-    overflow-y: scroll;
-    padding: 0 10px;
-}
+#chat-log { display: flex; flex-direction: column; width: 480px; height: 600px; border: solid black thin; overflow-y: scroll; padding: 0 10px; }
 
-/* #chat-log::-webkit-scrollbar {
-    width: 0px;
-    height: 0px;
-}
+/* #chat-log::-webkit-scrollbar { width: 0px; height: 0px; } #chat-log::-webkit-scrollbar-thumb { background-color: transparent; } #chat-log::-webkit-scrollbar-track { background-color: transparent; } */
+#chat-input { display: flex; width: 500px; gap: 5px; }
 
-#chat-log::-webkit-scrollbar-thumb {
-    background-color: transparent;
-}
+#chat-input input { width: 100%; }
 
-#chat-log::-webkit-scrollbar-track {
-    background-color: transparent;
-} */
+#chat-file { width: fit-content; cursor: pointer; }
 
-#chat-input {
-    display: flex;
-    width: 500px;
-    gap: 5px;
-}
+#chat-content { width: 100%; }
 
-#chat-input input {
-    width: 100%;
-}
+#chat-send { width: fit-content; margin-left: 5px; }
 
-#chat-file {
-    width: fit-content;
-    cursor: pointer;
-}
+#chat-send input { border: none; background: white; cursor: pointer; }
 
-#chat-content {
-    width: 100%;
-}
+#chat-img { width: 200px; margin: 0 10px; margin-bottom: 5px; border-radius: 15px; border: solid black thin; }
 
-#chat-send {
-    width: fit-content;
-    margin-left: 5px;
-}
+#msg-container { display: block; margin-bottom: 10px; }
 
-#chat-send input {
-    border: none;
-    background: white;
-    cursor: pointer;
-}
+#msg-container-my { display: block; margin-bottom: 10px; text-align: end; }
 
-#chat-img {
-    width: 200px;
-    margin: 0 10px;
-    margin-bottom: 5px;
-    border-radius: 15px;
-    border: solid black thin;
-}
+#msg-inner-container { display: flex; align-items: flex-end; }
 
-#msg-container {
-    display: block;
-    margin-bottom: 10px;
-}
+#msg-inner-container-my { display: flex; align-items: flex-end; justify-content: flex-start; flex-direction: row-reverse; }
 
-#msg-container-my {
-    display: block;
-    margin-bottom: 10px;
-    text-align: end;
-}
+#msg-usr { display: flex; flex-direction: column; margin-bottom: 5px; }
 
-#msg-inner-container {
-    display: flex;
-    align-items: flex-end;
-}
+#msg-msg { position: relative; display: inline-block; margin: 0 10px; padding: 5px 10px; border-radius: 10px; width: fit-content; background: #7d7d7d7a; box-shadow: 0px 0px 10px rgba(128, 128, 128, 0.3); }
 
-#msg-inner-container-my {
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
-    flex-direction: row-reverse;
-}
+#msg-msg::after { border-top: 10px solid #7d7d7d7a; border-left: 10px solid transparent; border-right: 0px solid transparent; border-bottom: 0px solid transparent; content: ""; position: absolute; top: 10px; left: -10px; }
 
-#msg-usr {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 5px;
-}
+#msg-msg-my { position: relative; display: inline-block; margin: 0 10px; padding: 5px 10px; border-radius: 10px; width: fit-content; background: #7d7d7d7a; box-shadow: 0px 0px 10px rgba(128, 128, 128, 0.3); }
 
-#msg-msg {
-    position: relative;
-    display: inline-block;
-    margin: 0 10px;
-    padding: 5px 10px;
-    border-radius: 10px;
-    width: fit-content;
-    background: #7d7d7d7a;
-    box-shadow: 0px 0px 10px rgba(128, 128, 128, 0.3);
-}
+#msg-msg-my::before { border-top: 10px solid #7d7d7d7a; border-left: 0px solid transparent; border-right: 10px solid transparent; border-bottom: 0px solid transparent; content: ""; position: absolute; top: 10px; right: -10px; }
 
-#msg-msg::after {
-    border-top: 10px solid #7d7d7d7a;
-    border-left: 10px solid transparent;
-    border-right: 0px solid transparent;
-    border-bottom: 0px solid transparent;
-    content: "";
-    position: absolute;
-    top: 10px;
-    left: -10px;
-}
+#preview { position: relative; display: none; align-items: center; justify-content: space-between; height: 120px; background: #80808066; top: -145px; width: 500px; }
 
-#msg-msg-my {
-    position: relative;
-    display: inline-block;
-    margin: 0 10px;
-    padding: 5px 10px;
-    border-radius: 10px;
-    width: fit-content;
-    background: #7d7d7d7a;
-    box-shadow: 0px 0px 10px rgba(128, 128, 128, 0.3);
-}
+#preview button { position: relative; top: -40px; margin-right: 10px; }
 
-#msg-msg-my::before {
-    border-top: 10px solid #7d7d7d7a;
-    border-left: 0px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 0px solid transparent;
-    content: "";
-    position: absolute;
-    top: 10px;
-    right: -10px;
-}
+#preview-img { height: 100px; margin-left: 10px; }
 
-#preview {
-    position: relative;
-    display: none;
-    align-items: center;
-    justify-content: space-between;
-    height: 120px;
-    background: #80808066;
-    top: -145px;
-    width: 500px;
-}
+.input-file-button { padding: 6px 25px; background-color: #FF6600; border-radius: 4px; color: white; cursor: pointer; }
 
-#preview button {
-    position: relative;
-    top: -40px;
-    margin-right: 10px;
-}
+.modal { display: none; /* 모달 초기값 설정 */ position: fixed; /* 모달을 화면에 고정 */ z-index: 1; /* 모달을 최상위로 표시 */ left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0, 0, 0, 0.4); /* 배경색을 불투명하게 설정 */ }
 
-#preview-img {
-    height: 100px;
-    margin-left: 10px;
-}
+.modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; height: auto; max-width: 500px; }
 
-.input-file-button {
-    padding: 6px 25px;
-    background-color: #FF6600;
-    border-radius: 4px;
-    color: white;
-    cursor: pointer;
-}
+.modal-close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
 
-.modal {
-    display: none;
-    /* 모달 초기값 설정 */
-    position: fixed;
-    /* 모달을 화면에 고정 */
-    z-index: 1;
-    /* 모달을 최상위로 표시 */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.4);
-    /* 배경색을 불투명하게 설정 */
-}
+.modal-close:hover, .modal-close:focus { color: black; text-decoration: none; cursor: pointer; }
 
-.modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    height: auto;
-    max-width: 500px;
-}
-
-.modal-close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.modal-close:hover,
-.modal-close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
+/*# sourceMappingURL=chat.css.map */

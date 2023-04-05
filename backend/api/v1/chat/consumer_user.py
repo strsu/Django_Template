@@ -26,6 +26,7 @@ from api.v1.chat.service.file_saver import save_image
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
+        self.room_name = "mzoffice"
         self.user_name = self.scope["url_route"]["kwargs"]["user_name"]
         self.room_group_name = "chat_%s" % self.room_name
 
