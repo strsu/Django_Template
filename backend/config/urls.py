@@ -53,4 +53,5 @@ urlpatterns = [
     path("api/chat/", include("api.v1.chat.urls")),
     re_path("api/blog/", include("api.v1.blog.urls")),
     re_path("api/user/", include("api.v1.user.urls")),
+    re_path("api/soccer/", include("api.v1.soccer.urls")),
 ]

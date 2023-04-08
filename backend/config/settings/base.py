@@ -41,10 +41,11 @@ INSTALLED_APPS = [
     "django_elasticsearch_dsl",
     "channels",
     "drf_yasg",
+    "sass_processor",
     "api.v1.chat",
     "api.v1.blog",
     "api.v1.user",
-    "sass_processor",
+    "api.v1.soccer",
 ]
 
 MIDDLEWARE = [

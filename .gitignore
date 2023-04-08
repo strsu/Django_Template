@@ -130,3 +130,12 @@ dmypy.json
 
 # custom
 *.err
+
+#postgresql
+.pgdata/
+
+#template
+backend/staticfiles/admin/
+backend/staticfiles/drf-yasg/
+backend/staticfiles/rest_framework/
+backend/staticfiles/rest_framework_swagger/
