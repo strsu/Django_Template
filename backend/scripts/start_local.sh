@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+mkdir log
 
 python manage_local.py makemigrations
 python manage_local.py migrate

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from config.settings import logger_info
+from config.settings.base import logger_info
 import time
 
 from rest_framework.decorators import permission_classes

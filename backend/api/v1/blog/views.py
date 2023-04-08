@@ -100,7 +100,7 @@ class BlogListMixins(
     mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView
 ):
     """
-    CreateModlMixin : post 요청 받았을 때, 생성할 때 create하는 로직
+    CreateModelMixin : post 요청 받았을 때, 생성할 때 create하는 로직
     ListModelMixin : get 요청 받앗을 때, 목록 조회
     RetrieveModelMixin : get 요청 받았을 때, 상세 보기 조회
     UpdateModelMixin : put 또는 patch 요청 받았을 때, 수정

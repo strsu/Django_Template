@@ -16,17 +16,13 @@ import logging
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-z^y14w-b*meb*%64-9zjy_dc3qmk)ddn)b$2z)2w_c(8h_c6qn"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -42,13 +38,13 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
-    "drf_yasg",
     "django_elasticsearch_dsl",
     "channels",
+    "drf_yasg",
     "api.v1.chat",
     "api.v1.blog",
     "api.v1.user",
-    'sass_processor',
+    "sass_processor",
 ]
 
 MIDDLEWARE = [
@@ -92,43 +88,9 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "config.exceptions.api_exception.custom_exception_handler",
 }
 
-WSGI_APPLICATION = "config.wsgi.application"
-ASGI_APPLICATION = "config.asgi_local.application"
-
-SWAGGER_SETTINGS = {
-    # "DEFAULT_AUTO_SCHEMA_CLASS": "CustomAutoSchema",
-    "USE_SESSION_AUTH": True,
-    "REFETCH_SCHEMA_WITH_AUTH": True,
-    "DEFAULT_MODEL_RENDERING": ["example", "model"],
-    "SECURITY_DEFINITIONS": {
-        "Basic": {"type": "basic"},
-    },
-    "OPERATIONS_SORTER": "alpha",
-}
-LOGIN_REDIRECT_URL = "/api/swagger/"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "postgres",
-        "PORT": 5432,
-    }
-}
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("redis", 6379)],
-        },
-    },
-}
 
 
 # Password validation
@@ -197,14 +159,14 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles/")
 STATIC_URL = "/staticfiles/"
 
-SASS_OUTPUT_STYLE = 'compact'
+SASS_OUTPUT_STYLE = "compact"
 SASS_PROCESSOR_ENABLED = True
-SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, 'staticfiles/')
+SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, "staticfiles/")
 
-STATICFILES_FINDERS  = [
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'sass_processor.finders.CssFinder',
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "sass_processor.finders.CssFinder",
 ]
 
 # MEDIA CONFIGURATION
@@ -242,18 +204,18 @@ LOGGING = {
     },
     "handlers": {
         "console": {
-            "level": "INFO",
-            "filters": ["require_debug_true"],
-            "class": "logging.StreamHandler",
-            ## 콘솔에 뜨는 err를 elk로 넘김
             # "level": "INFO",
-            # "class": "logstash.TCPLogstashHandler",
-            # "host": "192.168.1.243",
-            # "port": 5000,  # Default value: 5959
-            # "filters": ["require_debug_false", "require_debug_true"],
-            # "version": 1,
-            # "message_type": "console",
-            # "tags": ["django", "dev"],
+            # "filters": ["require_debug_true"],
+            # "class": "logging.StreamHandler",
+            # 콘솔에 뜨는 err를 elk로 넘김
+            "level": "INFO",
+            "class": "logstash.TCPLogstashHandler",
+            "host": "192.168.1.243",
+            "port": 5000,  # Default value: 5959
+            "filters": ["require_debug_false", "require_debug_true"],
+            "version": 1,
+            "message_type": "console",
+            "tags": ["django", "dev"],
         },
         "django.server": {
             "level": "INFO",

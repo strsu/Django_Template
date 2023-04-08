@@ -1,6 +1,6 @@
 from django.test.runner import DiscoverRunner
 
-# python manage.py test vpp --settings='config.settings_test'
+# python manage.py test vpp --settings='config.settings.test'
 
 
 class TestRunner(DiscoverRunner):

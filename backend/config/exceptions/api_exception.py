@@ -6,7 +6,7 @@ from config.exceptions.custom_exceptions import (
     CustomDictException,
     CustomParameterException,
 )
-from config.settings import logger_error
+from config.settings.base import logger_error
 from config.exceptions.exception_codes import STATUS_RSP_INTERNAL_ERROR
 
 import traceback

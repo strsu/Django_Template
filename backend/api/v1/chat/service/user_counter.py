@@ -1,5 +1,5 @@
 import aioredis
-from config.settings_local import logger_info
+from config.settings.base import logger_info
 
 
 class userCounter:
