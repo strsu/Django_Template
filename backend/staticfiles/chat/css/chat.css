@@ -11,10 +11,12 @@ table td { border: solid black thin; padding: 0 10px; }
 
 #chat-container { display: flex; flex-direction: column; }
 
+#chat-container input { height: 1em; padding: 1em; line-height: 0; }
+
 #chat-log { display: flex; flex-direction: column; width: 480px; height: 600px; border: solid black thin; overflow-y: scroll; padding: 0 10px; }
 
 /* #chat-log::-webkit-scrollbar { width: 0px; height: 0px; } #chat-log::-webkit-scrollbar-thumb { background-color: transparent; } #chat-log::-webkit-scrollbar-track { background-color: transparent; } */
-#chat-input { display: flex; width: 500px; gap: 5px; }
+#chat-input { display: flex; width: 480px; gap: 5px; align-items: center; }
 
 #chat-input input { width: 100%; }
 
@@ -46,9 +48,9 @@ table td { border: solid black thin; padding: 0 10px; }
 
 #msg-msg-my::before { border-top: 10px solid #7d7d7d7a; border-left: 0px solid transparent; border-right: 10px solid transparent; border-bottom: 0px solid transparent; content: ""; position: absolute; top: 10px; right: -10px; }
 
-#preview { position: relative; display: none; align-items: center; justify-content: space-between; height: 120px; background: #80808066; top: -145px; width: 500px; }
+#preview { display: none; align-items: center; justify-content: space-between; height: 120px; background: #80808066; width: 480px; }
 
-#preview button { position: relative; top: -40px; margin-right: 10px; }
+#preview button { position: relative; top: -40px; margin-right: 10px; height: 20px; padding: 1em 1em; line-height: 0; }
 
 #preview-img { height: 100px; margin-left: 10px; }
 

@@ -4,12 +4,13 @@ class ReceiveManager {
     }
 
     actor(data) {
+        console.log(data);
         if (data.info) {
             this.userCount(data.info);
         } else if (data.msg) {
             this.insertChat(data.msg);
         } else if (data.food) {
-            this.insertChat(data.msg);
+            this.insertChat(data.food);
             //msg.food(data.food);
         }
     }
@@ -28,12 +29,18 @@ class ReceiveManager {
         return result;
     }
 
-    insertChat(data) {
-        let log = document.querySelector(this.box);
+    timeParser(time) {
+        const now = new Date(time);
+        const hours = now.getHours().toString().padStart(2, 0);
+        const minutes = now.getMinutes().toString().padStart(2, 0);
+        return `${hours}:${minutes}`;
+    }
 
+    boxMaker(data) {
         let chat = document.createElement("div");
-        let usr = document.createElement("div");
         let msg_container = document.createElement("div");
+
+        let usr = document.createElement("div");
         let msg = document.createElement("div");
         let time = document.createElement("div");
 
@@ -51,13 +58,21 @@ class ReceiveManager {
         usr.innerText = data.name;
         msg.innerText = data.message;
 
-        const now = new Date(data.time);
-        const hours = now.getHours().toString().padStart(2, 0);
-        const minutes = now.getMinutes().toString().padStart(2, 0);
-        time.innerText = `${hours}:${minutes}`;
+        time.innerText = this.timeParser(data.time);
         time.style.fontSize = "13px";
 
+        msg_container.appendChild(msg);
+        msg_container.appendChild(time);
         chat.appendChild(usr);
+
+        this.chat = chat;
+        this.msg_container = msg_container;
+    }
+
+    insertChat(data) {
+        let log = document.querySelector(this.box);
+        this.boxMaker(data);
+
 
         if (data.image) {
             let img = document.createElement("img");
@@ -65,19 +80,13 @@ class ReceiveManager {
             img.id = "chat-img";
             img.name = this.generateRandomString(10);
             img.setAttribute("onclick", `openModal("${img.name}")`);
-            chat.appendChild(img);
-
-            if (!data.message) {
-                img.appendChild(time);
-            }
+            this.chat.appendChild(img);
         }
 
         if (data.message) {
-            msg_container.appendChild(msg);
-            msg_container.appendChild(time);
-            chat.appendChild(msg_container);
+            this.chat.appendChild(this.msg_container);
         }
-        log.appendChild(chat);
+        log.appendChild(this.chat);
         log.scrollTop = log.scrollHeight + log.clientHeight; // msg오면 제일 하단으로 이동
     }
 

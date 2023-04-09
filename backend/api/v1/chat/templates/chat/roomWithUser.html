@@ -7,147 +7,200 @@
 <html>
 <head>
     <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <title>Chat Room</title>
+
     <link rel="stylesheet" href="{% static 'chat/css/chat.css' %}">
     <link href="{% sass_src 'chat/css/chat.scss' %}" rel="stylesheet" type="text/css" />
+    
+	<link rel="stylesheet" href="{% static 'chat/css/main.css' %}" />
+	<noscript>
+		<link rel="stylesheet" href="{% static 'chat/css/noscript.css' %}" />
+	</noscript>
+
     <script src="{% static 'chat/js/receiver.js' %}"></script>
     <script src="{% static 'chat/js/file.js' %}"></script>
     <script src="{% static 'chat/js/websocket.js' %}"></script>
 </head>
-<body>
+<body class="is-preload">
     <!-- 모달 -->
 	<div id="myModal" class="modal">
 		<div class="modal-content">
             <div style="display: flex; flex-direction: column;" onclick="closeModal()">
                 <img id="img-modal" style="width: 100%" onclick="closeModal()"/>
             </div>
-			
 		</div>
 	</div>
 
-    <div id="container">
-        <div id="chat-container">
-            <div id="chat-user"></div>
-            <div id="chat-log"></div>
-            <div id="chat-input">
-                <div id="chat-file">
-                    <label className="input-file-button" for="filename" style="cursor: pointer !important;">
-                        &#x1F4C2
-                    </label>
-                    <input type="file" id="filename" accept="image/*" style="display: none;" />
-                </div>
-                <div id="chat-content">
-                    <input id="chat-message-input" type="text" size="100">
-                </div>
-                <div id="chat-send">
-                    <input id="chat-message-submit" type="button" value="&#x1F6AC">
-                </div>
-            </div>
-            <div id="preview"><img id="preview-img"/><button onclick="closeBtn()">X</button></div>
-        </div>
-        <div id="update">
-            <table style="margin-bottom: 10px;"> 
-                <thead> <tr> <th>Position</th> <th>Member</th> <th>Role</th> <th>Salary</th> </tr> </thead> 
-                <tbody> 
-                    <tr> <td>CEO</td> <td>박찎찎</td> <td>직원관리,백,데브옵스</td> <td> <strong>━</string>아아 4잔 - 7샷</td> </tr> 
-                        <tr> <td>CTO</td> <td>진딱딱</td> <td>기술고문</td> <td>아아 1잔 - 2샷</td> </tr> 
-                        <tr> <td>CCO(Chief Cleaner Officer)</td> <td>연경(배구선수)</td> <td>청소부 - 책상, 스파게티 코드 등</td> <td>아아 1잔 - 2샷</td> </tr> 
-                        <tr> <td>CFO(Chief Frontend Officer)</td> <td>열애중~</td> <td>프론트</td> <td>아아 1잔 - 2샷</td> </tr> 
-                        <tr> <td>Intern</td> <td>또 인턴</td> <td>채팅 Data 분석</td> <td>아아 1잔 - 1샷</td> </tr> 
-                </tbody>
-            </table>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Will be..</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>gif 전송</td>
-                    </tr>
-                    <tr>
-                        <td>파이썬 인터프리터</td>
-                    </tr>
-                    <tr>
-                        <td>음식/술집/커피점 추천해줘</td>
-                    </tr>
-                    <tr>
-                        <td>사다리/룰렛</td>
-                    </tr>
-                    <tr>
-                        <td>포커/뿌요뿌요</td>
-                    </tr>
-                    <tr>
-                        <td>마블 영화 제공</td>
-                    </tr>
-                    <tr>
-                        <td></td>
-                    </tr>
-                </tbody>
-    
-            </table>
-        </div>
-    </div>
-    
+    <!-- Page Wrapper -->
+	<div id="page-wrapper">
 
-    <div style="margin-top: 20px;">
-        <table>
-            <thead>
-                <tr>
-                    <th>일시</th>
-                    <th>작업내용</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>23.04.01</td>
-                    <td>내 메세지 / 상대방 메세지 분리해서 표현</td>
-                </tr>
-                <tr>
-                    <td>23.04.01</td>
-                    <td>이미지 전송 기능 추가 -> resize해서 용량 줄여서</td>
-                </tr>
-                <tr>
-                    <td>23.04.02</td>
-                    <td>메세지 디자인, 시간 추가</td>
-                </tr>
-                <tr>
-                    <td>23.04.02</td>
-                    <td>현재 접속자 수 표시 -> redis로 했는데, 좀 부정확 함</br>(서버 다운되면 redis 초기화 해주는 기능 필요)</td>
-                </tr>
-                <tr>
-                    <td>23.04.02</td>
-                    <td>오늘 뭐 먹지 -> 음식추천해줌</td>
-                </tr>
-                <tr>
-                    <td>23.04.04</td>
-                    <td>오늘 뭐 먹지 -> 다음 검색 결과 표시</td>
-                </tr>
-                <tr>
-                    <td>23.04.05</td>
-                    <td>이미지 확대 기능</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                </tr>
-            </tbody>
+		<!-- Header -->
+		<header id="header" class="alt">
+			<h1><a href="index.html">Solid State</a></h1>
+			<nav>
+				<a href="#menu">Menu</a>
+			</nav>
+		</header>
 
-        </table>
-    </div>
+		<!-- Menu -->
+		<nav id="menu">
+			<div class="inner">
+				<h2>Menu</h2>
+				<ul class="links">
+					<li><a href="index.html">Home</a></li>
+				</ul>
+				<a href="#" class="close">Close</a>
+			</div>
+		</nav>
+
+		<!-- Banner -->
+		<section id="banner">
+			<div class="inner">
+				<!--div class="logo"><span class="icon fa-gem"></span></div-->
+				<div id="chat-container">
+                    <div id="chat-user"></div>
+                    <div id="chat-log"></div>
+                    <div id="preview"><img id="preview-img"/><button onclick="closeBtn()">X</button></div>
+                    <div id="chat-input">
+                        <div id="chat-file">
+                            <label className="input-file-button" for="filename" style="cursor: pointer !important;">
+                                &#x1F4C2
+                            </label>
+                            <input type="file" id="filename" accept="image/*" style="display: none;" />
+                        </div>
+                        <div id="chat-content">
+                            <input id="chat-message-input" type="text" size="100">
+                        </div>
+                        <div id="chat-send">
+                            <input id="chat-message-submit" type="button" value="&#x1F6AC">
+                        </div>
+                    </div>
+                </div>
+			</div>
+		</section>
+
+		<!-- Wrapper -->
+		<section id="wrapper">
+
+			<!-- One -->
+			<section id="one" class="wrapper spotlight style1">
+				<div class="inner">
+					<a href="#" class="image"><img src="{% static "/chat/images/pic01.jpg" %}" alt="" /></a>
+					<div class="content">
+						<table>
+                            <thead>
+                                <tr>
+                                    <th>일시</th>
+                                    <th>작업내용</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>23.04.01</td>
+                                    <td>내 메세지 / 상대방 메세지 분리해서 표현</td>
+                                </tr>
+                                <tr>
+                                    <td>23.04.01</td>
+                                    <td>이미지 전송 기능 추가 -> resize해서 용량 줄여서</td>
+                                </tr>
+                                <tr>
+                                    <td>23.04.02</td>
+                                    <td>메세지 디자인, 시간 추가</td>
+                                </tr>
+                                <tr>
+                                    <td>23.04.02</td>
+                                    <td>현재 접속자 수 표시 -> redis로 했는데, 좀 부정확 함</br>(서버 다운되면 redis 초기화 해주는 기능 필요)</td>
+                                </tr>
+                                <tr>
+                                    <td>23.04.02</td>
+                                    <td>오늘 뭐 먹지 -> 음식추천해줌</td>
+                                </tr>
+                                <tr>
+                                    <td>23.04.04</td>
+                                    <td>오늘 뭐 먹지 -> 다음 검색 결과 표시</td>
+                                </tr>
+                                <tr>
+                                    <td>23.04.05</td>
+                                    <td>이미지 확대 기능</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                
+                        </table>
+					</div>
+				</div>
+			</section>
+
+			<!-- Two -->
+			<section id="two" class="wrapper alt spotlight style2">
+				<div class="inner">
+					<a href="#" class="image"><img src="{% static "/chat/images/pic02.jpg" %}" alt="" /></a>
+					<div class="content">
+						<h2 class="major">업데이트 현황</h2>
+						<table style="margin-bottom: 10px;"> 
+                            <thead> <tr> <th>Position</th> <th>Member</th> <th>Role</th> <th>Salary</th> </tr> </thead> 
+                            <tbody> 
+                                <tr> <td>CEO</td> <td>박찎찎</td> <td>직원관리,백,데브옵스</td> <td> <strong>━</string>아아 4잔 - 7샷</td> </tr> 
+                                    <tr> <td>CTO</td> <td>진딱딱</td> <td>기술고문</td> <td>아아 1잔 - 2샷</td> </tr> 
+                                    <tr> <td>CCO(Chief Cleaner Officer)</td> <td>연경(배구선수)</td> <td>청소부 - 책상, 스파게티 코드 등</td> <td>아아 1잔 - 2샷</td> </tr> 
+                                    <tr> <td>CFO(Chief Frontend Officer)</td> <td>열애중~</td> <td>프론트</td> <td>아아 1잔 - 2샷</td> </tr> 
+                                    <tr> <td>Intern</td> <td>또 인턴</td> <td>채팅 Data 분석</td> <td>아아 1잔 - 1샷</td> </tr> 
+                            </tbody>
+                        </table>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Will be..</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>gif 전송</td>
+                                </tr>
+                                <tr>
+                                    <td>파이썬 인터프리터</td>
+                                </tr>
+                                <tr>
+                                    <td>음식/술집/커피점 추천해줘</td>
+                                </tr>
+                                <tr>
+                                    <td>사다리/룰렛</td>
+                                </tr>
+                                <tr>
+                                    <td>포커/뿌요뿌요</td>
+                                </tr>
+                                <tr>
+                                    <td>마블 영화 제공</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                
+                        </table>
+					</div>
+				</div>
+			</section>
+
+		</section>
+
+	</div>
 
     <input type="file" id="filename2" />
     <button onclick="sendFile_bytes()" />
@@ -165,13 +218,26 @@
 
 
         function openModal(name) {
-			document.getElementById("myModal").style.display = "block";
             document.getElementById("img-modal").src = document.getElementsByName(name)[0].src;
 		}
 
 		function closeModal() {
 			document.getElementById("myModal").style.display = "none";
 		}
+
+        const preview = {
+            show: () => {
+                document.getElementById("chat-log").style.height = "480px";
+                document.getElementById("preview").style.display = "flex";
+                document.getElementById("preview").style.display = "flex";
+            },
+
+            hide: () => {
+                document.getElementById("chat-log").style.height = "600px";
+                document.getElementById("preview").style.display = "none";
+                document.getElementById('filename').value = ''; // 전송 후 file 초기화
+            }
+        }
 
         document.cookie = `X-Authorization=토큰값; path=/`;
        
@@ -190,8 +256,7 @@
             var file = document.getElementById('filename').files[0];
             if(file) {
                 fileManager.image(file, "preview-img", "send");
-                document.getElementById("preview").style.display = "none";
-                return;
+                preview.hide();
             }
 
             if (!message) {
@@ -205,13 +270,12 @@
         };
 
         function closeBtn() {
-            document.getElementById("preview").style.display = "none";
-            document.getElementById('filename').value = ''; // 전송 후 file 초기화
+            preview.hide();
         }
 
         document.getElementById('filename').addEventListener('change', function(e) {
             if (e.target.files[0]) {
-                document.getElementById("preview").style.display = "flex";
+                preview.show();
                 fileManager.image(e.target.files[0], "preview-img");
             }
         });
@@ -222,5 +286,13 @@
         }
 
     </script>
+
+    <!-- Scripts -->
+	<script src="{% static "/chat/js/jquery.min.js" %}" ></script>
+	<script src="{% static "/chat/js/jquery.scrollex.min.js" %}"></script>
+	<script src="{% static "/chat/js/browser.min.js" %}" ></script>
+	<script src="{% static "/chat/js/breakpoints.min.js" %}"></script>
+	<script src="{% static "/chat/js/util.js" %}"></script>
+	<script src="{% static "/chat/js/main.js" %}"></script>
 </body>
 </html>

@@ -25,6 +25,12 @@ table td {
     flex-direction: column;
 }
 
+#chat-container input {
+    height: 1em;
+    padding: 1em;
+    line-height: 0;
+}
+
 #chat-log {
     display: flex;
     flex-direction: column;
@@ -50,8 +56,9 @@ table td {
 
 #chat-input {
     display: flex;
-    width: 500px;
+    width: 480px;
     gap: 5px;
+    align-items: center;
 }
 
 #chat-input input {
@@ -160,20 +167,21 @@ table td {
 }
 
 #preview {
-    position: relative;
     display: none;
     align-items: center;
     justify-content: space-between;
     height: 120px;
     background: #80808066;
-    top: -145px;
-    width: 500px;
+    width: 480px;
 }
 
 #preview button {
     position: relative;
     top: -40px;
     margin-right: 10px;
+    height: 20px;
+    padding: 1em 1em;
+    line-height: 0;
 }
 
 #preview-img {
