@@ -1,8 +1,8 @@
 class FileManager {
     constructor(sender) {
         this.sender = sender;
-        this.maxHeight = 500;
-        this.maxWidth = 500;
+        this.maxHeight = 1024;
+        this.maxWidth = 1024;
     }
 
     getExtension(filename) {
@@ -83,12 +83,13 @@ class FileManager {
             rawData = e.target.result;
 
             // ArrayBuffer를 여러 개의 조각으로 분할하여 보내기
-            var chunkSize = 10240; // 분할 크기
+            var chunkSize = 1024 * 1024; // 분할 크기 1mb
             var offset = 0;
 
             sender.sendText({
                 'flag': 1,
                 "file": file.name,
+                "filesize": rawData.byteLength
             })
             while (offset < rawData.byteLength) {
                 var chunk = rawData.slice(offset, offset + chunkSize);

@@ -26,8 +26,8 @@
     <!-- 모달 -->
 	<div id="myModal" class="modal">
 		<div class="modal-content">
-            <div style="display: flex; flex-direction: column;" onclick="closeModal()">
-                <img id="img-modal" style="width: 100%" onclick="closeModal()"/>
+            <div style="display: flex; flex-direction: column;" onclick="modal.close()">
+                <img id="img-modal" style="width: 100%" onclick="modal.close()"/>
             </div>
 		</div>
 	</div>
@@ -58,25 +58,46 @@
 		<section id="banner">
 			<div class="inner">
 				<!--div class="logo"><span class="icon fa-gem"></span></div-->
-				<div id="chat-container">
-                    <div id="chat-user"></div>
-                    <div id="chat-log"></div>
-                    <div id="preview"><img id="preview-img"/><button onclick="closeBtn()">X</button></div>
-                    <div id="chat-input">
-                        <div id="chat-file">
-                            <label className="input-file-button" for="filename" style="cursor: pointer !important;">
-                                &#x1F4C2
-                            </label>
-                            <input type="file" id="filename" accept="image/*" style="display: none;" />
-                        </div>
-                        <div id="chat-content">
-                            <input id="chat-message-input" type="text" size="100">
-                        </div>
-                        <div id="chat-send">
-                            <input id="chat-message-submit" type="button" value="&#x1F6AC">
+                <div id="chat-outer">
+                    <div id="chat-container">
+                        <div id="chat-user"></div>
+                        <div id="chat-log"></div>
+                        <div id="preview"><img id="preview-img"/><button onclick="preview.hide()">X</button></div>
+                        <div id="chat-input">
+                            <div id="chat-file">
+                                <label className="input-file-button" for="filename" style="cursor: pointer !important;">
+                                    &#x1F4C2
+                                </label>
+                                <input type="file" id="filename" accept="image/*" style="display: none;" />
+                            </div>
+                            <div id="chat-content">
+                                <input id="chat-message-input" type="text" size="100">
+                            </div>
+                            <div id="chat-send">
+                                <input id="chat-message-submit" type="button" value="&#x1F6AC">
+                            </div>
                         </div>
                     </div>
+                    <div id="fun-function">
+                        <progress id="progressBar" value="0" max="100"></progress>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td><input type="file" id="filename2" /></td>
+                                    <td><button onclick="funFunction.send()">대용량 파일 전송</button></td>
+                                </tr>
+                                <tr>
+                                    <td>오늘 뭐 먹지</td>
+                                    <td><button onclick="funFunction.food()">추천해줘</button></td>
+                                </tr>
+                            </tbody>
+                
+                        </table>
+                    </div>
+                    
+                    
                 </div>
+				
 			</div>
 		</section>
 
@@ -202,9 +223,6 @@
 
 	</div>
 
-    <input type="file" id="filename2" />
-    <button onclick="sendFile_bytes()" />
-
     {{ room_name|json_script:"room-name" }}
     {{ user_name|json_script:"user-name" }}
     <script>
@@ -216,14 +234,15 @@
         const socketManager = new WebSocketManager(path, receiveManager, userName);
         const fileManager = new FileManager(socketManager);
 
-
-        function openModal(name) {
-            document.getElementById("img-modal").src = document.getElementsByName(name)[0].src;
-		}
-
-		function closeModal() {
-			document.getElementById("myModal").style.display = "none";
-		}
+        const modal = {
+            open: (name) => {
+                document.getElementById("img-modal").src = document.getElementsByName(name)[0].src;
+                document.getElementById("myModal").style.display = "flex";
+            },
+            close: () => {
+                document.getElementById("myModal").style.display = "none";
+            }
+        }
 
         const preview = {
             show: () => {
@@ -239,9 +258,31 @@
             }
         }
 
+        const funFunction = {
+            send: () => {
+                socket.state();
+                let file = document.getElementById('filename2').files[0];
+                fileManager.file(file);
+            },
+            food: () => {
+                socket.state();
+                socketManager.sendText({
+                    'message': "오늘 뭐 먹지",
+                })
+            }
+        }
+
+        const socket = {
+            state: () => {
+                if(socketManager.getReadyState() > 1) {
+                    // 재연결 하는 작업
+                    socketManager.connect();
+                }
+            }
+        }
+
         document.cookie = `X-Authorization=토큰값; path=/`;
        
-
         document.querySelector('#chat-message-input').focus();
         document.querySelector('#chat-message-input').onkeyup = function(e) {
             if (e.keyCode === 13) {  // enter, return
@@ -279,11 +320,6 @@
                 fileManager.image(e.target.files[0], "preview-img");
             }
         });
-
-        function sendFile_bytes() {
-            var file = document.getElementById('filename2').files[0];
-            fileManager.file(file);
-        }
 
     </script>
 

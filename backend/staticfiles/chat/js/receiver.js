@@ -4,9 +4,12 @@ class ReceiveManager {
     }
 
     actor(data) {
-        console.log(data);
         if (data.info) {
-            this.userCount(data.info);
+            if (data.info.percent) {
+                this.fileUploadPercent(data.info);
+            } else if (data.info.user_cnt) {
+                this.userCount(data.info);
+            }
         } else if (data.msg) {
             this.insertChat(data.msg);
         } else if (data.food) {
@@ -17,6 +20,14 @@ class ReceiveManager {
 
     userCount(data) {
         document.getElementById('chat-user').innerText = `현재 접속 인원: ${data.user_cnt}`;
+    }
+
+    fileUploadPercent(data) {
+        let progressBar = document.getElementById('progressBar');
+        if (progressBar.value == 100) {
+            progressBar.value = 0;
+        }
+        progressBar.value = data.percent;
     }
 
     generateRandomString(length) {
@@ -79,7 +90,7 @@ class ReceiveManager {
             img.src = data.image;
             img.id = "chat-img";
             img.name = this.generateRandomString(10);
-            img.setAttribute("onclick", `openModal("${img.name}")`);
+            img.setAttribute("onclick", `modal.open('${img.name}')`);
             this.chat.appendChild(img);
         }
 

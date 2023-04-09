@@ -1,5 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from config.settings.base import logger_info
+import os
 import json
 import random
 import string
@@ -9,6 +10,7 @@ from datetime import datetime
 from api.v1.chat.service.food_recommand import foodRecommand
 from api.v1.chat.service.user_counter import userCounter
 from api.v1.chat.service.file_saver import save_base64, save_bytes
+from config.settings.base import STATIC_ROOT
 
 
 # https://blog.logrocket.com/django-channels-and-websockets/
@@ -37,6 +39,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.user_name = self.scope["url_route"]["kwargs"]["user_name"]
         self.room_group_name = "chat_%s" % self.room_name
         self.user_token = generate_random_string(10)
+        self.filesize = 0
+        self.path = os.path.join(STATIC_ROOT, f"chat/img/{self.room_name}")
 
         # logger_info.info(str(self.scope["headers"]))
 
@@ -90,10 +94,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if "flag" in text_data_json["data"]:
             flag = text_data_json["data"]["flag"]
             filename = text_data_json["data"]["file"]
-            await save_bytes(None, self.room_name, flag, filename)
+            if "filesize" in text_data_json["data"]:
+                self.filesize = text_data_json["data"]["filesize"]
+            await save_bytes(None, self.room_name, flag, self.user_token, filename)
+            await self.send_current_percentage()
 
-            if flag:
-                return False
+            if not flag:
+                data["data"]["name"] = "업로드 해줌"
+                data["data"]["message"] = "업로드 완료"
+                await self.send(text_data=json.dumps({"msg": data["data"]}))
+
+            return False
         elif "image" in text_data_json["data"]:
             save_base64(text_data_json["data"]["image"], self.room_name)
         elif "오늘뭐먹지" in data["data"]["message"].replace(" ", ""):
@@ -111,8 +122,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return data
 
     async def bytes_receive(self, raw_data):
-        await save_bytes(raw_data, self.room_name, flag=2)
+        await self.send_current_percentage()
+        await save_bytes(raw_data, self.room_name, 2, self.user_token, self.user_token)
         return False
+
+    async def send_current_percentage(self):
+        try:
+            file_size = os.path.getsize(os.path.join(self.path, self.user_token))
+            percent = round((file_size / self.filesize) * 100, 3)
+        except Exception as e:
+            percent = 100
+        data = {"percent": percent}
+        await self.send(text_data=json.dumps({"info": data}))
 
     async def user_in(self):
         count = await self.uc.user_in()

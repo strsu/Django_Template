@@ -25,20 +25,19 @@ def save_base64(base64_string, room):
     img_file.close()
 
 
-async def save_bytes(raw, room, flag, filename="jj"):
+async def save_bytes(raw, room, flag, user_token, filename=""):
     path = os.path.join(STATIC_ROOT, f"chat/img/{room}")
     mkdir(path)
     if flag == 2:
         # 파일 전송 중
-        img_file = open(os.path.join(path, filename), "ab")
+        img_file = open(os.path.join(path, user_token), "ab")
         img_file.write(raw)
         img_file.close()
     elif flag == 1:
         # 파일 전송 시작
-        filename = "jj"
-        img_file = open(os.path.join(path, filename), "wb")
+        img_file = open(os.path.join(path, user_token), "wb")
         img_file.close()
     elif flag == 0:
         # 파일 전송 종료
         filename = f"{room}_{str(time.time())}_{filename}"
-        os.rename(os.path.join(path, "jj"), os.path.join(path, filename))
+        os.rename(os.path.join(path, user_token), os.path.join(path, filename))

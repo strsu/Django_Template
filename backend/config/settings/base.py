@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "sass_processor",
     "api.v1.chat",
+    "api.v1.file",
     "api.v1.blog",
     "api.v1.user",
     "api.v1.soccer",
