@@ -87,6 +87,10 @@
                                     <td><button onclick="funFunction.send()">대용량 파일 전송</button></td>
                                 </tr>
                                 <tr>
+                                    <td><input type="text" id="filecode" /></td>
+                                    <td><button onclick="funFunction.down()">파일 다운</button></td>
+                                </tr>
+                                <tr>
                                     <td>오늘 뭐 먹지</td>
                                     <td><button onclick="funFunction.food()">추천해줘</button></td>
                                 </tr>
@@ -269,6 +273,31 @@
                 socketManager.sendText({
                     'message': "오늘 뭐 먹지",
                 })
+            },
+            down: () => {
+                let code = document.getElementById('filecode').value;
+                if(code) {
+                    let url = `localhost/api/v1/file/?code=${code}`
+
+                    let xhr = new XMLHttpRequest();
+                    xhr.open('GET', url, true);
+                    xhr.responseType = 'blob';
+
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            let contentDisposition = xhr.getResponseHeader("Content-Disposition");
+                            let filename = contentDisposition.replace(`attachment; filename="`, "").replace(`"`, "")
+                            let a = document.createElement('a');
+                            a.href = window.URL.createObjectURL(xhr.response);
+                            a.download = filename;
+                            document.body.appendChild(a);
+                            a.click();
+                        }
+                    };
+
+                    xhr.send();
+
+                }
             }
         }
 

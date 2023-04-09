@@ -1,5 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
-from config.settings.base import logger_info
+from channels.db import database_sync_to_async
+
 import os
 import json
 import random
@@ -10,7 +11,11 @@ from datetime import datetime
 from api.v1.chat.service.food_recommand import foodRecommand
 from api.v1.chat.service.user_counter import userCounter
 from api.v1.chat.service.file_saver import save_base64, save_bytes
+
+#
+
 from config.settings.base import STATIC_ROOT
+from config.settings.base import logger_info
 
 
 # https://blog.logrocket.com/django-channels-and-websockets/
@@ -96,12 +101,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
             filename = text_data_json["data"]["file"]
             if "filesize" in text_data_json["data"]:
                 self.filesize = text_data_json["data"]["filesize"]
-            await save_bytes(None, self.room_name, flag, self.user_token, filename)
+            save_filename = await save_bytes(
+                None, self.room_name, flag, self.user_token, filename
+            )
             await self.send_current_percentage()
 
             if not flag:
+                code = generate_random_string(4)
+                await self.set_file(f"{self.room_name}/{save_filename}", filename, code)
+
                 data["data"]["name"] = "업로드 해줌"
-                data["data"]["message"] = "업로드 완료"
+                data["data"]["message"] = f"업로드 완료, 다운로드 코드: {code}"
                 await self.send(text_data=json.dumps({"msg": data["data"]}))
 
             return False
@@ -197,3 +207,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if "token" in event["data"]:
             del event["data"]["token"]
         await self.send(text_data=json.dumps({"food": event["data"]}))
+
+    """
+    async def connect(self):
+        #이건 처음 연결되자 마자 실행되는 함수이다.
+        
+      pass
+
+        # self.username = await database_sync_to_async(self.set_file)()
+        # await self.set_file()
+    """
+
+    @database_sync_to_async
+    def set_file(self, path, name, code):
+        from api.v1.file.models import File
+
+        file = File.objects.create(path=path, name=name, code=code)
+        file.save()
