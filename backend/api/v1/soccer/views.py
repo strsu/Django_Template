@@ -22,13 +22,16 @@ class SoccerView(
     mixins.DestroyModelMixin,
     generics.GenericAPIView,
 ):
-    # authentication_classes = BasicAuthentication
 
     queryset = Soccer.objects.all()
     serializer_class = SoccerSerializer
 
     def get_queryset(self):
-        return super().get_queryset().filter(deleted_at__isnull=True)
+        return (
+            super()
+            .get_queryset()
+            .filter(deleted_at__isnull=True, user=self.request.user)
+        )
 
     def get_serializer_class(self):
         if self.request.method == "GET":

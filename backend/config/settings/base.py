@@ -76,6 +76,7 @@ TEMPLATES = [
     },
 ]
 
+SECURE_SCHEMES = ["http", "https"]
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         # 모든 view에 Auth 체크가 적용된다.

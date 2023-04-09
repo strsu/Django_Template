@@ -87,18 +87,17 @@ class SoccerSerializer(serializers.Serializer):
         except SoccerPlace.DoesNotExist:
             where = SoccerPlaceSerializer(data=where_data)
             if where.is_valid():
-                where.save()
+                where = where.save()
         return where
 
     def create(self, validated_data):
+        user = self.context["request"].user
         where = self.get_where(validated_data.pop("where"))
-
-        soccer = Soccer.objects.create(where=where, **validated_data)
+        soccer = Soccer.objects.create(user=user, where=where, **validated_data)
         return soccer
 
     def update(self, instance, validated_data):
         where = self.get_where(validated_data.pop("where"))
-        print(where)
         instance.where = where
 
         instance.when = validated_data.get("when", instance.when)
