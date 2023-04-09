@@ -146,6 +146,9 @@
         </table>
     </div>
 
+    <input type="file" id="filename2" />
+    <button onclick="sendFile_bytes()" />
+
     {{ room_name|json_script:"room-name" }}
     {{ user_name|json_script:"user-name" }}
     <script>
@@ -171,8 +174,7 @@
             return result;
           }
 
-        const authToken = generateRandomString(10);
-        document.cookie = 'X-Authorization=' + authToken + '; path=/';
+        document.cookie = `X-Authorization=${generateRandomString(10)}; path=/`;
 
         const info = {
             userCount: (data) => {
@@ -191,7 +193,7 @@
                 let msg = document.createElement("div");
                 let time = document.createElement("div");
     
-                if(data.token == authToken) {
+                if(data.flag) {
                     chat.id = "msg-container-my";
                     msg_container.id = "msg-inner-container-my";
                     msg.id = "msg-msg-my";
@@ -253,6 +255,21 @@
             }
         }
 
+        const sender = {
+            msg: (obj) => {
+
+                data = {
+                    "data": {
+                        'name': userName,
+                        'message': obj.message,
+                        "image": obj.image,
+                        "time": new Date()
+                    }    
+                }
+                chatSocket.send(JSON.stringify(data));
+            }
+        }
+
         const chatSocket = new WebSocket(
             'wss://'
             + window.location.host
@@ -278,7 +295,7 @@
         };
 
         chatSocket.onclose = function(e) {
-            console.error('Chat socket closed unexpectedly');
+            console.error('Chat socket closed unexpectedly', e);
         };
 
         document.querySelector('#chat-message-input').focus();
@@ -302,15 +319,9 @@
                 return;
             }
 
-            chatSocket.send(JSON.stringify({
-                "data": {
-                    'name': userName,
-                    'message': message,
-                    "image": null,
-                    "token": authToken,
-                    "time": new Date()
-                }                
-            }));
+            sender.msg({
+                'message': message,
+            })
             messageInputDom.value = '';
         };
 
@@ -337,19 +348,59 @@
             resizeImage(file, 500, 500, function(resizedImage) {
                 const messageInputDom = document.querySelector('#chat-message-input');
                 const message = messageInputDom.value;
-                chatSocket.send(JSON.stringify({
-                    "data": {
-                        'name': userName,
-                        'message': message,
-                        "image": resizedImage,
-                        "token": authToken,
-                        "time": new Date()
-                    }   
-                }));
+                sender.msg({
+                    'message': message,
+                    "image": resizedImage,
+                })
                 messageInputDom.value = "";
                 document.getElementById('filename').value = ''; // 전송 후 file 초기화
                 document.getElementById("preview").style.display = "none";
               });
+        }
+
+        function sendFile_bytes() {
+            function getExtension(filename) {
+                var parts = filename.split('.');
+                return parts[parts.length - 1];
+            }
+
+            var file = document.getElementById('filename2').files[0];
+            var reader = new FileReader();
+            var rawData = new ArrayBuffer();
+            var extension = getExtension(file.name);
+
+            reader.loadend = function() {
+            }
+
+            reader.onload = function(e) {
+                rawData = e.target.result;
+                
+                // ArrayBuffer를 여러 개의 조각으로 분할하여 보내기
+                var chunkSize = 10240; // 분할 크기
+                var offset = 0;
+                chatSocket.send(JSON.stringify({
+                    "data": {
+                        'name': userName,
+                        'flag': 1,
+                        "file": file.name,
+                        "time": new Date()
+                    }   
+                }));
+                while (offset < rawData.byteLength) {
+                    var chunk = rawData.slice(offset, offset + chunkSize);
+                    chatSocket.send(chunk); // 이걸루 보내면 bytes로 인식된다.
+                    offset += chunkSize;
+                }
+                chatSocket.send(JSON.stringify({
+                    "data": {
+                        'name': userName,
+                        'flag': 0,
+                        "file": file.name,
+                        "time": new Date()
+                    }   
+                }));
+            }
+            reader.readAsArrayBuffer(file);
         }
 
         function closeBtn() {

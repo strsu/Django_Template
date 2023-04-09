@@ -66,3 +66,5 @@ zope.event==4.6
 zope.interface==6.0
 aioredis
 django-sass-processor==1.2.2
+libsass
+django-compressor
