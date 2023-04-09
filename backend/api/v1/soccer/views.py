@@ -6,6 +6,9 @@ from rest_framework.authentication import BasicAuthentication
 from api.v1.soccer.models import Soccer
 from api.v1.soccer.serializer import SoccerListSerializer, SoccerSerializer
 
+from config.exceptions.custom_exceptions import CustomException
+from api.common.message import UserFault
+
 from datetime import datetime
 
 
@@ -27,6 +30,11 @@ class SoccerView(
     serializer_class = SoccerSerializer
 
     def get_queryset(self):
+        """
+        여기서 공통으로 사용하는 queryset에 작업을 하는 방향이 좋은 것 같다.
+            -> 어차피 Mixin에서 get_queryset을 호출해서 query를 사용하기 때문에!
+        아래 filter에 user를 넣었기 때문에 자동으로 user가 걸러진다!
+        """
         return (
             super()
             .get_queryset()
@@ -41,7 +49,7 @@ class SoccerView(
 
     def list(self, request):
         if not ("view" in request.GET and "month" in request.GET):
-            return Response({"message": "parameter_error"}, status=400)
+            raise CustomException(UserFault.NOT_FOUND)
 
         view = request.GET.get("view")
         if view not in ("main", "list"):

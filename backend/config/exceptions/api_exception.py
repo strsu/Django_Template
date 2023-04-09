@@ -3,6 +3,7 @@ from rest_framework import exceptions
 from rest_framework.response import Response
 
 from config.exceptions.custom_exceptions import (
+    CustomException,
     CustomDictException,
     CustomParameterException,
 )
@@ -36,6 +37,8 @@ def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
 
     if response is not None:
+        status_code = 200
+
         if isinstance(exc, exceptions.ParseError):
             code = response.status_code
             msg = exc.detail
@@ -101,16 +104,20 @@ def custom_exception_handler(exc, context):
 
             response.data.pop("default_message", None)
             response.data.pop("lang_message", None)
+        elif isinstance(exc, CustomException):
+            msg = exc.detail.get("message")
+            code = exc.detail.get("code")
+            status_code = int(exc.detail.get("status_code"))
         else:
             code = response.status_code
             msg = "unknown error"
 
-        response.status_code = 200
+        response.status_code = status_code
         response.data["code"] = code
         response.data["message"] = msg
-        response.data["data"] = None
 
-        response.data.pop("detail", None)
+        ## 위 handler에서 exception내용이 response에 들어가는 것 같다.
+        response.data.pop("status_code", None)
 
         return response
     else:
