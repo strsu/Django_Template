@@ -68,3 +68,4 @@ aioredis
 django-sass-processor==1.2.2
 libsass
 django-compressor
+django-cors-headers

@@ -26,3 +26,5 @@ CHANNEL_LAYERS = {
 
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi_local.application"
+
+CORS_ALLOW_CREDENTIALS = True
