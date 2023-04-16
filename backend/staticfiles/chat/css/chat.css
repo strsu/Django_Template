@@ -9,7 +9,7 @@ table td { border: solid black thin; padding: 0 10px; }
 
 #update { margin-left: 20px; }
 
-#chat-outer { display: flex; }
+#chat-outer { display: flex; gap: 20px; }
 
 #chat-container { display: flex; flex-direction: column; }
 

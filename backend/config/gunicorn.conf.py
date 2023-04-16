@@ -17,7 +17,8 @@ class HealthCheckFilter(logging.Filter):
         return "HealthChecker" not in record.getMessage()
 
 
-workers = multiprocessing.cpu_count() * 2
+# workers = multiprocessing.cpu_count() * 2
+workers = 1
 worker_class = "gevent"
 thread = 4
 

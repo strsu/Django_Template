@@ -7,21 +7,25 @@ from rest_framework.permissions import IsAuthenticated
 
 
 def index(request):
-    logger_info.info("INFO 레벨로 출력")
     return render(request, "chat/index.html", {})
 
 
 def room(request, room_name):
-    logger_info.info("INFO 레벨로 출력222")
     return render(request, "chat/room.html", {"room_name": room_name})
 
 
 def roomWithUser(request, room_name, user_name):
-    return render(
-        request,
-        "chat/roomWithUser.html",
-        {"room_name": room_name, "user_name": user_name},
-    )
+    if room_name == "mafia":
+        return render(
+            request,
+            "chat/roomMafia.html",
+        )
+    else:
+        return render(
+            request,
+            "chat/roomWithUser.html",
+            {"room_name": room_name, "user_name": user_name},
+        )
 
 
 def roomRandom(request):

@@ -1,0 +1,119 @@
+<!-- chat/templates/chat/room.html -->
+<!DOCTYPE html>
+
+{% load static %}
+{% load sass_tags %}
+
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>Chat Room</title>
+
+    <link rel="stylesheet" href="{% static 'chat/css/character.css' %}">
+    <link href="{% sass_src 'chat/css/character.scss' %}" rel="stylesheet" type="text/css" />
+
+    <script src="{% static 'chat/js/receiver.js' %}"></script>
+    <script src="{% static 'chat/js/file.js' %}"></script>
+    <script src="{% static 'chat/js/websocket.js' %}"></script>
+</head>
+<body class="is-preload">
+    <canvas id="myCanvas"></canvas>
+	<script>
+		const canvas = document.getElementById('myCanvas');
+		const context = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+		
+		// 배경 이미지 로드
+		const bgImage = new Image();
+		bgImage.src = "{% static 'chat/images/map/map.jpg' %}";
+
+        const speed = 5;
+
+        const backgroundWidth = 2000;
+        const backgroundHeight = 2000;
+        let backgroundX = 0;
+        let backgroundY = 0;
+		
+		// 캐릭터 이미지 로드
+		const characterImage = new Image();
+		characterImage.src = "{% static 'chat/images/map/character.webp' %}";
+		
+		// 캐릭터 시작 위치
+		let characterX = 20;
+		let characterY = 20;
+
+        // 캐릭터 사이즈
+        let characterWidth = 50;
+        let characterHeight = 50;
+
+        function drawBackground() {
+            context.drawImage(bgImage, backgroundX, backgroundY, backgroundWidth, backgroundHeight);
+        }
+        
+        function drawCharacter() {
+            // 캐릭터 그리기
+			context.drawImage(characterImage, characterX, characterY, characterWidth, characterHeight);
+        }
+		
+		// 매 프레임 그리는 함수
+		function draw() {
+			context.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackground();
+            drawCharacter();
+			
+			// 다음 애니메이션 요청
+			requestAnimationFrame(draw);
+		}
+		
+		// 키프레스 이벤트 리스너 등록
+		document.addEventListener('keydown', (event) => {
+
+            let newX = characterX;
+            let newY = characterY;
+
+
+			if (event.keyCode === 37) {	// left
+				newX -= speed;
+			} else if (event.keyCode === 38) {	// up
+				newY -= speed;
+			} else if (event.keyCode === 39) {	// right
+				newX += speed;
+			} else if (event.keyCode === 40) {	// down
+				newY += speed;
+			}
+
+            // 캐릭터가 배경을 벗어나지 않도록 위치를 제한합니다.
+            newX = Math.min(Math.max(newX, 0), backgroundWidth - characterWidth*2);
+            newY = Math.min(Math.max(newY, 0), backgroundHeight - characterHeight*2);
+
+            characterX = newX;
+            characterY = newY;
+
+            backgroundX = canvas.width / 2 - characterX - characterWidth / 2;
+            backgroundY = canvas.height / 2 - characterY - characterHeight / 2;
+
+            backgroundX = Math.min(Math.max(backgroundX, canvas.width - backgroundWidth), 0);
+            backgroundY = Math.min(Math.max(backgroundY, canvas.height - backgroundHeight), 0);
+
+            draw();
+		});
+		
+		// 배경 이미지 로드 완료 이벤트 리스너 등록
+		bgImage.addEventListener('load', () => {
+			// 캔버스 배경으로 설정
+			canvas.style.backgroundImage = `url(${bgImage.src})`;
+			
+			// 애니메이션 요청
+			requestAnimationFrame(draw);
+		});
+	</script>
+</body>
+</html>
