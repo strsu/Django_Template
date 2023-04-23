@@ -117,21 +117,30 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return False
         elif "image" in text_data_json["data"]:
             save_base64(text_data_json["data"]["image"], self.room_name)
-        elif "오늘뭐먹지" in data["data"]["message"].replace(" ", ""):
+        elif "message" in data["data"]:
             # Send message to room group - 나를 포함 모든 멤버
+            if "오늘뭐먹지" in data["data"]["message"].replace(" ", ""):
+                data = {
+                    "type": "food_message",
+                    "data": {
+                        **text_data_json["data"],
+                        "message": self.fr.get_random_store(),
+                        "name": "음식추천해줌",
+                        "token": "",
+                    },
+                }
+                await self.set_message(
+                    data["data"]["message"], name=data["data"]["name"]
+                )
+            else:
+                await self.set_message(data["data"]["message"])
+        elif "mouse" in data["data"]:
             data = {
-                "type": "food_message",
+                "type": "mouse_message",
                 "data": {
                     **text_data_json["data"],
-                    "message": self.fr.get_random_store(),
-                    "name": "음식추천해줌",
-                    "token": "",
                 },
             }
-            await self.set_message(data["data"]["message"], name=data["data"]["name"])
-        else:
-            if "message" in data["data"]:
-                await self.set_message(data["data"]["message"])
 
         return data
 
@@ -211,6 +220,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if "token" in event["data"]:
             del event["data"]["token"]
         await self.send(text_data=json.dumps({"food": event["data"]}))
+
+    async def mouse_message(self, event):
+        data = copy.deepcopy(event["data"])
+        if data["token"] == self.user_token:
+            data["flag"] = True
+        else:
+            data["flag"] = False
+        del data["token"]
+
+        await self.send(text_data=json.dumps({"mouse": data}))
 
     """
     async def connect(self):

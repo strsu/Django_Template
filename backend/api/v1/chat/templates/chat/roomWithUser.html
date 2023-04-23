@@ -32,6 +32,8 @@
 		</div>
 	</div>
 
+    <canvas id="myCanvas"></canvas>
+
     <!-- Page Wrapper -->
 	<div id="page-wrapper">
 
@@ -88,6 +90,10 @@
         const receiveManager = new ReceiveManager("#chat-log");
         const socketManager = new WebSocketManager(path, receiveManager, userName);
         const fileManager = new FileManager(socketManager);
+
+        function getMousePosition(event) {
+            socketManager.sendText({"mouse": [event.pageX, event.pageY] });
+        }
 
         const logPath = `https://${window.location.host}/api/chat/history/?name=${roomName}/`;
         fetch(logPath)

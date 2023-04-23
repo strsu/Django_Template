@@ -15,6 +15,8 @@ class ReceiveManager {
         } else if (data.food) {
             this.insertChat(data.food);
             //msg.food(data.food);
+        } else if (data.mouse) {
+            this.drawMouse(data.mouse);
         }
     }
 
@@ -99,6 +101,31 @@ class ReceiveManager {
         }
         log.appendChild(this.chat);
         log.scrollTop = log.scrollHeight + log.clientHeight; // msg오면 제일 하단으로 이동
+    }
+
+    drawMouse(data) {
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function drawCircle(x, y) {
+            ctx.beginPath();
+            ctx.arc(x, y, 30, 0, Math.PI * 2);
+            ctx.fillStyle = 'blue';
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        let user = data.name;
+        let mouse = data.mouse;
+        //clearCanvas();
+        drawCircle(mouse[0], mouse[1]);
     }
 
 }
