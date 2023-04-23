@@ -83,13 +83,17 @@
     <script>
         const roomName = "{{ room_name }}";
         const userName = "{{ user_name }}";
-
-        console.log(roomName, userName)
         
         const path = `wss://${window.location.host}/ws/chat/${roomName}/${userName}/`;
         const receiveManager = new ReceiveManager("#chat-log");
         const socketManager = new WebSocketManager(path, receiveManager, userName);
         const fileManager = new FileManager(socketManager);
+
+        const logPath = `https://${window.location.host}/api/chat/history/?name=${roomName}/`;
+        fetch(logPath)
+            .then(response => response.json())
+            .then(data => data.history.map(v => receiveManager.actor(v)))
+            .catch(error => console.error(error));
 
         const modal = {
             open: (name) => {

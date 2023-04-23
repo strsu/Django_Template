@@ -96,6 +96,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "data": text_data_json["data"],
         }
 
+        if "message" in data["data"]:
+            await self.set_message(data["data"]["message"])
+
         if "flag" in text_data_json["data"]:
             flag = text_data_json["data"]["flag"]
             filename = text_data_json["data"]["file"]
@@ -217,6 +220,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # self.username = await database_sync_to_async(self.set_file)()
         # await self.set_file()
     """
+
+    @database_sync_to_async
+    def set_message(self, message):
+        from api.v1.chat.models import Group, Message
+
+        try:
+            group = Group.objects.get(name=self.room_name)
+        except Exception as e:
+            group = Group.objects.create(name=self.room_name)
+            group.save()
+
+        message = Message.objects.create(
+            group=group, content=message, name=self.user_name
+        )
+        message.save()
 
     @database_sync_to_async
     def set_file(self, path, name, code):

@@ -11,6 +11,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
+from .models import Group, Message
+
 
 class ChatApiView(APIView):
     permission_classes = [AllowAny]
@@ -33,6 +35,33 @@ class ChatPlayApiView(APIView):
             "chat/roomWithUser.html",
             {"room_name": room_name, "user_name": user_name},
         )
+
+
+class ChatPlayLogApiView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        name = request.GET.get("name")
+        name = "mzoffice"
+        group = Group.objects.get(name=name)
+
+        message = Message.objects.filter(group=group).order_by("timestamp")
+
+        message_list = []
+
+        for msg in message:
+            message_list.append(
+                {
+                    "msg": {
+                        "flag": False,
+                        "message": msg.content,
+                        "name": msg.name,
+                        "time": msg.timestamp,
+                    }
+                }
+            )
+
+        return Response({"history": message_list}, status=200)
 
 
 def index(request):
