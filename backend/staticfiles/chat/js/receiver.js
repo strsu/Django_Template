@@ -2,6 +2,7 @@ class ReceiveManager {
     constructor(box) {
         this.box = box;
         this.canvas = document.getElementById('myCanvas');
+        this.canvas.addEventListener('click', this.onmouseclick.bind(this));
         this.ctx = this.canvas.getContext('2d');
         this.user = {};
         this.color = ["#FFB6C1", "#00FF7F", "#8A2BE2", "#FFD700", "#00BFFF", "#FFA07A", "#00FA9A", "#9932CC", "#FF69B4", "#00CED1", "#FF8C00", "#48D1CC", "#FF1493", "#00FFFF", "#FF4500", "#40E0D0", "#FF00FF", "#7B68EE", "#FF6347", "#00FFFF"];
@@ -107,8 +108,24 @@ class ReceiveManager {
         log.scrollTop = log.scrollHeight + log.clientHeight; // msg오면 제일 하단으로 이동
     }
 
-    drawMouse(data) {
+    onmouseclick(event) {
+        const x = event.clientX - this.canvas.offsetLeft;
+        const y = event.clientY - this.canvas.offsetTop;
+        let box = document.getElementById("moving-text");
+        if (box) {
+            box.remove();
+        }
+        const textbox = document.createElement("input");
+        textbox.type = "text";
+        textbox.id = "moving-text";
+        textbox.style.position = "absolute";
+        textbox.style.left = x + "px";
+        textbox.style.top = y + "px";
+        textbox.style.width = "200px";
+        document.body.appendChild(textbox);
+    }
 
+    drawMouse(data) {
         let ctx = this.ctx;
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
