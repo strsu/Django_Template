@@ -19,7 +19,9 @@ class WebSocketManager {
     }
 
     onopen(event) {
-        console.log('WebSocket connection opened:', event);
+        //console.log('WebSocket connection opened:', event);
+        document.getElementById("chat-message-input").removeAttribute("readonly");
+        document.getElementById("chat-message-input").focus();
     }
 
     onmessage(event) {
