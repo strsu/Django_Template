@@ -11,8 +11,9 @@ services:
     volumes:
       - ./backend:/opt
     command: /opt/scripts/start_local.sh
+    env_file: .env
     ports:
-      - "3210:3000"
+      - "3000:3000"
 
   nginx:
     build:
@@ -32,12 +33,7 @@ services:
   postgres:
     image: postgres:13
     #restart: always
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PORT=5432
+    env_file: .env
     ports:
       - "54321:5432"
     volumes:
