@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-z^y14w-b*meb*%64-9zjy_dc3qmk)ddn)b$2z)2w_c(8h_c6qn"
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 ALLOWED_HOSTS = ["*"]
 SESSION_COOKIE_SECURE = True
@@ -184,7 +184,11 @@ STATICFILES_FINDERS = [
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-ELASTICSEARCH_DSL = {"default": {"hosts": "192.168.1.243:9200"}}
+ELASTICSEARCH_DSL = {
+    "default": {
+        "hosts": f"{os.getenv('ELASTICSEARCH_DSL_IP')}:{os.getenv('ELASTICSEARCH_DSL_PORT')}"
+    }
+}
 
 logger_error = logging.getLogger("logstash_error")
 logger_info = logging.getLogger("logstash_info")
@@ -215,8 +219,8 @@ LOGGING = {
             # 콘솔에 뜨는 err를 elk로 넘김
             "level": "INFO",
             "class": "logstash.TCPLogstashHandler",
-            "host": "192.168.1.243",
-            "port": 5000,  # Default value: 5959
+            "host": os.getenv("ELASTICSEARCH_DSL_IP"),
+            "port": os.getenv("LOGSTASH_PORT"),  # Default value: 5959
             "filters": ["require_debug_false", "require_debug_true"],
             "version": 1,
             "message_type": "console",
@@ -235,8 +239,8 @@ LOGGING = {
         "logstash_info": {
             "level": "INFO",
             "class": "logstash.TCPLogstashHandler",
-            "host": "192.168.1.243",
-            "port": 5000,  # Default value: 5959
+            "host": os.getenv("ELASTICSEARCH_DSL_IP"),
+            "port": os.getenv("LOGSTASH_PORT"),  # Default value: 5959
             "version": 1,
             "message_type": "django_info",
             "tags": ["django", "dev"],
@@ -244,8 +248,8 @@ LOGGING = {
         "logstash_error": {
             "level": "ERROR",
             "class": "logstash.TCPLogstashHandler",
-            "host": "192.168.1.243",
-            "port": 5000,  # Default value: 5959
+            "host": os.getenv("ELASTICSEARCH_DSL_IP"),
+            "port": os.getenv("LOGSTASH_PORT"),  # Default value: 5959
             "version": 1,
             "message_type": "django_error",
             "tags": ["django", "dev"],
