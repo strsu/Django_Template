@@ -32,6 +32,7 @@ class Group(models.Model):
 
 class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=20)
     content = models.TextField()
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
 

@@ -3,7 +3,7 @@ from django.urls import path
 from api.v1.chat import views
 
 urlpatterns = [
-    path("", views.index, name="index"),
-    path("<str:room_name>/", views.room, name="room"),
-    path("<str:room_name>/<str:user_name>/", views.roomWithUser, name="roomWithUser"),
+    path("", views.ChatApiView.as_view(), name="index"),
+    path("play/", views.ChatPlayApiView.as_view(), name="play"),
+    path("history/", views.ChatPlayLogApiView.as_view(), name="playlog"),
 ]

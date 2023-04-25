@@ -28,6 +28,7 @@ table td {
 #chat-container {
     display: flex;
     flex-direction: column;
+    z-index: 1;
 }
 
 #chat-container input {
@@ -247,6 +248,18 @@ table td {
     margin-left: 1em;
 }
 
+#fun-function-box {
+    z-index: 1;
+}
+
 #fun-function table td {
     text-align: center;
+}
+
+#myCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
 }
