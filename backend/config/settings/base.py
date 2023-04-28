@@ -59,7 +59,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "config.middleware.viewLoggingMiddleware.viewLoggingMiddleware",
+    "config.middleware.LoggingMiddleware.LoggingMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -193,6 +193,7 @@ ELASTICSEARCH_DSL = {
 
 logger_error = logging.getLogger("logstash_error")
 logger_info = logging.getLogger("logstash_info")
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -211,28 +212,33 @@ LOGGING = {
             "style": "{",
         },
         "standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"},
+        "simple": {"format": "%(message)s"},
     },
     "handlers": {
         "console": {
-            # "level": "INFO",
-            # "filters": ["require_debug_true"],
-            # "class": "logging.StreamHandler",
-            # 콘솔에 뜨는 err를 elk로 넘김
             "level": "INFO",
-            "class": "logstash.TCPLogstashHandler",
-            "host": os.getenv("ELASTICSEARCH_DSL_IP"),
-            "port": os.getenv("LOGSTASH_PORT"),  # Default value: 5959
-            "filters": ["require_debug_false", "require_debug_true"],
-            "version": 1,
-            "message_type": "console",
-            "tags": ["django", "dev"],
+            "filters": ["require_debug_true"],
+            "class": "logging.StreamHandler",
+        },
+        "file": {
+            "level": "INFO",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": os.path.join(BASE_DIR, "log/response.log"),
+            "when": "D",  # when: 시간 단위 ('S' - 초, 'M' - 분, 'H' - 시간, 'D' - 일, 'W' - 주차, 'midnight' - 자정)
+            "interval": 1,  # interval: 로그 파일을 회전시키는 시간 간격
+            "backupCount": 30,  # 보존할 백업 파일 수
+            "formatter": "standard",
         },
         "django.server": {
+            # python manage.py runserver로 작동하는 개발 서버에서만 사용하는 핸들러로 콘솔에 로그를 출력한다.
             "level": "INFO",
             "class": "logging.StreamHandler",
             "formatter": "django.server",
         },
         "mail_admins": {
+            # 로그 내용을 이메일로 전송하는 핸들러로, 로그 레벨이 ERROR 이상이고 DEBUG=False 일때만 로그를 전송한다.
+            # 이 핸들러를 사용하려면 환경설정 파일에 ADMINS라는 항목을 추가하고 관리자 이메일을 등록해야 한다
+            # (예: ADMINS = ['pahkey@gmail.com']). 그리고 이메일 발송을 위한 SMTP 설정도 필요하다.
             "level": "ERROR",
             "filters": ["require_debug_false"],
             "class": "django.utils.log.AdminEmailHandler",
@@ -265,6 +271,10 @@ LOGGING = {
             "handlers": ["django.server"],
             "level": "INFO",
             "propagate": False,
+        },
+        "middleware": {
+            "handlers": ["file"],
+            "level": "INFO",
         },
         "logstash_info": {
             # "handlers": ["console", "mail_admins", "file"],
