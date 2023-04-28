@@ -9,7 +9,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        logger_info.info("MyTokenObtainPairSerializer")
 
         # 토큰에 추가로 주고 싶은 필드 넣기
         token["name"] = user.username
@@ -30,4 +29,3 @@ class MyTokenVerifySerializer(TokenVerifySerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        logger_info.info("validate", str(data))
