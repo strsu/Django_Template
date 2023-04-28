@@ -133,9 +133,7 @@ class LoggingMiddleware:
         정의되어 있으면 호출
             -> __call__ 때문엔지 실제로 호출되지 않는다.
         """
-
         try:
-
             seoul_tz = pytz.timezone("Asia/Seoul")
             seoul_time = datetime.now(seoul_tz)
 
@@ -150,9 +148,6 @@ class LoggingMiddleware:
                 "QUERY_STRING": request.META["QUERY_STRING"]
                 if "QUERY_STRING" in request.META.keys()
                 else None,
-                "BODY": json.loads(self.cached_request_body)
-                if self.cached_request_body
-                else None,
                 "USER_ID": request.user.uuid
                 if str(request.user) != "AnonymousUser"
                 else None,
@@ -166,6 +161,17 @@ class LoggingMiddleware:
                 "LEVEL": "INFO",
             }
 
+            try:
+                log_data["BODY"] = (
+                    json.loads(self.cached_request_body)
+                    if self.cached_request_body
+                    else None
+                )
+            except Exception as e:
+                log_data["BODY"] = (
+                    str(self.cached_request_body) if self.cached_request_body else None
+                )
+
             if (
                 log_data["HTTP_USER_AGENT"]
                 and "ELB-HealthChecker" in log_data["HTTP_USER_AGENT"]
@@ -178,11 +184,9 @@ class LoggingMiddleware:
 
             if response.status_code in range(400, 500):
                 log_data["LEVEL"] = "ERROR"
-                log_data["TRACEBACK"] = traceback.format_exc()
                 exception_logger.error(log_data)
             elif response.status_code in range(500, 600):
                 log_data["LEVEL"] = "CRITICAL"
-                log_data["TRACEBACK"] = traceback.format_exc()
                 exception_logger.error(log_data)
             else:
                 try:
@@ -193,7 +197,6 @@ class LoggingMiddleware:
                     )
                 except:
                     pass
-            log_data.pop("TRACEBACK", None)
             request_logger.info(log_data)
 
         except Exception as e:

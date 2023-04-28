@@ -14,12 +14,13 @@ import logging
 import traceback
 
 logger = logging.getLogger("django")
+exception_logger = logging.getLogger("exception")
 
 
 def custom_exception_handler(exc, context):
     message = {"message": str(exc)}
 
-    if False and "view" in context:
+    if "view" in context:
         if "head" in context["view"].__dict__:
             message["head"] = context["view"].__dict__["head"].__dict__
         if "headers" in context["view"].__dict__:
@@ -32,6 +33,9 @@ def custom_exception_handler(exc, context):
             message["kwargs"] = context["view"].__dict__["kwargs"]
 
         logger_error.error(message)
+
+    message["trackback"] = traceback.format_exc()
+    exception_logger.error(message)
 
     logger.info(traceback.format_exc())
 
