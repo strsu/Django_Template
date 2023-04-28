@@ -229,6 +229,15 @@ LOGGING = {
             "backupCount": 30,  # 보존할 백업 파일 수
             "formatter": "standard",
         },
+        "exception": {
+            "level": "INFO",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "filename": os.path.join(BASE_DIR, "log/exception.log"),
+            "when": "D",  # when: 시간 단위 ('S' - 초, 'M' - 분, 'H' - 시간, 'D' - 일, 'W' - 주차, 'midnight' - 자정)
+            "interval": 1,  # interval: 로그 파일을 회전시키는 시간 간격
+            "backupCount": 30,  # 보존할 백업 파일 수
+            "formatter": "standard",
+        },
         "django.server": {
             # python manage.py runserver로 작동하는 개발 서버에서만 사용하는 핸들러로 콘솔에 로그를 출력한다.
             "level": "INFO",
@@ -275,6 +284,10 @@ LOGGING = {
         "middleware": {
             "handlers": ["file"],
             "level": "INFO",
+        },
+        "exception": {
+            "handlers": ["exception"],
+            "level": "ERROR",
         },
         "logstash_info": {
             # "handlers": ["console", "mail_admins", "file"],

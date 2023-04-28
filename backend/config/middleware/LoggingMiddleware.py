@@ -10,8 +10,10 @@ import time
 import base64
 import logging
 import json
+import traceback
 
 request_logger = logging.getLogger("middleware")
+exception_logger = logging.getLogger("exception")
 
 
 class LoggingMiddleware:
@@ -176,8 +178,12 @@ class LoggingMiddleware:
 
             if response.status_code in range(400, 500):
                 log_data["LEVEL"] = "ERROR"
+                log_data["TRACEBACK"] = traceback.format_exc()
+                exception_logger.error(log_data)
             elif response.status_code in range(500, 600):
                 log_data["LEVEL"] = "CRITICAL"
+                log_data["TRACEBACK"] = traceback.format_exc()
+                exception_logger.error(log_data)
             else:
                 try:
                     log_data["RESPONSE"] = (
@@ -187,6 +193,7 @@ class LoggingMiddleware:
                     )
                 except:
                     pass
+            log_data.pop("TRACEBACK", None)
             request_logger.info(log_data)
 
         except Exception as e:
