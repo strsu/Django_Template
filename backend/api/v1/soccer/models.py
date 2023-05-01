@@ -16,10 +16,17 @@ class SoccerPlace(models.Model):
     latitude = models.FloatField("위도", blank=True, null=True)
     longitude = models.FloatField("경도", blank=True, null=True)
 
+    def __str__(self):
+        if self.name:
+            return self.name
+        else:
+            return "-"
+
     class Meta:
         db_table = "soccer_place"
         verbose_name_plural = "축구 장소"
         unique_together = (("latitude", "longitude"),)
+        ordering = ("name",)
 
 
 class Soccer(models.Model):
@@ -69,6 +76,9 @@ class Soccer(models.Model):
     modified_at = models.DateTimeField("수정일", auto_now=True, blank=True, null=True)
     deleted_at = models.DateTimeField("삭제일", blank=True, null=True)
 
+    def __str__(self):
+        return f"{self.user}_{self.where}"
+
     def delete(self):
         self.deleted_at = datetime.now()
 
@@ -97,6 +107,20 @@ class SoccerTime(models.Model):
     time_from = models.TimeField("시작 시간", blank=True, null=True)
     time_to = models.TimeField("종료 시간", blank=True, null=True)
     soccer_time = models.TimeField("운동 시간 = 종료시간 - 시간시작", blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.time_from and self.time_to:
+            date_from = datetime.combine(
+                datetime.today(),
+                datetime.strptime(str(self.time_from), "%H:%M:%S").time(),
+            )
+            date_to = datetime.combine(
+                datetime.today(),
+                datetime.strptime(str(self.time_to), "%H:%M:%S").time(),
+            )
+            self.soccer_time = str(date_to - date_from)
+
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = "soccer_time"
