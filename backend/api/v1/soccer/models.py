@@ -26,7 +26,6 @@ class SoccerPlace(models.Model):
         db_table = "soccer_place"
         verbose_name_plural = "축구 장소"
         unique_together = (("latitude", "longitude"),)
-        ordering = ("name",)
 
 
 class Soccer(models.Model):

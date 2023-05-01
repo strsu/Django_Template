@@ -11,7 +11,7 @@ class SoccerPlaceAdmin(admin.ModelAdmin):
     list_filter = ("name", "address")
 
     search_fields = ("name__startswith", "address__startswith")
-    ordering = ("name",)
+    ordering = ("name",)  # 여기서 ordering을 하면 admin내 모든 place가 ordering 된다.
 
     actions = ["make_published"]
 
