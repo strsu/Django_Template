@@ -35,7 +35,7 @@ def custom_exception_handler(exc, context):
         logger_error.error(message)
 
     message["trackback"] = traceback.format_exc()
-    exception_logger.error(message)
+    exception_logger.error(traceback.format_exc())
 
     logger.info(traceback.format_exc())
 

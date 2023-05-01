@@ -2,7 +2,6 @@ from rest_framework_simplejwt.serializers import (
     TokenObtainPairSerializer,
     TokenVerifySerializer,
 )
-from config.settings.base import logger_info
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
