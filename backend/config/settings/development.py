@@ -1,18 +1,15 @@
 from config.settings.base import *
-import os
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.getenv("POSTGRES_DB"),
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("POSTGRES_HOST"),
-        "PORT": os.getenv("POSTGRES_PORT"),
+        "NAME": POSTGRES["POSTGRES_DB"],
+        "USER": POSTGRES["POSTGRES_USER"],
+        "PASSWORD": POSTGRES["POSTGRES_PASSWORD"],
+        "HOST": POSTGRES["POSTGRES_HOST"],
+        "PORT": POSTGRES["POSTGRES_PORT"],
     }
 }
 
