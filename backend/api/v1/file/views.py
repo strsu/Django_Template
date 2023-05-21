@@ -16,10 +16,13 @@ from api.v1.file.models import File
 from api.v1.file.serializer import FileSerializer
 
 from datetime import datetime
+import requests
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class FileView(APIView):
-
     permission_classes = [AllowAny]
 
     def get(self, request):
@@ -32,3 +35,38 @@ class FileView(APIView):
         response = HttpResponse(file_data, content_type="text/plain")
         response["Content-Disposition"] = f'attachment; filename="{file.name}"'
         return response
+
+
+class VideoListView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        video_dict = {}
+
+        def get_video_list(path):
+            nonlocal video_dict
+
+            res = requests.get(
+                f"https://nginx/listing/media{path}",
+                headers={"Content-Type": "application/json"},
+                verify=False,
+            )
+
+            if res.status_code == 200:
+                file_list = res.json()
+                if file_list:
+                    for file in file_list:
+                        if file["name"] == "$RECYCLE.BIN":
+                            continue
+                        if file["type"] == "directory":
+                            get_video_list(f"{path}{file['name']}")
+                        else:
+                            if ".mp4" in file["name"]:
+                                if path[1:] not in video_dict:
+                                    video_dict[path[1:]] = []
+
+                                video_dict[path[1:]].append(file["name"])
+
+        get_video_list("/")
+
+        return Response(video_dict, status=200)

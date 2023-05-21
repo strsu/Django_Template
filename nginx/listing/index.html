@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>비디오 재생</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            // 비동기 함수를 Promise로 래핑
+            function fetchData() {
+                return new Promise(function (resolve, reject) {
+                    $.ajax({
+                        url: `/api/v1/file/media/`,
+                        success: function (data) {
+                            resolve(data);
+                        },
+                        error: function (error) {
+                            reject(error);
+                        }
+                    });
+                });
+            }
+
+            // Promise를 사용하여 비동기 작업 처리
+            fetchData().then(function (data) {
+                // 비동기 작업 완료 후 실행될 코드
+                let listHTML = '';
+
+                for (const [key, value] of Object.entries(data)) {
+                    let ulHTML = '';
+                    value.map(v => {
+                        ulHTML += `<li onclick="play('${key}/${v}')">${v}</li>`;
+                    })
+                    ulHTML = `<li>${key == "" ? "/" : key}<ul class="folder">${ulHTML}</ul></li>`;
+                    listHTML += ulHTML;
+                }
+                document.getElementById('fileList').innerHTML = listHTML;
+            }).catch(function (error) {
+                // 에러 처리
+                console.error(error);
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="file-list">
+            <button onclick>◀</button>
+            <ul id="fileList"></ul>
+        </div>
+        <div class="video-frame">
+            <h3 id="title"></h3>
+            <video id="myVideo" controls>
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+
+    <script>
+
+        function play(src) {
+            var video = document.getElementById('myVideo');
+
+            // src 속성 지정
+            var mp4Source = `./media/${src}`; // mp4 파일 경로
+
+            video.querySelector('source[type="video/mp4"]').src = mp4Source;
+
+            // 비디오 다시 로드
+            video.load();
+
+            document.getElementById("title").innerText = src;
+        }
+
+        // 현재 URL 가져오기
+        var currentUrl = window.location.href;
+
+        // URL에서 GET 파라미터 부분 추출
+        var paramsString = currentUrl.split('?')[1];
+
+        // GET 파라미터를 객체로 변환
+        var params = {};
+        if (paramsString) {
+            var paramPairs = paramsString.split('&');
+            for (var i = 0; i < paramPairs.length; i++) {
+                var pair = paramPairs[i].split('=');
+                var key = decodeURIComponent(pair[0]);
+                var value = decodeURIComponent(pair[1]);
+                params[key] = value;
+            }
+        }
+
+        // GET 파라미터 사용 예시
+        if (params.name) {
+            var name = params.name;
+            console.log('name: ' + name);
+        }
+
+        // 비디오 요소 참조
+        var video = document.getElementById('myVideo');
+
+        // src 속성 지정
+        var mp4Source = `./media/${params.name}`; // mp4 파일 경로
+
+        video.querySelector('source[type="video/mp4"]').src = mp4Source;
+
+        // 비디오 다시 로드
+        video.load();
+    </script>
+
+</body>
+
+</html>
+
+<style>
+    .container {
+        display: flex;
+    }
+
+    .file-list {
+        width: 30%;
+        height: 500px;
+        overflow-y: scroll;
+    }
+
+    .file-list ul {
+        list-style-type: none;
+        padding-left: 0px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+    }
+
+    .video-frame {
+        margin-left: 10px;
+        width: 70%;
+    }
+
+    #myVideo {
+        width: 100%;
+        max-height: 400px;
+    }
+
+    .folder li {
+        padding-left: 10px;
+        cursor: pointer;
+
+    }
+
+    .folder li:hover {
+        color: white;
+        background: black;
+    }
+</style>

@@ -31,6 +31,8 @@ services:
       - ./nginx/log:/var/log/nginx/
       - ./nginx/ssl:/usr/share/nginx/ssl/
       - ./nginx/html:/usr/share/nginx/html/
+      - ./nginx/listing:/usr/share/nginx/listing/
+      - F:\:/usr/share/nginx/listing/media/
 
   postgres:
     image: postgres:13
@@ -40,6 +42,10 @@ services:
       - "54321:5432"
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
 
   redis:
     image: redis:7.0.7

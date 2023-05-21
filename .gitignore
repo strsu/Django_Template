@@ -135,6 +135,9 @@ dmypy.json
 #postgresql
 .pgdata/
 
+#vscode
+.vscode/
+
 #template
 backend/staticfiles/admin/
 backend/staticfiles/drf-yasg/
