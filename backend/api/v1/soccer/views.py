@@ -3,6 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import BasicAuthentication
 
+from rest_framework.pagination import PageNumberPagination  # 👈 페이지 기반 파지네이션
+
 from api.v1.soccer.models import Soccer
 from api.v1.soccer.serializer import SoccerListSerializer, SoccerSerializer
 
@@ -17,6 +19,11 @@ class SoccerLevelView(APIView):
         return Response(Soccer.Level.choices, status=200)
 
 
+# StudentPagination # 👈 개별 View에 적용시킬 Pagination Class
+class SoccerPagination(PageNumberPagination):  # 👈 PageNumberPagination 상속
+    page_size = 3
+
+
 class SoccerView(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
@@ -25,9 +32,9 @@ class SoccerView(
     mixins.DestroyModelMixin,
     generics.GenericAPIView,
 ):
-
     queryset = Soccer.objects.all()
     serializer_class = SoccerSerializer
+    pagination_class = SoccerPagination  # 👈 pagination_class 값에 매핑
 
     def get_queryset(self):
         """
@@ -46,6 +53,9 @@ class SoccerView(
             if "pk" not in self.kwargs:
                 return SoccerListSerializer
         return self.serializer_class
+
+    def get_pagination_class(self):
+        return self.pagination_class
 
     def list(self, request):
         if not ("view" in request.GET and "month" in request.GET):
@@ -67,6 +77,7 @@ class SoccerView(
             .filter(when__startswith=request.GET.get("month"))
         )
         serializer = self.get_serializer_class()
+
         soccer = serializer(instance=soccer, many=True)
         return Response(soccer.data, status=200)
 
