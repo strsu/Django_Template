@@ -27,8 +27,7 @@ class GenreSerilizer(serializers.ModelSerializer):
 class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
-        fields = "__all__"
-        exclude = ["modified_at", "deleted_at"]
+        exclude = ["deleted_at"]
 
 
 class MovieRateTypeSerializer(serializers.ModelSerializer):
@@ -37,7 +36,7 @@ class MovieRateTypeSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class MovieRatingTypeSerializer(serializers.ModelSerializer):
+class MovieRatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = MovieRating
         fields = "__all__"
@@ -56,7 +55,7 @@ class ActorRateTypeSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ActorRatingTypeSerializer(serializers.ModelSerializer):
+class ActorRatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActorRating
         fields = "__all__"

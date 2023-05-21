@@ -4,7 +4,7 @@ from api.v1.user.models import User
 
 # Create your models here.
 class LogModel(models.Model):
-    memo = models.CharField(max_length=256)
+    memo = models.CharField(max_length=256, blank=True, null=True)
 
     created_at = models.DateTimeField("생성일", auto_now_add=True, blank=True, null=True)
     modified_at = models.DateTimeField("수정일", auto_now=True, blank=True, null=True)
@@ -15,28 +15,28 @@ class LogModel(models.Model):
 
 
 class Genre(models.Model):
-    genre = models.CharField(max_length=16)
+    genre = models.CharField(max_length=16, unique=True)
 
     class Meta:
-        pass
+        ordering = ["genre"]
 
 
 class Nation(models.Model):
-    nation = models.CharField(max_length=16)
+    nation = models.CharField(max_length=16, unique=True)
 
     class Meta:
         pass
 
 
 class MovieRateType(models.Model):
-    rate_type = models.CharField(max_length=16)
+    rate_type = models.CharField(max_length=16, unique=True)
 
     class Meta:
         pass
 
 
 class ActorRateType(models.Model):
-    rate_type = models.CharField(max_length=16)
+    rate_type = models.CharField(max_length=16, unique=True)
 
     class Meta:
         pass
@@ -44,17 +44,29 @@ class ActorRateType(models.Model):
 
 class Movie(LogModel):
     title = models.CharField(max_length=64)
-    open = models.DateField("개봉년도")
+    open = models.DateField("개봉년도", blank=True, null=True)
+
+    nation = models.ForeignKey(
+        Nation,
+        on_delete=models.SET_NULL,
+        default=None,
+        blank=True,
+        null=True,
+        related_name="movie_nation",
+        verbose_name="movie_nation_id",
+    )
+
+    genre = models.ManyToManyField(Genre, related_name="movie_genre", blank=True)
 
     class Meta:
         pass
 
 
 class Actor(LogModel):
-    title = models.CharField(max_length=64)
-    birth = models.DateField("개봉년도")
+    name = models.CharField(max_length=64)
+    birth = models.DateField("생년월일", blank=True, null=True)
 
-    height = models.FloatField("키")
+    height = models.FloatField("키", blank=True, null=True)
 
     movie = models.ManyToManyField(Movie, related_name="attend_movie")
 
@@ -92,7 +104,7 @@ class MovieRating(models.Model):
     score = models.FloatField()
 
     class Meta:
-        pass
+        unique_together = [["user", "movie", "rate_type"]]
 
 
 class ActorRating(models.Model):
@@ -125,4 +137,4 @@ class ActorRating(models.Model):
     score = models.FloatField()
 
     class Meta:
-        pass
+        unique_together = [["user", "actor", "rate_type"]]

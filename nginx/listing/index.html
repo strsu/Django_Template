@@ -3,8 +3,107 @@
 
 <head>
     <title>비디오 재생</title>
+    <meta charset="utf-8" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+
+        let cur_movie_id = null;
+        let tags = {};
+        let rate_type = {};
+
+        const Info = {
+            moiveRateType: () => {
+                return new Promise(function (resolve, reject) {
+                    $.ajax({
+                        url: `/api/v1/movie/rate/type/`,
+                        success: function (data) {
+                            resolve(data);
+                        },
+                        error: function (error) {
+                            reject(error);
+                        }
+                    });
+                });
+            },
+
+            moiveGenre: () => {
+                return new Promise(function (resolve, reject) {
+                    $.ajax({
+                        url: `/api/v1/movie/genre/`,
+                        success: function (data) {
+                            resolve(data);
+                        },
+                        error: function (error) {
+                            reject(error);
+                        }
+                    });
+                });
+            },
+
+            moiveRating: (id) => {
+                $.ajax({
+                    url: `/api/v1/movie/${id}/rating/`,
+                    success: function (data) {
+                        let listHTML = '';
+                        data.results.map(v => {
+                            listHTML += `${rate_type[v.rate_type]}: ${v.score}, `;
+                        })
+                        document.getElementById('rating').innerHTML = listHTML;
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            },
+        }
+
+        const SetInfo = {
+            genre: (id) => {
+                if (cur_movie_id != null) {
+                    $.ajax({
+                        type: 'post',
+                        url: `/api/v1/movie/${cur_movie_id}/genre/`,
+                        dataType: "json",
+                        data: {
+                            "genre": id
+                        },
+                        success: function (data) {
+                            document.getElementById('tags').innerHTML += `${tags[id]}, `;
+                        },
+                        error: function (error) {
+                            if (error.status == 200) {
+                                document.getElementById('tags').innerHTML += `${tags[id]}, `;
+                            }
+                        }
+                    });
+                }
+            },
+
+            movieRate: () => {
+                let r_type = document.getElementById("movie_rate").children[0].value;
+                let score = document.getElementById("movie_rate_score").children[0].value;
+
+                if (cur_movie_id != null) {
+                    $.ajax({
+                        type: 'post',
+                        url: `/api/v1/movie/${cur_movie_id}/rating/`,
+                        dataType: "json",
+                        data: {
+                            "rate_type": r_type,
+                            "score": score
+                        },
+                        success: function (data) {
+                            document.getElementById('rating').innerHTML += `${rate_type[r_type]}: ${score}, `;
+                        },
+                        error: function (error) {
+                            if (error.status == 200) {
+                                document.getElementById('rating').innerHTML += `${rate_type[r_type]}: ${score}, `;
+                            }
+                        }
+                    });
+                }
+            }
+        }
 
         $(document).ready(function () {
             // 비동기 함수를 Promise로 래핑
@@ -29,10 +128,11 @@
 
                 for (const [key, value] of Object.entries(data)) {
                     let ulHTML = '';
+                    let myKey = key == "" ? "/" : key;
                     value.map(v => {
                         ulHTML += `<li onclick="play('${key}/${v}')">${v}</li>`;
                     })
-                    ulHTML = `<li>${key == "" ? "/" : key}<ul class="folder">${ulHTML}</ul></li>`;
+                    ulHTML = `<li class="folder" onclick="toggle('${myKey}')">${myKey}<ul class="folder-content" name="${myKey}">${ulHTML}</ul></li>`;
                     listHTML += ulHTML;
                 }
                 document.getElementById('fileList').innerHTML = listHTML;
@@ -40,7 +140,38 @@
                 // 에러 처리
                 console.error(error);
             });
+
+            Info.moiveRateType().then((res) => {
+                let listHTML = '';
+                res.results.map(v => {
+                    listHTML += `<option value="${v.id}">${v.rate_type}</option>`
+                    rate_type[v.id] = v.rate_type;
+                })
+                document.getElementById('movie_rate').innerHTML = `<select>${listHTML}</select>`;
+            }).catch((err) => {
+                console.log(err);
+            })
+
+            Info.moiveGenre().then((res) => {
+                let listHTML = '';
+                res.results.map(v => {
+                    listHTML += `<button onclick="SetInfo.genre(${v.id})">${v.genre}</button>`
+                    tags[v.id] = v.genre;
+                })
+                document.getElementById('genre').innerHTML = listHTML;
+            }).catch((err) => {
+                console.log(err);
+            })
         });
+
+        function toggle(key) {
+            return;
+            if (document.getElementsByName(key)[0].style.display == "none") {
+                document.getElementsByName(key)[0].style.display = "block";
+            } else {
+                document.getElementsByName(key)[0].style.display = "none";
+            }
+        }
 
     </script>
 </head>
@@ -53,16 +184,88 @@
         </div>
         <div class="video-frame">
             <h3 id="title"></h3>
+            <div id="tags"></div>
+            <div id="rating"></div>
             <video id="myVideo" controls>
                 <source src="" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
+            <div style="gap: 5px;">
+                <div id="genre"></div>
+                <div style="display: flex;">
+                    <div id="movie_rate"></div>
+                    <div id="movie_rate_score">
+                        <select>
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <button onclick="SetInfo.movieRate()">저장</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script>
 
+        function fetchData() {
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    url: `/api/v1/file/media/`,
+                    success: function (data) {
+                        resolve(data);
+                    },
+                    error: function (error) {
+                        reject(error);
+                    }
+                });
+            });
+        }
+
+        const Movie = {
+            register: (path) => {
+                return new Promise(function (resolve, reject) {
+                    $.ajax({
+                        type: 'post',
+                        url: `/api/v1/movie/`,
+                        dataType: "json",
+                        data: {
+                            "title": path
+                        },
+                        success: function (data) {
+                            resolve(data);
+                        },
+                        error: function (error) {
+                            reject(error);
+                        }
+                    });
+                });
+            },
+        }
+
         function play(src) {
+
+            document.getElementById('tags').innerHTML = "";
+            document.getElementById('rating').innerHTML = "";
+
+            Movie.register(src).then((res) => {
+                cur_movie_id = res.id;
+                let listHTML = '';
+                res.genre.map(v => {
+                    listHTML += `${tags[v]}, `;
+                })
+                document.getElementById('tags').innerHTML = listHTML;
+                Info.moiveRating(res.id);
+            }).catch(function (error) {
+                // 에러 처리
+                console.error(error);
+            });
+
             var video = document.getElementById('myVideo');
 
             // src 속성 지정
@@ -128,6 +331,7 @@
     }
 
     .file-list ul {
+        background: white;
         list-style-type: none;
         padding-left: 0px;
         text-overflow: ellipsis;
@@ -145,13 +349,21 @@
         max-height: 400px;
     }
 
-    .folder li {
-        padding-left: 10px;
+    .folder {
+        background: orange;
         cursor: pointer;
-
     }
 
-    .folder li:hover {
+    .folder:hover {
+        background: tomato;
+    }
+
+    .folder-content li {
+        padding-left: 10px;
+        cursor: pointer;
+    }
+
+    .folder-content li:hover {
         color: white;
         background: black;
     }
