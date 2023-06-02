@@ -44,4 +44,4 @@ CORS_ALLOW_ALL_ORIGINS = (
 )
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS = ["https://localhost", "https://192.168.1.243"]
+# CSRF_TRUSTED_ORIGINS = ["https://localhost", "https://192.168.1.243"]
