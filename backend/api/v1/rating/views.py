@@ -17,7 +17,6 @@ from api.v1.rating.serializer import (
 )
 
 from datetime import datetime
-import ffmpeg
 
 
 class MoviePagination(PageNumberPagination):  # 👈 PageNumberPagination 상속
