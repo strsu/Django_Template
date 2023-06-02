@@ -27,7 +27,8 @@ CHANNEL_LAYERS = {
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-CORS_ORIGIN_WHITELIST = ["http://*", "https://*"]
-CORS_ALLOW_CREDENTIALS = False
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS = ["http://*", "https://*"]
+# CORS_ORIGIN_WHITELIST = ["http://*", "https://*"]
+# CSRF_TRUSTED_ORIGINS = ["http://*", "https://*"]

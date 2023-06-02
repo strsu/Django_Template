@@ -41,7 +41,6 @@ CORS_ORIGIN_WHITELIST = [
 
 # If this is used then `CORS_ALLOWED_ORIGINS` will not have any effect
 CORS_ALLOW_ALL_ORIGINS = True
-
 CORS_ALLOW_CREDENTIALS = True
 
 # CSRF_TRUSTED_ORIGINS = ["https://localhost", "https://192.168.1.243"]
