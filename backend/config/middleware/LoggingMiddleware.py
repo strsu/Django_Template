@@ -177,6 +177,13 @@ class LoggingMiddleware:
                 and "ELB-HealthChecker" in log_data["HTTP_USER_AGENT"]
             ):
                 return response
+
+            log_data["RESPONSE"] = (
+                str(json.loads(response.content))[: self.response_limit]
+                if getattr(response, "content")
+                else None
+            )
+
             # 민감한 정보제거.
             if "token" in log_data["PATH_INFO"]:
                 log_data["BODY"] = None
@@ -188,15 +195,7 @@ class LoggingMiddleware:
             elif response.status_code in range(500, 600):
                 log_data["LEVEL"] = "CRITICAL"
                 exception_logger.error(log_data)
-            else:
-                try:
-                    log_data["RESPONSE"] = (
-                        str(json.loads(response.content))[: self.response_limit]
-                        if getattr(response, "content")
-                        else None
-                    )
-                except:
-                    pass
+
             request_logger.info(log_data)
 
         except Exception as e:
