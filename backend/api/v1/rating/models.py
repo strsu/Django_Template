@@ -17,12 +17,18 @@ class LogModel(models.Model):
 class Genre(models.Model):
     genre = models.CharField(max_length=16, unique=True)
 
+    def __str__(self):
+        return self.genre
+
     class Meta:
         ordering = ["genre"]
 
 
 class Nation(models.Model):
     nation = models.CharField(max_length=16, unique=True)
+
+    def __str__(self):
+        return self.nation
 
     class Meta:
         pass
@@ -31,12 +37,18 @@ class Nation(models.Model):
 class MovieRateType(models.Model):
     rate_type = models.CharField(max_length=16, unique=True)
 
+    def __str__(self):
+        return self.rate_type
+
     class Meta:
         pass
 
 
 class ActorRateType(models.Model):
     rate_type = models.CharField(max_length=16, unique=True)
+
+    def __str__(self):
+        return self.rate_type
 
     class Meta:
         pass
@@ -58,6 +70,9 @@ class Movie(LogModel):
 
     genre = models.ManyToManyField(Genre, related_name="movie_genre", blank=True)
 
+    def __str__(self):
+        return self.title
+
     class Meta:
         pass
 
@@ -69,6 +84,9 @@ class Actor(LogModel):
     height = models.FloatField("키", blank=True, null=True)
 
     movie = models.ManyToManyField(Movie, related_name="attend_movie")
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         pass
@@ -102,6 +120,9 @@ class MovieRating(models.Model):
         verbose_name="movie_rate_type id",
     )
     score = models.FloatField()
+
+    def __str__(self):
+        return self.movie.title
 
     class Meta:
         unique_together = [["user", "movie", "rate_type"]]

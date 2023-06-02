@@ -1,3 +1,5 @@
+from django.shortcuts import render
+
 from rest_framework import generics, mixins
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -21,6 +23,13 @@ from datetime import datetime
 
 class MoviePagination(PageNumberPagination):  # 👈 PageNumberPagination 상속
     page_size = 100
+
+
+class MovieApiView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return render(request, "video/index.html", {})
 
 
 class GenreView(

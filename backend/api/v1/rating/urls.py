@@ -6,6 +6,7 @@ from api.v1.rating import views
 """
 
 urlpatterns = [
+    path("view/", views.MovieApiView.as_view(), name=""),
     path("", views.MovieView.as_view(), name=""),
     path("<int:pk>/", views.MovieView.as_view(), name=""),
     path("genre/", views.GenreView.as_view(), name=""),

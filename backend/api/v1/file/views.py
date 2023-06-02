@@ -47,7 +47,7 @@ class VideoListView(APIView):
             nonlocal video_dict
 
             res = requests.get(
-                f"https://nginx/listing/media{path}",
+                f"http://nginx/listing/media{path}",
                 headers={"Content-Type": "application/json"},
                 verify=False,
             )
@@ -66,6 +66,8 @@ class VideoListView(APIView):
                                     video_dict[path[1:]] = []
 
                                 video_dict[path[1:]].append(file["name"])
+            else:
+                print(res.status_code)
 
         get_video_list("/")
 

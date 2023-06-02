@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+{% load static %}
+{% load sass_tags %}
+
+<head>
+    <meta charset="utf-8" />
+    <title>Chat Rooms</title>
+    <link rel="stylesheet" href="{% static 'chat/css/main.css' %}">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.1/dist/cdn.min.js"></script>
+</head>
+
+<body>
+    <h1 x-data="{ message: 'I ❤️ Alpine' }" x-text="message"></h1>
+
+    <div x-data="{ count: 0 }">
+        <button x-on:click="count++">Increment</button>
+
+        <span x-text="count"></span>
+    </div>
+</body>
+
+</html>
