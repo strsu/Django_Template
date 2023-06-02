@@ -15,9 +15,6 @@ class SoccerTest(TestCase):
     def test_get_data(self):
         client = Client()
 
-        u = User.objects.all()
-        print(u.count())
-
         result = {
             "id": 5,
             "where": {

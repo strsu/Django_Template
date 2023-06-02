@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = CORE["SECRET_KEY"]  # os.getenv("SECRET_KEY")
 
 ALLOWED_HOSTS = ["*"]
-CSRF_TRUSTED_ORIGINS = ["http://*", "https://"]
+
 SESSION_COOKIE_SECURE = True
 # Application definition
 
