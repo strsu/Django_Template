@@ -59,7 +59,10 @@ class VideoListView(APIView):
                         if file["name"] == "$RECYCLE.BIN":
                             continue
                         if file["type"] == "directory":
-                            get_video_list(f"{path}{file['name']}")
+                            if path == "/":
+                                get_video_list(f"{path}{file['name']}")
+                            else:
+                                get_video_list(f"{path}/{file['name']}")
                         else:
                             if ".mp4" in file["name"]:
                                 if path[1:] not in video_dict:
@@ -67,7 +70,7 @@ class VideoListView(APIView):
 
                                 video_dict[path[1:]].append(file["name"])
             else:
-                print(res.status_code)
+                print(path, res.status_code)
 
         get_video_list("/")
 
