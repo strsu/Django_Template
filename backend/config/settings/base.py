@@ -31,6 +31,8 @@ ALLOWED_HOSTS = ["*"]
 SESSION_COOKIE_SECURE = True
 # Application definition
 
+USE_X_FORWARDED_HOST = True
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -180,6 +182,8 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
     "sass_processor.finders.CssFinder",
 ]
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 5  # 업로드 파일 사이즈 5mb
 
 # MEDIA CONFIGURATION
 # ------------------------------------------------------------------------------

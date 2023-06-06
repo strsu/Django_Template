@@ -43,4 +43,8 @@ CORS_ORIGIN_WHITELIST = [
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-# CSRF_TRUSTED_ORIGINS = ["https://localhost", "https://192.168.1.243"]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost",
+    "https://localhost",
+    "https://192.168.1.243",
+]
