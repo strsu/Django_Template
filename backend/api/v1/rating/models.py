@@ -15,13 +15,14 @@ class LogModel(models.Model):
 
 
 class Genre(models.Model):
-    genre = models.CharField(max_length=16, unique=True)
+    content = models.CharField(max_length=16, blank=True, null=True)
+    genre = models.CharField(max_length=16, unique=True, blank=True, null=True)
 
     def __str__(self):
         return self.genre
 
     class Meta:
-        ordering = ["genre"]
+        ordering = ["content", "genre"]
 
 
 class Nation(models.Model):
@@ -55,7 +56,8 @@ class ActorRateType(models.Model):
 
 
 class Movie(LogModel):
-    title = models.CharField(max_length=64)
+    folder = models.CharField(max_length=256, blank=True, null=True)
+    title = models.CharField(max_length=256, blank=True, null=True)
     open = models.DateField("개봉년도", blank=True, null=True)
 
     nation = models.ForeignKey(

@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.pagination import PageNumberPagination
 
+from django.db.models import Avg, Count, Sum
+
 from config.exceptions.custom_exceptions import CustomException
 from api.common.message import UserFault
 
@@ -38,7 +40,7 @@ class GenreView(
 ):
     permission_classes = [AllowAny]
 
-    queryset = Genre.objects.all().order_by("genre")
+    queryset = Genre.objects.all().order_by("content", "genre")
     serializer_class = GenreSerilizer
     pagination_class = MoviePagination
 
@@ -86,6 +88,7 @@ class MovieView(
 
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
+    pagination_class = MoviePagination
 
     def get_queryset(self):
         return super().get_queryset().filter(deleted_at__isnull=True)
@@ -97,11 +100,33 @@ class MovieView(
         if "pk" in kwargs:
             return self.retrieve(request, kwargs["pk"])
         else:
-            return self.list(request)
+            data = self.list(request)
+            id_list = [d["id"] for d in data.data["results"]]
+
+            movie_rating = (
+                MovieRating.objects.filter(movie_id__in=id_list)
+                .values("movie")
+                .annotate(avg_score=(Sum("score") / Count("score")))
+            )
+
+            movie_rating_dict = {}
+
+            for obj in movie_rating:
+                movie_rating_dict[obj["movie"]] = round(obj["avg_score"], 2)
+
+            for i, d in enumerate(data.data["results"]):
+                if d["id"] in movie_rating_dict:
+                    data.data["results"][i]["avg_score"] = movie_rating_dict[d["id"]]
+                else:
+                    data.data["results"][i]["avg_score"] = 0
+
+            return data
 
     def post(self, request):
         try:
-            obj = self.queryset.get(title=request.data.get("title"))
+            obj = self.queryset.get(
+                title=request.data.get("title"), folder=request.data.get("folder")
+            )
         except:
             # 없으면 생성
             return self.create(request)
