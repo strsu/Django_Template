@@ -11,7 +11,25 @@
         let tags = {};
         let rate_type = {};
 
+        //csrf token
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
         const Info = {
+
             moiveRateType: () => {
                 return new Promise(function (resolve, reject) {
                     $.ajax({
@@ -65,7 +83,8 @@
                         url: `/api/v1/movie/${cur_movie_id}/genre/`,
                         dataType: "json",
                         data: {
-                            "genre": id
+                            "genre": id,
+                            'csrfmiddlewaretoken': getCookie('csrftoken'),
                         },
                         success: function (data) {
                             document.getElementById('tags').innerHTML += `${tags[id]}, `;
@@ -79,9 +98,7 @@
                 }
             },
 
-            movieRate: () => {
-                let r_type = document.getElementById("movie_rate").children[0].value;
-                let score = document.getElementById("movie_rate_score").children[0].value;
+            movieRate: (r_type, score) => {
 
                 if (cur_movie_id != null) {
                     $.ajax({
@@ -90,7 +107,8 @@
                         dataType: "json",
                         data: {
                             "rate_type": r_type,
-                            "score": score
+                            "score": score,
+                            'csrfmiddlewaretoken': getCookie('csrftoken'),
                         },
                         success: function (data) {
                             document.getElementById('rating').innerHTML += `${rate_type[r_type]}: ${score}, `;
@@ -107,10 +125,10 @@
 
         $(document).ready(function () {
             // 비동기 함수를 Promise로 래핑
-            function fetchData() {
+            function fetchData(page) {
                 return new Promise(function (resolve, reject) {
                     $.ajax({
-                        url: `/api/v1/file/media/`,
+                        url: `/api/v1/movie/?page=${page}`,
                         success: function (data) {
                             resolve(data);
                         },
@@ -121,21 +139,34 @@
                 });
             }
 
+
+
             // Promise를 사용하여 비동기 작업 처리
-            fetchData().then(function (data) {
-                // 비동기 작업 완료 후 실행될 코드
+            fetchData(2).then(function (data) {
+
                 let listHTML = '';
 
-                for (const [key, value] of Object.entries(data)) {
+                // 비동기 작업 완료 후 실행될 코드
+                for (const result of data.results) {
+
+                    let genres = '';
+                    for (const genre of result.genre) {
+                        genres += `<div>${tags[genre]}</div>`
+                    }
+
                     let ulHTML = '';
-                    let myKey = key == "" ? "/" : key;
-                    value.map(v => {
-                        ulHTML += `<li onclick="play('${key}/${v}')">${v}</li>`;
-                    })
-                    ulHTML = `<li class="folder" onclick="toggle('${myKey}')">${myKey}<ul class="folder-content" name="${myKey}">${ulHTML}</ul></li>`;
+                    ulHTML += `
+                                <li onclick="play('${result.id}')">
+                                    <div class='fileList(tags)'>${genres}</div>
+                                    <div class='fileList(title)'>[${result.avg_score}] ${result.title}</div>
+                                </li>
+                            `;
+                    //ulHTML = `<li class="folder" onclick="toggle('${myKey}')">${myKey}<ul class="folder-content" name="${myKey}">${ulHTML}</ul></li>`;
                     listHTML += ulHTML;
                 }
-                document.getElementById('fileList').innerHTML = listHTML;
+
+                document.getElementById('fileList').innerHTML += listHTML;
+
             }).catch(function (error) {
                 // 에러 처리
                 console.error(error);
@@ -144,20 +175,45 @@
             Info.moiveRateType().then((res) => {
                 let listHTML = '';
                 res.results.map(v => {
-                    listHTML += `<option value="${v.id}">${v.rate_type}</option>`
+                    listHTML += `
+                        <div class='rating'>
+                            <div class='rating(title)'>${v.rate_type}</div>
+                            <div>
+                                <button onclick="SetInfo.movieRate(${v.id}, 1)">1</button>
+                                <button onclick="SetInfo.movieRate(${v.id}, 2)">2</button>
+                                <button onclick="SetInfo.movieRate(${v.id}, 3)">3</button>
+                                <button onclick="SetInfo.movieRate(${v.id}, 4)">4</button>
+                                <button onclick="SetInfo.movieRate(${v.id}, 5)">5</button>
+                            </div>
+                        </div>
+                    `;
                     rate_type[v.id] = v.rate_type;
                 })
-                document.getElementById('movie_rate').innerHTML = `<select>${listHTML}</select>`;
+                document.getElementById('movie_rate').innerHTML = listHTML;
             }).catch((err) => {
                 console.log(err);
             })
 
             Info.moiveGenre().then((res) => {
                 let listHTML = '';
+                let tags_obj = {}
                 res.results.map(v => {
-                    listHTML += `<button onclick="SetInfo.genre(${v.id})">${v.genre}</button>`
+                    if (v.content in tags_obj) {
+                        tags_obj[v.content].push(v);
+                    } else {
+                        tags_obj[v.content] = [v];
+                    }
                     tags[v.id] = v.genre;
                 })
+
+                for (const [content, tags] of Object.entries(tags_obj)) {
+                    let innerTags = '';
+                    for (const tag of tags) {
+                        innerTags += `<button onclick="SetInfo.genre(${tag.id})">${tag.genre}</button>`
+                    }
+                    listHTML += `<div class='genre'><h4>${content}</h4><div class='genre(inner)'>${innerTags}</div></div>`;
+                }
+
                 document.getElementById('genre').innerHTML = listHTML;
             }).catch((err) => {
                 console.log(err);
@@ -178,37 +234,30 @@
 
 <body>
     <div class="container">
-        <div class="file-list">
-            <button onclick>◀</button>
-            <ul id="fileList"></ul>
-        </div>
-        <div class="video-frame">
-            <h3 id="title"></h3>
-            <div id="tags"></div>
-            <div id="rating"></div>
-            <video id="myVideo" controls>
-                <source src="" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <div style="gap: 5px;">
-                <div id="genre"></div>
-                <div style="display: flex;">
-                    <div id="movie_rate"></div>
-                    <div id="movie_rate_score">
-                        <select>
-                            <option value="0">0</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                        </select>
-                    </div>
-                    <button onclick="SetInfo.movieRate()">저장</button>
-                </div>
+        <div class="playarea">
+            <div class="file-list">
+                <button onclick>◀</button>
+                <ul id="fileList"></ul>
             </div>
-
+            <div class="video-frame">
+                <h3 id="title"></h3>
+                <div id="tags"></div>
+                <div id="rating"></div>
+                <video id="myVideo" controls>
+                    <source src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
         </div>
+
+
+        <div style="gap: 5px;">
+            <div id="genre"></div>
+            <div style="display: flex;">
+                <div id="movie_rate"></div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -228,15 +277,14 @@
         }
 
         const Movie = {
-            register: (path) => {
+            info: (id) => {
                 return new Promise(function (resolve, reject) {
+                    var csrf_token = getCookie('csrftoken');
+
                     $.ajax({
-                        type: 'post',
-                        url: `/api/v1/movie/`,
+                        type: 'get',
+                        url: `/api/v1/movie/${id}/`,
                         dataType: "json",
-                        data: {
-                            "title": path
-                        },
                         success: function (data) {
                             resolve(data);
                         },
@@ -248,35 +296,33 @@
             },
         }
 
-        function play(src) {
+        function play(id) {
 
             document.getElementById('tags').innerHTML = "";
             document.getElementById('rating').innerHTML = "";
 
-            Movie.register(src).then((res) => {
+            Movie.info(id).then((res) => {
                 cur_movie_id = res.id;
                 let listHTML = '';
                 res.genre.map(v => {
                     listHTML += `${tags[v]}, `;
                 })
+
                 document.getElementById('tags').innerHTML = listHTML;
+                document.getElementById("title").innerText = res.title;
                 Info.moiveRating(res.id);
+
+                var video = document.getElementById('myVideo');
+
+                // src 속성 지정
+                video.querySelector('source[type="video/mp4"]').src = `./media/${res.folder}/${res.title}`;
+
+                // 비디오 다시 로드
+                video.load();
             }).catch(function (error) {
                 // 에러 처리
                 console.error(error);
             });
-
-            var video = document.getElementById('myVideo');
-
-            // src 속성 지정
-            var mp4Source = `./media/${src}`; // mp4 파일 경로
-
-            video.querySelector('source[type="video/mp4"]').src = mp4Source;
-
-            // 비디오 다시 로드
-            video.load();
-
-            document.getElementById("title").innerText = src;
         }
 
         // 현재 URL 가져오기
@@ -322,6 +368,11 @@
 <style>
     .container {
         display: flex;
+        flex-direction: column;
+    }
+
+    .playarea {
+        display: flex;
     }
 
     .file-list {
@@ -339,6 +390,32 @@
 
     }
 
+    #fileList li {
+        cursor: pointer;
+        background: turquoise;
+        margin: 3px 0;
+        padding: 3px 5px;
+        border-radius: 10px;
+    }
+
+    #fileList li:hover {
+        background: violet;
+    }
+
+    .fileList\(tags\) {
+        display: flex;
+    }
+
+    .fileList\(tags\) div {
+        background: wheat;
+        font-size: 10px;
+        padding: 2px 5px;
+        border-radius: 3px;
+        margin-left: 10px;
+    }
+
+    .fileList\(title\) {}
+
     .video-frame {
         margin-left: 10px;
         width: 70%;
@@ -347,6 +424,10 @@
     #myVideo {
         width: 100%;
         max-height: 400px;
+    }
+
+    #title {
+        margin: 5px 0;
     }
 
     .folder {
@@ -366,5 +447,52 @@
     .folder-content li:hover {
         color: white;
         background: black;
+    }
+
+    #genre {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .genre {
+        width: 33%;
+        display: flex;
+        align-items: center;
+        padding: 5px 0;
+        margin: 5px 0;
+        border-bottom: solid black 1px;
+    }
+
+    .genre h4 {
+        padding-right: 5px;
+        min-width: 60px;
+    }
+
+    .genre\(inner\) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        align-items: stretch;
+    }
+
+    .genre\(inner\) button {
+        width: 40px;
+        font-size: 10px;
+        padding: 2px 2px;
+    }
+
+    #movie_rate {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .rating {
+        display: flex;
+        width: 25%;
+    }
+
+    .rating\(title\) {
+        min-width: 60px;
+        padding-right: 10px;
     }
 </style>
