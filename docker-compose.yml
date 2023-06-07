@@ -49,7 +49,7 @@ services:
   celery:
     build:
       context: ./backend
-      dockerfile: Dockerfile_local
+      dockerfile: Dockerfile
     depends_on:
       - backend
     volumes:
