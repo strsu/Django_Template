@@ -44,7 +44,9 @@ class SoccerAdmin(admin.ModelAdmin):
         )
 
     def validated_where_list(self, obj):
-        return obj.where.name if obj.where.name is not None else "-"
+        if obj.where:
+            return obj.where.name if obj.where.name is not None else "-"
+        return "-"
 
     # validated_where_list.admin_order_field = "where__name"
     # validated_where_list.short_description = "Soccer Name"
