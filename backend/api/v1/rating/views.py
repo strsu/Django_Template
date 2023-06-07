@@ -1,12 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.db.models import Avg, Count, Sum
+from django.http import HttpResponse
 
 from rest_framework import generics, mixins
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.pagination import PageNumberPagination
-
-from django.db.models import Avg, Count, Sum
 
 from config.exceptions.custom_exceptions import CustomException
 from api.common.message import UserFault
@@ -19,6 +19,9 @@ from api.v1.rating.serializer import (
     MovieRateTypeSerializer,
     MovieRatingSerializer,
 )
+from api.v1.rating.forms import FileUploadForm
+
+from api.v1.rating.tasks import test_task
 
 from datetime import datetime
 
@@ -32,6 +35,28 @@ class MovieApiView(APIView):
 
     def get(self, request):
         return render(request, "video/index.html", {})
+
+
+class MovieUploadApiView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        fileuploadForm = FileUploadForm
+        context = {
+            "form": fileuploadForm,
+        }
+
+        return render(request, "video/upload.html", context)
+
+    def post(self, request):
+        # form 은 html 코드
+        form = FileUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            instance = form.save()
+            filename = instance.file.name.split("/")[-1]
+            test_task.delay(filename)
+
+        return HttpResponse("success")
 
 
 class GenreView(

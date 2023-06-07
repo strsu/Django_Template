@@ -49,5 +49,14 @@ services:
 
   redis:
     image: redis:7.0.7
-    #docker-compose up --build
-    #docker-compose down --volumes --remove-orphans
+
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile_local
+    depends_on:
+      - backend
+    volumes:
+      - ./backend:/opt
+    command: bash -c "celery -A config worker --loglevel=info"
+    env_file: .env

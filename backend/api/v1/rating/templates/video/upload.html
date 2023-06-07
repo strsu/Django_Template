@@ -1,0 +1,97 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Files</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        crossorigin="anonymous"></script>
+</head>
+
+<style>
+    .not-visible {
+        display: none;
+    }
+</style>
+
+<body>
+    <div class="container">
+
+        <form method="POST" enctype="multipart/form-data" id="upload_form">
+            {% csrf_token %}
+            <!-- Then, we use form.as_p tag to render Django forms as a paragraph. -->
+            {{ form.as_p }}
+            <input type="submit" value="제출" class="btn btn-primary">
+        </form>
+
+        <div class="container not-visible progress" id="progress">
+        </div>
+
+        <script>
+            const uploadForm = document.getElementById('upload_form');
+            // id_file 에서 id_ 은 기본 접두사, file은 django 필드 이름
+            const input_file = document.getElementById('id_file');
+            const progress_bar = document.getElementById('progress');
+
+
+
+            $("#upload_form").submit(function (e) {
+                e.preventDefault();
+                $form = $(this);
+                var formData = new FormData(this);
+                const media_data = input_file.files[0];
+                if (media_data != null) {
+                    //console.log(media_data);
+                    progress_bar.classList.remove("not-visible");
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '', // 리디렉션 할 url
+                    data: formData,
+                    dataType: 'json',
+                    beforeSend: function () {
+
+                    },
+                    xhr: function () {
+                        const xhr = new window.XMLHttpRequest();
+                        xhr.upload.addEventListener('progress', e => {
+                            if (e.lengthComputable) {
+                                const percentProgress = (e.loaded / e.total) * 100;
+                                //console.log(percentProgress);
+                                progress_bar.innerHTML = `<div class="progress-bar progress-bar-striped bg-success" 
+                            role="progressbar" style="width: ${percentProgress}%" aria-valuenow="${percentProgress}" aria-valuemin="0" 
+                            aria-valuemax="100"></div>`
+                            }
+                        });
+                        return xhr
+                    },
+                    success: function (response) {
+                        console.log(response);
+                        uploadForm.reset()
+                        progress_bar.classList.add('not-visible')
+                    },
+                    error: function (err) {
+                        console.log(err);
+                    },
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                });
+            });
+
+        </script>
+    </div>
+</body>
+
+</html>

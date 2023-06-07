@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.validators import FileExtensionValidator
+
 from api.v1.user.models import User
 
 
@@ -71,6 +73,16 @@ class Movie(LogModel):
     )
 
     genre = models.ManyToManyField(Genre, related_name="movie_genre", blank=True)
+
+    file = models.FileField(
+        upload_to="./media/",
+        blank=True,
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=["avi", "mp4", "wmv", "mkv", "ts", "flv", "mpeg"]
+            )
+        ],
+    )
 
     def __str__(self):
         return self.title

@@ -1,6 +1,6 @@
 FROM python:3.8
 
-RUN apt-get update && apt-get install -y supervisor
+RUN apt-get update && apt-get install -y supervisor && apt-get install -y ffmpeg
 COPY ./conf/daphne_local.conf /etc/supervisor/conf.d/
 COPY ./conf/requirements.txt /
 RUN /usr/local/bin/python -m pip install --upgrade pip && pip install -r ./requirements.txt

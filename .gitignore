@@ -145,3 +145,9 @@ backend/staticfiles/rest_framework/
 backend/staticfiles/rest_framework_swagger/
 
 backend/staticfiles/chat/img/
+
+backend/media/
+
+#migrations
+
+backend/*/*/*/migrations/

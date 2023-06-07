@@ -14,8 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.conf.urls import include
+from django.conf.urls.static import static
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path, re_path
+
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -56,4 +59,4 @@ urlpatterns = [
     re_path("api/v1/user/", include("api.v1.user.urls")),
     re_path("api/v1/soccer/", include("api.v1.soccer.urls")),
     re_path("api/v1/movie/", include("api.v1.rating.urls")),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

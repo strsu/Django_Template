@@ -1,6 +1,6 @@
 FROM python:3.8
 
-RUN apt-get update && apt-get install -y supervisor
+RUN apt-get update && apt-get install -y supervisor && apt-get install -y ffmpeg
 COPY ./conf/daphne.conf /etc/supervisor/conf.d/
 COPY ./conf/gunicorn.conf /etc/supervisor/conf.d/
 COPY ./conf/requirements.txt /

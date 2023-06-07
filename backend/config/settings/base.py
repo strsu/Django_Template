@@ -183,17 +183,29 @@ STATICFILES_FINDERS = [
     "sass_processor.finders.CssFinder",
 ]
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 5  # 업로드 파일 사이즈 5mb
-
 # MEDIA CONFIGURATION
 # ------------------------------------------------------------------------------
-# MEDIA_ROOT = os.path.join(BASE_DIR, "/media")
-# MEDIA_URL = "/media/"
+MEDIA_URL = "media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024 * 5  # 업로드 파일 사이즈 1gb * 5
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+###########################################################################
+
+# CELERY SETTINGS
+CELERY_TIMEZONE = "Asia/Seoul"
+CELERY_BROKER_URL = "redis://redis:6379/1"
+CELERY_RESULT_BACKEND = "redis://redis:6379/1"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+###########################################################################
 
 ELASTICSEARCH_DSL = {
     "default": {
