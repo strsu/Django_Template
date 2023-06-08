@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <link href="https://unpkg.com/video.js/dist/video-js.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/video.js/dist/video.min.js"></script>
+    <script src="https://unpkg.com/dashjs/dist/dash.all.min.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+            // 비동기 함수를 Promise로 래핑
+            function fetchData(page) {
+                return new Promise(function (resolve, reject) {
+                    $.ajax({
+                        url: `https://anhae.site/api/v1/movie?page=${page}`,
+                        success: function (data) {
+                            resolve(data);
+                        },
+                        error: function (error) {
+                            reject(error);
+                        }
+                    });
+                });
+            }
+
+            fetchData(1).then(function (data) {
+
+                let listHTML = '';
+
+                for (const result of data.results) {
+                    let name = result.file.split("/");
+                    name = name[name.length-1];
+                    listHTML += `<li onclick='changeVideo("${name}")'>${name}</li>`;
+                }
+                
+                document.getElementById("videoList").innerHTML = listHTML;
+
+            }).catch(function (error) {
+                // 에러 처리
+                console.error(error);
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <div>
+        <div style="width: 30%;">
+            <ul id="videoList">
+
+            </ul>
+        </div>
+        <div style="width: 70%;">
+            <video id="my-video" class="video-js" controls></video>
+        </div>
+    </div>
+    
+    <script>
+        var player = videojs('my-video',
+            {
+                controlBar: {
+                    skipButtons: {
+                        backward: 5,
+                        forward: 5
+                    }
+                },
+                playbackRates: [0.5, 1, 1.5, 2],
+                width: 640,
+                height: 360
+            }
+        );
+        player.ready(function () {
+            player.src({
+                src: 'https://anhae.site/media/younha/dash.mpd',
+                type: 'application/dash+xml'
+            });
+
+            //player.play();
+        });
+
+        function changeVideo(name) {
+            name = name.split(".")[1];
+            
+            player.src({
+                src: `https://anhae.site/media/${name}/dash.mpd`,
+                type: 'application/dash+xml'
+            });
+
+        }
+
+    </script>
+</body>
+
+</html>
+
+<style>
+
+    #videoList li {
+        cursor: pointer;
+    }
+
+</style>
