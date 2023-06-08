@@ -32,8 +32,8 @@
                 let listHTML = '';
 
                 for (const result of data.results) {
+                    console.log(result.file);
                     if(result.file) {
-                        console.log(result.file);
                         let path = result.file.split("/");
                         let name = path[path.length-1];
                         listHTML += `<li onclick='changeVideo("${name}")'>${name}</li>`;
