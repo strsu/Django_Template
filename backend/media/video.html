@@ -16,7 +16,7 @@
             function fetchData(page) {
                 return new Promise(function (resolve, reject) {
                     $.ajax({
-                        url: `https://anhae.site/api/v1/movie?page=${page}`,
+                        url: `https://localhost/api/v1/movie/?page=${page}`,
                         success: function (data) {
                             resolve(data);
                         },
@@ -30,15 +30,14 @@
             fetchData(1).then(function (data) {
 
                 let listHTML = '';
-
                 for (const result of data.results) {
-                    if(result.file) {
+                    if (result.file) {
                         let path = result.file.split("/");
-                        let name = path[path.length-1];
+                        let name = path[path.length - 1];
                         listHTML += `<li onclick='changeVideo("${name}")'>${name}</li>`;
                     }
                 }
-                
+
                 document.getElementById("videoList").innerHTML = listHTML;
 
             }).catch(function (error) {
@@ -51,8 +50,8 @@
 </head>
 
 <body>
-    <div>
-        <div style="width: 30%;">
+    <div class="container">
+        <div style="width: 20%;">
             <ul id="videoList">
 
             </ul>
@@ -61,28 +60,33 @@
             <video id="my-video" class="video-js" controls></video>
         </div>
     </div>
-    
+
     <script>
 
         let options = {
-                controlBar: {
-                    skipButtons: {
-                        backward: 5,
-                        forward: 5
-                    }
+            controlBar: {
+                skipButtons: {
+                    backward: 5,
+                    forward: 5
                 },
-                controls: true,
-                preload: "auto",
-                playbackRates: [0.5, 1, 1.5, 2],
-                width: 640,
-                height: 360
-            }
+                playToggle: true,
+                pictureInPictureToggle: true,
+                remainingTimeDisplay: true,
+                progressControl: true,
+                qualitySelector: true,
+            },
+            controls: true,
+            preload: "auto",
+            playbackRates: [0.5, 1, 1.5, 2],
+            width: 640,
+            height: 360
+        }
 
         var player = videojs('my-video', options);
 
         player.ready(function () {
             player.src({
-                src: 'https://anhae.site/media/younha/dash.mpd',
+                src: 'https://localhost/media/64060/dash.mpd',
                 type: 'application/dash+xml'
             });
 
@@ -92,7 +96,7 @@
         function changeVideo(name) {
             name = name.split(".")[0];
             player.src({
-                src: `https://anhae.site/media/${name}/dash.mpd`,
+                src: `https://localhost/media/${name}/dash.mpd`,
                 type: 'application/dash+xml'
             });
 
@@ -105,9 +109,11 @@
 </html>
 
 <style>
+    .container {
+        display: flex;
+    }
 
     #videoList li {
         cursor: pointer;
     }
-
 </style>
