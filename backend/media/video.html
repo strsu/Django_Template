@@ -16,7 +16,7 @@
             function fetchData(page) {
                 return new Promise(function (resolve, reject) {
                     $.ajax({
-                        url: `https://localhost/api/v1/movie/?page=${page}`,
+                        url: `/api/v1/movie/?page=${page}`,
                         success: function (data) {
                             resolve(data);
                         },
@@ -86,7 +86,7 @@
 
         player.ready(function () {
             player.src({
-                src: 'https://localhost/media/64060/dash.mpd',
+                src: '/media/64060/dash.mpd',
                 type: 'application/dash+xml'
             });
 
@@ -96,7 +96,7 @@
         function changeVideo(name) {
             name = name.split(".")[0];
             player.src({
-                src: `https://localhost/media/${name}/dash.mpd`,
+                src: `/media/${name}/dash.mpd`,
                 type: 'application/dash+xml'
             });
 
