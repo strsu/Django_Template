@@ -86,9 +86,7 @@
         });
 
         function changeVideo(name) {
-            name = name.split(".")[1];
-            console.log(name, `https://anhae.site/media/${name}/dash.mpd`);
-            
+            name = name.split(".")[0];
             player.src({
                 src: `https://anhae.site/media/${name}/dash.mpd`,
                 type: 'application/dash+xml'
