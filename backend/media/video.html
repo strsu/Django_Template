@@ -63,19 +63,23 @@
     </div>
     
     <script>
-        var player = videojs('my-video',
-            {
+
+        let options = {
                 controlBar: {
                     skipButtons: {
                         backward: 5,
                         forward: 5
                     }
                 },
+                controls: true,
+                preload: "auto",
                 playbackRates: [0.5, 1, 1.5, 2],
                 width: 640,
                 height: 360
             }
-        );
+
+        var player = videojs('my-video', options);
+
         player.ready(function () {
             player.src({
                 src: 'https://anhae.site/media/younha/dash.mpd',
@@ -92,6 +96,7 @@
                 type: 'application/dash+xml'
             });
 
+            player.options_ = options;
         }
 
     </script>
