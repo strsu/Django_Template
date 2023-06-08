@@ -32,9 +32,11 @@
                 let listHTML = '';
 
                 for (const result of data.results) {
-                    let name = result.file.split("/");
-                    name = name[name.length-1];
-                    listHTML += `<li onclick='changeVideo("${name}")'>${name}</li>`;
+                    if(result.file) {
+                        let name = result.file.split("/");
+                        name = name[name.length-1];
+                        listHTML += `<li onclick='changeVideo("${name}")'>${name}</li>`;
+                    }
                 }
                 
                 document.getElementById("videoList").innerHTML = listHTML;
