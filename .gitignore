@@ -150,4 +150,4 @@ backend/media/
 
 #migrations
 
-backend/*/*/*/migrations/
+00*.py
