@@ -32,14 +32,14 @@ services:
       - ./nginx/ssl:/usr/share/nginx/ssl/
       - ./nginx/html:/usr/share/nginx/html/
       - ./nginx/listing:/usr/share/nginx/listing/
-      - F:\:/usr/share/nginx/listing/media/
+      #- F:\:/usr/share/nginx/listing/media/
 
   postgres:
     image: postgres:13
     #restart: always
     env_file: .env
     ports:
-      - "54321:5432"
+      - "54320:5432"
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
     command:
