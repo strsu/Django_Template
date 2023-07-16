@@ -2,9 +2,10 @@ from rest_framework import serializers
 
 from api.v1.soccer.models import Soccer, SoccerPlace, SoccerTime
 
+from copy import deepcopy
+
 
 class SoccerPlaceSerializer(serializers.Serializer):
-
     name = serializers.CharField(max_length=30)
     address = serializers.CharField(max_length=100)
     latitude = serializers.FloatField()
@@ -97,6 +98,8 @@ class SoccerSerializer(serializers.Serializer):
         return soccer
 
     def update(self, instance, validated_data):
+        before_instance = deepcopy(instance)
+
         where = self.get_where(validated_data.pop("where"))
         instance.where = where
 
@@ -106,7 +109,8 @@ class SoccerSerializer(serializers.Serializer):
         instance.memo = validated_data.get("memo", instance.memo)
         instance.picture = validated_data.get("picture", instance.picture)
         instance.tags = validated_data.get("tags", instance.tags)
-        instance.save()
+
+        instance.update(before_instance)
         return instance
 
     class Meta:

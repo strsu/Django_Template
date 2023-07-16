@@ -78,6 +78,24 @@ class Soccer(models.Model):
     def __str__(self):
         return f"{self.user}_{self.where}"
 
+    def update(self, before_instance):
+        after_instance = self.__dict__
+
+        before_history = {}
+        after_history = {}
+
+        for key, value in before_instance.items():
+            print(key, value)
+            if key == "_state":
+                continue
+            if key in after_instance:
+                if value != after_instance[key]:
+                    before_history[key] = value
+                    after_history[key] = after_instance[key]
+
+        print(before_history)
+        print(after_history)
+
     def delete(self):
         self.deleted_at = datetime.now()
 

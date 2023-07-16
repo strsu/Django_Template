@@ -8,16 +8,18 @@ from config.settings.base import STATIC_ROOT
 def mkdir(path):
     os.makedirs(path, exist_ok=True)
 
+
 def image_to_base64(user_id, filename, is_thumbnail=False):
-    path = os.path.join(STATIC_URL, f"img/{user_id}")
+    path = os.path.join(STATIC_ROOT, f"img/{user_id}")
     if is_thumbnail:
-        path = os.path.join(STATIC_URL, f"thumbnail/{user_id}")
+        path = os.path.join(STATIC_ROOT, f"thumbnail/{user_id}")
 
     with open(os.path.join(path, filename), "rb") as img:
         # 가끔 bytes로 변환되는 것을 방지하기 위해 ascii로 디코딩을 해주는 게 좋은 것 같다.
-        base64_string = base64.b64encode(img.read()).decode('ascii')
+        base64_string = base64.b64encode(img.read()).decode("ascii")
 
     return base64_string
+
 
 def save_base64(base64_string, room):
     path = os.path.join(STATIC_ROOT, f"chat/img/{room}")

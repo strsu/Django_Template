@@ -21,7 +21,7 @@ from api.v1.rating.serializer import (
 )
 from api.v1.rating.forms import FileUploadForm
 
-from api.v1.rating.tasks import test_task
+from api.v1.rating.tasks import transcoding_task
 
 from datetime import datetime
 
@@ -49,12 +49,15 @@ class MovieUploadApiView(APIView):
         return render(request, "video/upload.html", context)
 
     def post(self, request):
-        # form 은 html 코드
+        """
+        이 form으로 파일을 업로드 하는 것의 문제점은 파일을 메모리에 저장을 하기 때문에
+        메모리가 꽉 차면 저장에 실패하는 문제가 발생한다.
+        """
         form = FileUploadForm(request.POST, request.FILES)
         if form.is_valid():
             instance = form.save()
             filename = instance.file.name.split("/")[-1]
-            test_task.delay(filename)
+            transcoding_task.delay(filename)
 
         return HttpResponse("success")
 
@@ -116,7 +119,7 @@ class MovieView(
     pagination_class = MoviePagination
 
     def get_queryset(self):
-        return super().get_queryset().filter(deleted_at__isnull=True)
+        return self.queryset.filter(deleted_at__isnull=True, file__contains="media")
 
     def get_serializer_class(self):
         return self.serializer_class
@@ -127,6 +130,12 @@ class MovieView(
         else:
             data = self.list(request)
             id_list = [d["id"] for d in data.data["results"]]
+
+            nation = Nation.objects.get(nation="한국")
+            nation_obj = nation.movie_nation.all()  # 한국 영화를 모두 가져온다.
+
+            for m in nation_obj:
+                print(m.__dict__)
 
             movie_rating = (
                 MovieRating.objects.filter(movie_id__in=id_list)

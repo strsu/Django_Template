@@ -17,7 +17,7 @@ MEDIA_ROOT = settings.MEDIA_ROOT
 
 
 @shared_task
-def test_task(filename):
+def transcoding_task(filename):
     title, ext = filename.split(".")
     file_path = os.path.join(MEDIA_ROOT, "media")
     save_path = os.path.join(MEDIA_ROOT, title)
