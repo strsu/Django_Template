@@ -178,11 +178,12 @@ class LoggingMiddleware:
             ):
                 return response
 
-            log_data["RESPONSE"] = (
-                str(json.loads(response.content))[: self.response_limit]
-                if getattr(response, "content")
-                else None
-            )
+            if response.content:
+                log_data["RESPONSE"] = (
+                    str(json.loads(response.content))[: self.response_limit]
+                    if getattr(response, "content")
+                    else None
+                )
 
             # 민감한 정보제거.
             if "token" in log_data["PATH_INFO"]:
@@ -200,6 +201,7 @@ class LoggingMiddleware:
 
         except Exception as e:
             print(f"[LOGGING ERROR]", e)
+            print(traceback.format_exc())
             print(request.method, request.get_full_path())
 
         return response
