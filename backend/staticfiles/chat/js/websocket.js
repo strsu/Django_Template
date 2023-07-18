@@ -16,6 +16,10 @@ class WebSocketManager {
 
     connect() {
         this.socket = new WebSocket(this.path);
+        this.socket.onopen = this.onopen.bind(this);
+        this.socket.onerror = this.onopen.bind(this);
+        this.socket.onmessage = this.onmessage.bind(this);
+        this.socket.onclose = this.onclose.bind(this);
     }
 
     onopen(event) {
