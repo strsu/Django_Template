@@ -7,6 +7,7 @@ import random
 import string
 import copy
 from datetime import datetime
+import asyncio
 
 from api.v1.chat.service.food_recommand import foodRecommand
 from api.v1.chat.service.user_counter import userCounter
@@ -39,6 +40,8 @@ def generate_random_string(length):
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        # if self.scope["user"].is_anonymous:
+        #    self.close()
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_name = "mzoffice"
         self.user_name = self.scope["url_route"]["kwargs"]["user_name"]
@@ -61,11 +64,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
         await self.user_in()
 
+        asyncio.create_task(self.push_messages())  # 1초 마다 push
+
     async def disconnect(self, close_code):
         # Leave room group
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
         await self.user_out()
         await self.uc.close()
+
+    async def push_messages(self):
+        while True:
+            await asyncio.sleep(0.5)  # 1초 대기
+            await self.send(text_data=json.dumps({"info": "push"}))
 
     # Receive message from WebSocket
     async def receive(self, text_data=None, bytes_data=None):
