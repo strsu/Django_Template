@@ -98,8 +98,6 @@ class SoccerSerializer(serializers.Serializer):
         return soccer
 
     def update(self, instance, validated_data):
-        before_instance = deepcopy(instance)
-
         where = self.get_where(validated_data.pop("where"))
         instance.where = where
 
@@ -110,7 +108,7 @@ class SoccerSerializer(serializers.Serializer):
         instance.picture = validated_data.get("picture", instance.picture)
         instance.tags = validated_data.get("tags", instance.tags)
 
-        instance.update(before_instance)
+        instance.save()
         return instance
 
     class Meta:

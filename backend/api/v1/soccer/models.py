@@ -75,26 +75,35 @@ class Soccer(models.Model):
     modified_at = models.DateTimeField("수정일", auto_now=True, blank=True, null=True)
     deleted_at = models.DateTimeField("삭제일", blank=True, null=True)
 
+    def __init__(self, *args, **kwargs):
+        super(Soccer, self).__init__(*args, **kwargs)
+        self.__important_fields = {
+            "user": "사용자",
+            "when": "장소",
+            "level": "레벨",
+            "score": "점수",
+            "memo": "메모",
+        }
+        for field in self.__important_fields.keys():
+            setattr(self, "__prev_value_%s" % field, getattr(self, field))
+            continue
+            if getattr(getattr(self, field), "_meta", None):
+                # 이렇게 하면 ForeignKey 된 클래스를 알 수 있다.
+                # 근데 when은 안 먹힌다?
+                print(getattr(getattr(self, field), "_meta", None).verbose_name)
+
     def __str__(self):
         return f"{self.user}_{self.where}"
 
-    def update(self, before_instance):
-        after_instance = self.__dict__
-
-        before_history = {}
-        after_history = {}
-
-        for key, value in before_instance.items():
-            print(key, value)
-            if key == "_state":
-                continue
-            if key in after_instance:
-                if value != after_instance[key]:
-                    before_history[key] = value
-                    after_history[key] = after_instance[key]
-
-        print(before_history)
-        print(after_history)
+    def save(self, *args, **kwargs):
+        log = {}
+        for field, key in self.__important_fields.items():
+            prev = "__prev_value_%s" % field
+            if getattr(self, prev) != getattr(self, field):
+                log[key] = {"old": getattr(self, prev), "new": getattr(self, field)}
+        if log:
+            print(log)
+        super(Soccer, self).save(*args, **kwargs)
 
     def delete(self):
         self.deleted_at = datetime.now()

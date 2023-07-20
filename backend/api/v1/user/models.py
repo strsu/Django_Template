@@ -88,3 +88,4 @@ class User(AbstractBaseUser):
         """
 
         db_table = "user"
+        verbose_name = "사용자"
