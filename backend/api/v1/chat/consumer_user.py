@@ -11,9 +11,9 @@ import asyncio
 
 from api.v1.chat.service.food_recommand import foodRecommand
 from api.v1.chat.service.user_counter import userCounter
+from api.v1.chat.service.manager_massage import MessageManager
 from api.v1.chat.service.file_saver import save_base64, save_bytes
 
-#
 
 from config.settings.base import STATIC_ROOT
 from config.settings.base import logger_info
@@ -42,6 +42,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         # if self.scope["user"].is_anonymous:
         #    self.close()
+        # logger_info.info(str(self.scope["user"]))
+
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_name = "mzoffice"
         self.user_name = self.scope["url_route"]["kwargs"]["user_name"]
@@ -59,6 +61,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # 음식 추천
         self.fr = foodRecommand()
 
+        # 채팅 매니저
+        self.message_manager = MessageManager(self.room_name)
+
         # Join room group
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
@@ -74,7 +79,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def push_messages(self):
         while True:
-            await asyncio.sleep(0.5)  # 1초 대기
+            await asyncio.sleep(5)  # 1초 대기
             await self.send(text_data=json.dumps({"info": "push"}))
 
     # Receive message from WebSocket
@@ -139,11 +144,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         "token": "",
                     },
                 }
-                await self.set_message(
+                await self.message_manager.save_msg(
                     data["data"]["message"], name=data["data"]["name"]
                 )
             else:
-                await self.set_message(data["data"]["message"])
+                await self.message_manager.save_msg(
+                    data["data"]["message"], name=self.user_name
+                )
         elif "mouse" in data["data"]:
             data = {
                 "type": "mouse_message",
@@ -240,32 +247,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         del data["token"]
 
         await self.send(text_data=json.dumps({"mouse": data}))
-
-    """
-    async def connect(self):
-        #이건 처음 연결되자 마자 실행되는 함수이다.
-        
-      pass
-
-        # self.username = await database_sync_to_async(self.set_file)()
-        # await self.set_file()
-    """
-
-    @database_sync_to_async
-    def set_message(self, message, name=None):
-        from api.v1.chat.models import Group, Message
-
-        if name is None:
-            name = self.user_name
-
-        try:
-            group = Group.objects.get(name=self.room_name)
-        except Exception as e:
-            group = Group.objects.create(name=self.room_name)
-            group.save()
-
-        message = Message.objects.create(group=group, content=message, name=name)
-        message.save()
 
     @database_sync_to_async
     def set_file(self, path, name, code):

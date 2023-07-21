@@ -26,7 +26,7 @@ class WebSocketManager {
         //console.log('WebSocket connection opened:', event);
         document.getElementById("chat-message-input").removeAttribute("readonly");
         document.getElementById("chat-message-input").focus();
-        document.addEventListener('mousemove', getMousePosition);
+        //document.addEventListener('mousemove', getMousePosition);
     }
 
     onmessage(event) {
