@@ -2,6 +2,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from api.v1.user.models import User
+from api.common.utils import get_authenticated_user
 
 from datetime import datetime
 
@@ -95,15 +96,24 @@ class Soccer(models.Model):
     def __str__(self):
         return f"{self.user}_{self.where}"
 
+    @get_authenticated_user
     def save(self, *args, **kwargs):
+        """
+        재정의된 모델 메소드들은 bulk operation에서는 호출되지 않는다.
+        불행하게도, 벌크로 deleting, creating, updating 할 때는 해결책이 없다,
+        이유는 delete(), save(), pre_save 나, post_save가 호출되지 않기 때문이다.
+        """
+        user = kwargs.pop("user", None)
+        print(user)
         log = {}
         for field, key in self.__important_fields.items():
             prev = "__prev_value_%s" % field
             if getattr(self, prev) != getattr(self, field):
                 log[key] = {"old": getattr(self, prev), "new": getattr(self, field)}
         if log:
+            # 여기서 file 또는 logging 작업 하면 된다.
             print(log)
-        super(Soccer, self).save(*args, **kwargs)
+        super(Soccer, self).save(*args, **kwargs)  # 저장을 위해 반드시 호출 필요
 
     def delete(self):
         self.deleted_at = datetime.now()
