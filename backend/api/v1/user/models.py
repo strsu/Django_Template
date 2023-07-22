@@ -80,6 +80,9 @@ class User(AbstractBaseUser):
         # return self.is_superuser
         return self.auth
 
+    def __str__(self):
+        return self.username
+
     class Meta:
         """
         managed=False

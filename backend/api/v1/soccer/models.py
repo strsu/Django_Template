@@ -2,7 +2,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from api.v1.user.models import User
-from api.common.utils import get_authenticated_user
+from api.v1.history.models import TrackedModel
 
 from datetime import datetime
 
@@ -29,7 +29,7 @@ class SoccerPlace(models.Model):
         unique_together = (("latitude", "longitude"),)
 
 
-class Soccer(models.Model):
+class Soccer(TrackedModel):
     class Level(models.IntegerChoices):
         RED = 1
         ORANGE = 2
@@ -76,50 +76,16 @@ class Soccer(models.Model):
     modified_at = models.DateTimeField("수정일", auto_now=True, blank=True, null=True)
     deleted_at = models.DateTimeField("삭제일", blank=True, null=True)
 
-    def __init__(self, *args, **kwargs):
-        super(Soccer, self).__init__(*args, **kwargs)
-        self.__important_fields = {
-            "user": "사용자",
-            "when": "장소",
-            "level": "레벨",
-            "score": "점수",
-            "memo": "메모",
-        }
-        for field in self.__important_fields.keys():
-            setattr(self, "__prev_value_%s" % field, getattr(self, field))
-            continue
-            if getattr(getattr(self, field), "_meta", None):
-                # 이렇게 하면 ForeignKey 된 클래스를 알 수 있다.
-                # 근데 when은 안 먹힌다?
-                print(getattr(getattr(self, field), "_meta", None).verbose_name)
-
-    def __str__(self):
-        return f"{self.user}_{self.where}"
-
-    @get_authenticated_user
     def save(self, *args, **kwargs):
-        """
-        재정의된 모델 메소드들은 bulk operation에서는 호출되지 않는다.
-        불행하게도, 벌크로 deleting, creating, updating 할 때는 해결책이 없다,
-        이유는 delete(), save(), pre_save 나, post_save가 호출되지 않기 때문이다.
-        """
-        user = kwargs.pop("user", None)
-        print(user)
-        log = {}
-        for field, key in self.__important_fields.items():
-            prev = "__prev_value_%s" % field
-            if getattr(self, prev) != getattr(self, field):
-                log[key] = {"old": getattr(self, prev), "new": getattr(self, field)}
-        if log:
-            # 여기서 file 또는 logging 작업 하면 된다.
-            print(log)
-        super(Soccer, self).save(*args, **kwargs)  # 저장을 위해 반드시 호출 필요
+        ## 할 일 정의
+        super(Soccer, self).save(*args, **kwargs)
 
     def delete(self):
         self.deleted_at = datetime.now()
 
     class Meta:
         db_table = "soccer"
+        verbose_name = "축구 기록"
         verbose_name_plural = "축구 기록"
 
 

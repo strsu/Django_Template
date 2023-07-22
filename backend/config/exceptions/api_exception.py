@@ -43,7 +43,11 @@ def custom_exception_handler(exc, context):
 
     if response is not None:
         status_code = response.status_code
-        msg = exc.detail
+
+        msg = str(exc)
+
+        if hasattr(exc, "detail"):
+            msg = exc.detail
 
         if isinstance(exc, exceptions.ParseError):
             code = response.status_code

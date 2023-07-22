@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     "api.v1.user",
     "api.v1.soccer",
     "api.v1.rating",
+    "api.v1.history",
 ]
 
 MIDDLEWARE = [
