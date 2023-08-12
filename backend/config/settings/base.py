@@ -126,7 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = "user.User"  # 커스텀 유저 모델 사용
+AUTH_USER_MODEL = "user.User"  # 커스텀 유저 모델 사용, "어플리케이션명.모델명"
 
 # simple jwt 옵션 제공
 SIMPLE_JWT = {
