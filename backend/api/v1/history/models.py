@@ -106,6 +106,7 @@ class TrackedModel(models.Model):
         changed_log = {}
 
         for key, logs in self.log[db_table].items():
+            # 애당초 정상적인 상황이라면 old, new가 없을 수 없다.
             if logs["old"] != logs["new"]:
                 changed_log[key] = {
                     **logs,

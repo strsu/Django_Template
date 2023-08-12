@@ -209,11 +209,12 @@ table td {
     /* 모달 초기값 설정 */
     position: fixed;
     /* 모달을 화면에 고정 */
-    z-index: 1;
+    z-index: 10;
     /* 모달을 최상위로 표시 */
     left: 0;
     top: 0;
     width: 100%;
+    height: 100%;
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.4);
     /* 배경색을 불투명하게 설정 */
