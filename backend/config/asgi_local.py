@@ -11,7 +11,10 @@ import os
 
 from channels.auth import AuthMiddlewareStack  # 추가
 from channels.routing import ProtocolTypeRouter, URLRouter  # URLRouter 추가
+from channels.security.websocket import AllowedHostsOriginValidator
+
 from api.v1.chat import routing  # chat import
+from config.middleware.TokenAuthMiddleware import JWTAuthMiddlewareStack
 
 from django.core.asgi import get_asgi_application
 
@@ -20,8 +23,8 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.development")
 application = ProtocolTypeRouter(
     {
         "http": get_asgi_application(),
-        "websocket": AuthMiddlewareStack(  # 추가
-            URLRouter(routing.websocket_urlpatterns)
+        "websocket": AllowedHostsOriginValidator(
+            JWTAuthMiddlewareStack(URLRouter(routing.websocket_urlpatterns)),
         ),
     }
 )

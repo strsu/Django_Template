@@ -96,6 +96,9 @@
     <script>
         const roomName = "{{ room_name }}";
         const userName = "{{ user_name }}";
+
+        const authToken = "ddeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjkxOTExMjIzLCJpYXQiOjE2OTE5MDc2MjMsImp0aSI6IjljMTBjYjhhNzQzZjQyOWJiZjE5YWJlZjdmYzE5YTQ5IiwiZW1haWwiOiJhZG1pbiIsIm5hbWUiOiJhZG1pbiJ9.F0CK2xYzwJ4_SVs6OtLdl2o_nvtivrJNROPp_AVVKRg";
+        document.cookie = `X-Authorization=${authToken}; path=/;`;
         
         const path = `wss://${window.location.host}/ws/chat/${roomName}/${userName}/`;
         const receiveManager = new ReceiveManager("#chat-log");
@@ -185,7 +188,7 @@
             }
         }
 
-        document.cookie = `X-Authorization=토큰값; path=/`;
+        //document.cookie = `X-Authorization=토큰값; path=/`;
        
         document.querySelector('#chat-message-input').focus();
         document.querySelector('#chat-message-input').onkeyup = function(e) {

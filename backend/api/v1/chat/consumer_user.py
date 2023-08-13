@@ -52,24 +52,28 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.filesize = 0
         self.path = os.path.join(STATIC_ROOT, f"chat/img/{self.room_name}")
 
-        # logger_info.info(str(self.scope["headers"]))
+        self.user = self.scope["user"]
+        print("@@", self.user)
 
-        # 사용자 현황
-        self.uc = userCounter(self.room_group_name)
-        await self.uc.connect()
+        if self.user == "AnonymousUser":
+            await self.close(4004)
+        else:
+            # 사용자 현황
+            self.uc = userCounter(self.room_group_name)
+            await self.uc.connect()
 
-        # 음식 추천
-        self.fr = foodRecommand()
+            # 음식 추천
+            self.fr = foodRecommand()
 
-        # 채팅 매니저
-        self.message_manager = MessageManager(self.room_name)
+            # 채팅 매니저
+            self.message_manager = MessageManager(self.room_name)
 
-        # Join room group
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-        await self.accept()
-        await self.user_in()
+            # Join room group
+            await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+            await self.accept()
+            await self.user_in()
 
-        asyncio.create_task(self.push_messages())  # 1초 마다 push
+            asyncio.create_task(self.push_messages())  # 1초 마다 push
 
     async def disconnect(self, close_code):
         # Leave room group
