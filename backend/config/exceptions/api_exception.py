@@ -2,6 +2,8 @@ from rest_framework.views import exception_handler
 from rest_framework import exceptions
 from rest_framework.response import Response
 
+from django.db import connections
+
 from config.exceptions.custom_exceptions import (
     CustomException,
     CustomDictException,
@@ -15,6 +17,12 @@ import traceback
 
 logger = logging.getLogger("django")
 exception_logger = logging.getLogger("exception")
+
+
+def set_rollback():
+    for db in connections.all():
+        if db.settings_dict["ATOMIC_REQUESTS"] and db.in_atomic_block:
+            db.set_rollback(True)
 
 
 def custom_exception_handler(exc, context):
@@ -40,6 +48,13 @@ def custom_exception_handler(exc, context):
     logger.info(traceback.format_exc())
 
     response = exception_handler(exc, context)
+
+    """
+        return이 None, HttpResponse 만 middleware에서 reqeust_exception이 호출된다.
+        Response 객체로 넘어가면 middleware의 reqeust_exception이 호출되지 않음
+
+        아무튼 그래서 밑에서 returne Response를 하니 loggingMiddleware에서 request_exception 함수가 호출 안 되는 것이다.
+    """
 
     if response is not None:
         status_code = response.status_code
@@ -90,14 +105,23 @@ def custom_exception_handler(exc, context):
             code = response.status_code
             msg = "unknown error"
 
-        response.status_code = status_code
-        response.data = {"message": msg, "code": code}
+        status_code = status_code
+        data = {"message": msg, "code": code}
 
         ## 위 handler에서 exception내용이 response에 들어가는 것 같다.
         # response.data.pop("status_code", None)
 
-        return response
+        set_rollback()
+        return Response(data, status=status_code)
+
     else:
         """일반적으로 Err가 발생하면 이쪽으로 빠진다."""
         msg = {"message": str(exc), "code": 500}
+        context.request.data = {
+            **context.request.data,
+            "exception": {
+                **msg,
+                status_code: 500,
+            },
+        }
         return Response(msg, status=500)

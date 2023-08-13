@@ -68,7 +68,6 @@ class LoggingMiddleware:
 
             view_args, view_kwargs 모두 첫 번째 인수인 request를 포함하지 않는다.
         """
-
         header_token = request.META.get("HTTP_AUTHORIZATION", None)
         if False and header_token is not None:
             # 여기서만 1000ms 가 소요된다...
@@ -110,6 +109,7 @@ class LoggingMiddleware:
                 "path": request.path,
             }
         )
+        return None
 
     """http 응답 미들웨어"""
 
@@ -126,6 +126,9 @@ class LoggingMiddleware:
     # view 가 exception 을 발생시키면 호출된다.
     def process_exception(self, request, exception):
         # 뷰 함수에서 예외가 발생한 경우 수행 할 작업
+        # exception_handler에서 None, HttpResponse가 넘어와야 이쪽으로 넘어온다.
+        # Response가 넘어오면 이쪽으로 안 빠진다.
+        exception_logger.error(traceback.format_exc())
         return None
 
     def process_response(self, request, response):
@@ -192,16 +195,21 @@ class LoggingMiddleware:
 
             if response.status_code in range(400, 500):
                 log_data["LEVEL"] = "ERROR"
-                exception_logger.error(log_data)
+                exception_logger.error(
+                    json.dumps(log_data, indent=4, default=str, ensure_ascii=False)
+                )
             elif response.status_code in range(500, 600):
                 log_data["LEVEL"] = "CRITICAL"
-                exception_logger.error(log_data)
+                exception_logger.error(
+                    json.dumps(log_data, indent=4, default=str, ensure_ascii=False)
+                )
 
-            request_logger.info(log_data)
+            request_logger.info(
+                json.dumps(log_data, indent=4, default=str, ensure_ascii=False)
+            )
 
         except Exception as e:
             print(f"[LOGGING ERROR]", e)
             print(traceback.format_exc())
-            print(request.method, request.get_full_path())
 
         return response
