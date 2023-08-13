@@ -19,6 +19,7 @@
 	</noscript>
 
     <script src="{% static 'chat/js/receiver.js' %}"></script>
+    <script src="{% static 'chat/js/sender.js' %}"></script>
     <script src="{% static 'chat/js/file.js' %}"></script>
     <script src="{% static 'chat/js/websocket.js' %}"></script>
 </head>
@@ -62,24 +63,26 @@
                         </div>
                     </div>
                     <div id="fun-function">
-                        <progress id="progressBar" value="0" max="100"></progress>
-                        <table id="fun-function-box">
-                            <tbody>
-                                <tr>
-                                    <td>오늘 뭐 먹지</td>
-                                    <td><button onclick="funFunction.food()">추천해줘</button></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="file" id="filename2" /></td>
-                                    <td><button onclick="funFunction.send()">대용량 파일 전송</button></td>
-                                </tr>
-                                <tr>
-                                    <td><input type="text" id="filecode" /></td>
-                                    <td><button onclick="funFunction.down()">파일 다운</button></td>
-                                </tr>
-                            </tbody>
-                
-                        </table>
+                        <div>
+                            <progress id="progressBar" value="0" max="100"></progress>
+                            <table id="fun-function-box">
+                                <tbody>
+                                    <tr>
+                                        <td>오늘 뭐 먹지</td>
+                                        <td><button onclick="funFunction.food()">추천해줘</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="file" id="filename2" /></td>
+                                        <td><button onclick="funFunction.send()">대용량 파일 전송</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" id="filecode" /></td>
+                                        <td><button onclick="funFunction.down()">파일 다운</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
                     </div>
                     
                     
@@ -97,6 +100,7 @@
         const path = `wss://${window.location.host}/ws/chat/${roomName}/${userName}/`;
         const receiveManager = new ReceiveManager("#chat-log");
         const socketManager = new WebSocketManager(path, receiveManager, userName);
+        const sendManager = new SendManager(socketManager);
         const fileManager = new FileManager(socketManager);
 
         function getMousePosition(event) {
