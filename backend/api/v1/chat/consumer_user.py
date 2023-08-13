@@ -40,10 +40,6 @@ def generate_random_string(length):
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        # if self.scope["user"].is_anonymous:
-        #    self.close()
-        # logger_info.info(str(self.scope["user"]))
-
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_name = "mzoffice"
         self.user_name = self.scope["url_route"]["kwargs"]["user_name"]
@@ -53,7 +49,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.path = os.path.join(STATIC_ROOT, f"chat/img/{self.room_name}")
 
         self.user = self.scope["user"]
-        print("@@", self.user)
+        self.uc = None
 
         if self.user == "AnonymousUser":
             await self.close(4004)
@@ -76,10 +72,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             asyncio.create_task(self.push_messages())  # 1초 마다 push
 
     async def disconnect(self, close_code):
+        print("@SDF", close_code)
         # Leave room group
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-        await self.user_out()
-        await self.uc.close()
+        if self.uc is not None:
+            await self.user_out()
+            await self.uc.close()
 
     async def push_messages(self):
         while True:

@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 
-mkdir log
+mkdir -p log
 
 python manage.py makemigrations
 python manage.py migrate
 python manage.py collectstatic --noinput --verbosity 0
 
-service supervisor start # 이걸 해줘야 supervisor가 정상적으로 동작한다.
+supervisord
+
+#service supervisor start # 이걸 해줘야 supervisor가 정상적으로 동작한다.
 
 #supervisorctl reread
 #supervisorctl update
