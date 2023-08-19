@@ -15,10 +15,12 @@ DATABASES = {
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        # "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
         "CONFIG": {
-            "hosts": [("redis", 6379)],
-            "capacity": 1500,  # default 100
+            # "hosts": [("redis", 6379)],
+            "hosts": ["redis://redis:6379/1"],  # pubsub 일 땐 이렇게 해야한다.
+            "capacity": 1500,  # default 100, Once a channel is at capacity, it will refuse more messages.
             "expiry": 10,  # default 60 seconds
         },
     },

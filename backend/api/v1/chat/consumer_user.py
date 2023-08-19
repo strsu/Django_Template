@@ -72,7 +72,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
             asyncio.create_task(self.push_messages())  # 1초 마다 push
 
     async def disconnect(self, close_code):
-        print("@SDF", close_code)
         # Leave room group
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
         if self.uc is not None:
