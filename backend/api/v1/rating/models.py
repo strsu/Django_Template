@@ -5,7 +5,7 @@ from api.v1.user.models import User
 
 
 # Create your models here.
-class LogModel(models.Model):
+class TimestampModel(models.Model):
     memo = models.CharField(max_length=256, blank=True, null=True)
 
     created_at = models.DateTimeField("생성일", auto_now_add=True, blank=True, null=True)
@@ -57,7 +57,7 @@ class ActorRateType(models.Model):
         pass
 
 
-class Movie(LogModel):
+class Movie(TimestampModel):
     folder = models.CharField(max_length=256, blank=True, null=True)
     title = models.CharField(max_length=256, blank=True, null=True)
     open = models.DateField("개봉년도", blank=True, null=True)
@@ -91,7 +91,7 @@ class Movie(LogModel):
         pass
 
 
-class Actor(LogModel):
+class Actor(TimestampModel):
     name = models.CharField(max_length=64)
     birth = models.DateField("생년월일", blank=True, null=True)
 

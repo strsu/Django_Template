@@ -1,6 +1,8 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
+from api.common.models import TimestampModel
+
 from api.v1.user.models import User
 from api.v1.history.models import TrackedModel
 
@@ -29,7 +31,7 @@ class SoccerPlace(models.Model):
         unique_together = (("latitude", "longitude"),)
 
 
-class Soccer(TrackedModel):
+class Soccer(TrackedModel, TimestampModel):
     class Level(models.IntegerChoices):
         RED = 1
         ORANGE = 2
@@ -71,10 +73,6 @@ class Soccer(TrackedModel):
     tags = ArrayField(
         models.CharField("태그", max_length=20), blank=True, null=True
     )  # 이건 혹시 나중에 공유하기 생기거나 태그별로 모아보기 있으면 좋을 것 같아서,,
-
-    created_at = models.DateTimeField("생성일", auto_now_add=True, blank=True, null=True)
-    modified_at = models.DateTimeField("수정일", auto_now=True, blank=True, null=True)
-    deleted_at = models.DateTimeField("삭제일", blank=True, null=True)
 
     def save(self, *args, **kwargs):
         ## 할 일 정의
