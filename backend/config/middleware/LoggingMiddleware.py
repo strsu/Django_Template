@@ -182,11 +182,20 @@ class LoggingMiddleware:
                 return response
 
             if response.content:
-                log_data["RESPONSE"] = (
-                    str(json.loads(response.content))[: self.response_limit]
-                    if getattr(response, "content")
-                    else None
-                )
+                if isinstance(response.content, bytes):
+                    log_data["RESPONSE"] = (
+                        str(response.content.decode(encoding="utf-8"))[
+                            : self.response_limit
+                        ].replace(" ", "")
+                        if getattr(response, "content")
+                        else None
+                    )
+                else:
+                    log_data["RESPONSE"] = (
+                        str(json.loads(response.content))[: self.response_limit]
+                        if getattr(response, "content")
+                        else None
+                    )
 
             # 민감한 정보제거.
             if "token" in log_data["PATH_INFO"]:

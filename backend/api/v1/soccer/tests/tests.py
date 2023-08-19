@@ -3,6 +3,9 @@ import base64
 
 from api.v1.user.models import User
 
+# python3 manage_local.py test api/v1/soccer/tests
+# python manage.py test api/v1/soccer/tests --settings='config.settings.test_real_db'
+
 
 class SoccerTest(TestCase):
     @classmethod

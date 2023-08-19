@@ -71,3 +71,4 @@ django-compressor
 django-cors-headers
 celery==5.3.0 # 3.0.1 은 안 켜진다
 python-ffmpeg-video-streaming
+django-admin-tools==0.9.3

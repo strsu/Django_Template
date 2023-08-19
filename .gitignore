@@ -103,7 +103,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+# .env
 .venv
 env/
 venv/
@@ -139,10 +139,9 @@ dmypy.json
 .vscode/
 
 #template
-backend/staticfiles/admin/
+backend/staticfiles/admin*
 backend/staticfiles/drf-yasg/
-backend/staticfiles/rest_framework/
-backend/staticfiles/rest_framework_swagger/
+backend/staticfiles/rest_framework*
 
 backend/staticfiles/chat/img/
 
