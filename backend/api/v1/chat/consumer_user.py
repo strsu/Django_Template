@@ -15,8 +15,7 @@ from api.v1.chat.service.manager_massage import MessageManager
 from api.v1.chat.service.file_saver import save_base64, save_bytes
 
 
-from config.settings.base import STATIC_ROOT
-from config.settings.base import logger_info
+from django.conf import settings
 
 
 # https://blog.logrocket.com/django-channels-and-websockets/
@@ -46,7 +45,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_group_name = "chat_%s" % self.room_name
         self.user_token = generate_random_string(10)
         self.filesize = 0
-        self.path = os.path.join(STATIC_ROOT, f"chat/img/{self.room_name}")
+        self.path = os.path.join(settings.STATIC_ROOT, f"chat/img/{self.room_name}")
 
         self.user = self.scope["user"]
         self.uc = None

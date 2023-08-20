@@ -11,7 +11,7 @@ services:
     volumes:
       - ./backend:/opt
     command: /opt/scripts/start_local.sh
-    env_file: .env
+    env_file: .env.local
     ports:
       - "3000:3000"
 
@@ -37,7 +37,7 @@ services:
   postgres:
     image: postgres:13
     #restart: always
-    env_file: .env
+    env_file: .env.local
     ports:
       - "54320:5432"
     volumes:
@@ -59,4 +59,4 @@ services:
     volumes:
       - ./backend:/opt
     command: bash -c "celery -A config worker --loglevel=info"
-    env_file: .env
+    env_file: .env.local

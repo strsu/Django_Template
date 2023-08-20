@@ -68,6 +68,7 @@ LOCAL_APPS = [
     "api.v1.soccer",
     "api.v1.rating",
     "api.v1.history",
+    "api.v1.celery_practice",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + LOCAL_APPS
@@ -183,13 +184,16 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024 * 5  # 업로드 파일 사이�
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CELERY SETTINGS
+CELERY_ALWAYS_EAGER = False
 CELERY_TIMEZONE = "Asia/Seoul"
-CELERY_BROKER_URL = "redis://redis:6379/1"
-CELERY_RESULT_BACKEND = "redis://redis:6379/1"
-CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_BROKER_URL = f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"
+CELERY_BROKER_TRANSPORT = (
+    f"{os.getenv('BROKER_URL')}"  # 이걸 넣으니까 rabbitmq가 아니라 redis에 연결한다.
+)
+CELERY_RESULT_BACKEND = f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"
+CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
-
 
 # Elastic
 ELASTICSEARCH_DSL = {
@@ -197,6 +201,44 @@ ELASTICSEARCH_DSL = {
         "hosts": f"{os.getenv('ELASTICSEARCH_DSL_IP')}:{os.getenv('ELASTICSEARCH_DSL_PORT')}"
     }
 }
+
+# --- Databse, Cache
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": os.getenv("POSTGRES_DB"),
+        "USER": os.getenv("POSTGRES_USER"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+        "HOST": os.getenv("POSTGRES_HOST"),
+        "PORT": os.getenv("POSTGRES_PORT"),
+    }
+}
+
+CACHE_TTL = 60 * 1500  # 60초 * 1500분 = 25시간
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": [f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"],
+    }
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        # "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
+        "CONFIG": {
+            # "hosts": [(os.getenv('BROKER_URL'), os.getenv('BROKER_PORT'))], # RedisChannelLayer
+            "hosts": [
+                f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"  # RedisPubSubChannelLayer
+            ],
+            "capacity": 1500,  # default 100, Once a channel is at capacity, it will refuse more messages.
+            "expiry": 10,  # default 60 seconds
+        },
+    },
+}
+
+WSGI_APPLICATION = "config.wsgi.application"
+ASGI_APPLICATION = "config.asgi.application"
 
 # logging
 logger_error = logging.getLogger("logstash_error")

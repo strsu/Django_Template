@@ -97,7 +97,7 @@
         const roomName = "{{ room_name }}";
         const userName = "{{ user_name }}";
 
-        const authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk0Njk0OTI4LCJpYXQiOjE2OTIxMDI5MjgsImp0aSI6IjMyMTAxYmYyNjMzZTQwOGQ5ZTMxNWU1YTMzODRkYjliIiwiZW1haWwiOiJhZG1pbiIsIm5hbWUiOiJhZG1pbiJ9.1YBeZbL3wjifAiHByqoZiHoqD26RcmPE9PxhCYBfDq4";
+        const authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk1MDkzMTQzLCJpYXQiOjE2OTI1MDExNDMsImp0aSI6IjEwMjExMDZmOTFkNjQzNWM5NzBkYWE5MGExMjk3ZWIwIiwiZW1haWwiOiJhZG1pbiIsIm5hbWUiOiJhZG1pbiJ9.pz79B0f9wEjaddAFDzmY2DVgHMwRpffDWThPoTmUaos";
         document.cookie = `X-Authorization=${authToken}; path=/;`;
         
         const path = `wss://${window.location.host}/ws/chat/${roomName}/${userName}/`;
