@@ -17,6 +17,7 @@ MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
 ROOT_URLCONF = "config.urls"
+APPEND_SLASH = True
 
 # --- Locale settingss
 LANGUAGE_CODE = "ko-kr"
@@ -69,6 +70,7 @@ LOCAL_APPS = [
     "api.v1.rating",
     "api.v1.history",
     "api.v1.celery_practice",
+    "api.v1.model_view_set",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + LOCAL_APPS

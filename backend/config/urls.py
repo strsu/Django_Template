@@ -20,8 +20,10 @@ from django.contrib import admin
 from django.urls import path, re_path
 
 from rest_framework import permissions
+
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -61,4 +63,5 @@ urlpatterns = [
     re_path("api/v1/soccer/", include("api.v1.soccer.urls")),
     re_path("api/v1/movie/", include("api.v1.rating.urls")),
     re_path("api/v1/celery/", include("api.v1.celery_practice.urls")),
+    re_path("api/v1/modelViewSet/", include("api.v1.model_view_set.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
