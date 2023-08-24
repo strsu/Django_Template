@@ -44,30 +44,28 @@ class EssSerializer(serializers.Serializer):
     ess_soc_h_lim = serializers.FloatField()
     pcs_cap = serializers.FloatField()
     pcs_h_lim = serializers.FloatField()
-    ch_start = serializers.IntegerField()
-    ch_end = serializers.IntegerField()
-    dch_start = serializers.IntegerField()
-    dch_end = serializers.IntegerField()
+    ch_start = serializers.IntegerField(min_value=0, max_value=24)
+    ch_end = serializers.IntegerField(min_value=0, max_value=24)
+    dch_start = serializers.IntegerField(min_value=0, max_value=24)
+    dch_end = serializers.IntegerField(min_value=0, max_value=24)
 
     ess_loss_eff = serializers.FloatField(required=False, allow_null=True)
     ess_reserve = serializers.FloatField(required=False, allow_null=True)
-    ch_min_capacity = serializers.FloatField(required=False, allow_null=True)
-    ch_max_capacity = serializers.FloatField(required=False, allow_null=True)
-    dch_min_capacity = serializers.FloatField(required=False, allow_null=True)
-    dch_max_capacity = serializers.FloatField(required=False, allow_null=True)
+    ch_min_capacity = serializers.FloatField(
+        required=False, allow_null=True, min_value=0, max_value=100
+    )
+    ch_max_capacity = serializers.FloatField(
+        required=False, allow_null=True, min_value=0, max_value=100
+    )
+    dch_min_capacity = serializers.FloatField(
+        required=False, allow_null=True, min_value=0, max_value=100
+    )
+    dch_max_capacity = serializers.FloatField(
+        required=False, allow_null=True, min_value=0, max_value=100
+    )
     ess_mfr = serializers.CharField(required=False, allow_null=True)
     pcs_mfr = serializers.CharField(required=False, allow_null=True)
     out_ctrl_feat = serializers.CharField(required=False, allow_null=True)
-
-    def validate_ch_end(self, value):
-        if value > 24:
-            raise serializers.ValidationError("충전 종료시간은 24시를 넘을 수 없습니다.")
-        return value
-
-    def validate_dch_end(self, value):
-        if value > 24:
-            raise serializers.ValidationError("방전 종료시간은 24시를 넘을 수 없습니다.")
-        return value
 
     def validate_ch_capacity(self, data):
         ch_min_capacity = data.get("ch_min_capacity")

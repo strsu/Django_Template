@@ -94,8 +94,7 @@ class SoccerSerializer(serializers.Serializer):
     def create(self, validated_data):
         user = self.context["request"].user
         where = self.get_where(validated_data.pop("where"))
-        soccer = Soccer.objects.create(user=user, where=where, **validated_data)
-        return soccer
+        return Soccer(user=user, where=where, **validated_data)
 
     def update(self, instance, validated_data):
         where = self.get_where(validated_data.pop("where"))

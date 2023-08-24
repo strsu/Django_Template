@@ -11,7 +11,8 @@ from api.v1.serializer_without_model.serializer import (
 
 class IntegrationApiView(APIView):
     def post(self, request, type):
-        if type.lower() not in ["plant", "inverter", "ess"]:
+        type = type.lower()
+        if type not in ["plant", "inverter", "ess"]:
             return Response(status=400)
 
         if type == "plant":
