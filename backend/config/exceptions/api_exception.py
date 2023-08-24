@@ -117,11 +117,13 @@ def custom_exception_handler(exc, context):
     else:
         """일반적으로 Err가 발생하면 이쪽으로 빠진다."""
         msg = {"message": str(exc), "code": 500}
-        context.request.data = {
-            **context.request.data,
-            "exception": {
-                **msg,
-                status_code: 500,
-            },
-        }
+
+        # context["request"]["_data"] = {
+        #     **context["request"]["_data"],
+        #     "exception": {
+        #         **msg,
+        #         status_code: 500,
+        #     },
+        # }
+
         return Response(msg, status=500)

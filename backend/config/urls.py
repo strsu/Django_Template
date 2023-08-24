@@ -64,4 +64,8 @@ urlpatterns = [
     re_path("api/v1/movie/", include("api.v1.rating.urls")),
     re_path("api/v1/celery/", include("api.v1.celery_practice.urls")),
     re_path("api/v1/modelViewSet/", include("api.v1.model_view_set.urls")),
+    re_path(
+        "api/v1/serializerWithoutModel/",
+        include("api.v1.serializer_without_model.urls"),
+    ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
