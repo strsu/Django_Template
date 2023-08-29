@@ -73,6 +73,7 @@ class User(AbstractBaseUser):
         return self.auth
 
     def has_perm(self, perm, obj=None):
+        # perm : permission
         # return self.is_superuser
         return self.auth
 

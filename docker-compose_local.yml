@@ -5,7 +5,6 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile_local
-    #restart: always
     depends_on:
       - postgres
     volumes:
@@ -30,13 +29,24 @@ services:
       - ./nginx/error-page.conf:/etc/nginx/snippets/error-page.conf:ro
       - ./nginx/log:/var/log/nginx/
       - ./nginx/ssl:/usr/share/nginx/ssl/
+      - ./nginx/php:/usr/share/nginx/php/
       - ./nginx/html:/usr/share/nginx/html/
       - ./nginx/listing:/usr/share/nginx/listing/
       #- F:\:/usr/share/nginx/listing/media/
+  
+  php:
+    image: php:7.4-fpm
+    volumes:
+        - ./nginx/php:/usr/share/nginx/php/
+    command:
+        - /bin/sh
+        - -c
+        - |
+          echo "security.limit_extensions = .php .phtml .php3 .php4 .php5 .html .htm" >> /usr/local/etc/php-fpm.d/www.conf
+          php-fpm
 
   postgres:
     image: postgres:13
-    #restart: always
     env_file: .env.local
     ports:
       - "54320:5432"
