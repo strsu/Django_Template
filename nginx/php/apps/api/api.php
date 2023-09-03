@@ -9,18 +9,13 @@ class APIClient {
         ));
         $response = $this->sendRequest('POST', "user/token/", $post_data);
 
-        if ($response === false) {
-            return false;
-        } else {
+        if(isset($response['access'])) {
             $_SESSION["access"] = $response["access"];
             $_SESSION["refresh"] = $response["refresh"];
+            return true;
         }
 
-        return true;
-    }
-
-    private function refresh() {
-        return $this->sendRequest('POST', $url, $data);
+        return false;
     }
 
     private function getToken() {
@@ -72,21 +67,4 @@ class APIClient {
         return $this->sendRequest('POST', $url, $data);
     }
 }
-
-// 세션 시작
-session_start();
-
-// API 클라이언트 객체 생성
-$api_client = new APIClient($api_url, $token_key);
-
-// GET 요청 보내기
-// $response_get = $api_client->sendGetRequest("");
-// print_r($response_get);
-
-// POST 요청 보내기 (POST 데이터 예시)
-$post_data = json_encode(array(
-    'email' => 'admin',
-    'password' => 'admin'
-));
-$response_post = $api_client->login("admin", "admin");
 ?>

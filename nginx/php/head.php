@@ -2,8 +2,6 @@
 if (isset($_SESSION['access'])) {
     if ($_SESSION['access'] == false) {
         echo ("<script>location.replace('index.php');</script>");
-    } else {
-        echo ("<script>location.replace('main.php');</script>");
     }
 } else {
     echo ("<script>location.replace('index.php');</script>");

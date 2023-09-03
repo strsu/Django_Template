@@ -1,6 +1,6 @@
 <?php
 
-require_once 'APIClient.php';
+require_once '../api/api.php';
 
 session_start();
 
@@ -12,6 +12,8 @@ try {
     $password = $_POST['password'];
 
     $response = $api_client->login($email, $password);
+
+    $success = $response;
 
 } catch (exception $e) {
     $success = false;

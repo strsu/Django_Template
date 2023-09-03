@@ -3,24 +3,24 @@
 <html>
 <?php
 include("head.php");
+require_once 'apps/api/api.php';
 ?>
 
 <body class="index is-preload">
-    <div id="page-wrapper">
-        <?php include("nav.php"); ?>
+    <div class="container">
+        <div class="sidebar">
+            <?php include("nav.php"); ?>
+        </div>
+        <div class="content">
+            <?php
+                $page = $_GET['page'];
+
+                if ($page == "resource") {
+                    include("apps/resource/list.php");
+                }
+            ?>
+        </div>
     </div>
-
-    <div class="content">
-        <?php
-        $page = $_GET['page'];
-
-        if ($page == "site") {
-            include("apps/site/site.php");
-        }
-        ?>
-    </div>
-
-
 </body>
 
 </html>

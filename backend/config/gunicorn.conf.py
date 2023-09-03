@@ -25,12 +25,13 @@ thread = 4
 bind = "0.0.0.0:8000"
 timeout = 0
 
-errorlog = "log/error.log"
-
 # django setting.py에서 'disable_existing_loggers': False 로 해야 한다고 함
-loglevel = "info"
 accesslog = "log/access.log"
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
+
+errorlog = "log/error.log"
+
+loglevel = "info"
 logger_class = CustomGunicornLogger
 
 

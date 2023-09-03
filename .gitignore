@@ -150,3 +150,4 @@ backend/media/
 #migrations
 
 00*.py
+.DS_Store

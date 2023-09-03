@@ -23,7 +23,7 @@ function login() {
                 msg.style.display = "block";
                 msg.innerText = "조회결과가 없습니다.";
             } else {
-                location.replace("main.php");
+                location.replace("main");
             }
         }, error: function (jqXHR, textStatus, errorThrown) {
             console.log(jqXHR.responseText);
