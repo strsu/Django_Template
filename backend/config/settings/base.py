@@ -3,22 +3,12 @@ import os
 import logging
 from datetime import timedelta
 
-##
 WHOAMI = os.getenv("WHOAMI")
 if WHOAMI:
     WHOAMI = WHOAMI.lower()
-    if WHOAMI == "prod":
-        from .production import *
-    elif WHOAMI == "dev":
-        from .development import *
-    else:
-        print("Unknown WHOAMI -", WHOAMI)
-        exit()
 else:
     print("Need to setting WHOAMI variable")
     exit()
-
-print(f"Running - {WHOAMI}")
 
 ## --- Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent

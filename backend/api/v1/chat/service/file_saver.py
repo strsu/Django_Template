@@ -2,7 +2,9 @@ import os
 import time
 import base64
 
-from config.settings.base import STATIC_ROOT
+from django.conf import settings
+
+STATIC_ROOT = settings.STATIC_ROOT
 
 
 def mkdir(path):

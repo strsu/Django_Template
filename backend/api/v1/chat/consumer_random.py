@@ -1,5 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
-from config.settings.base import logger_info
+from django.conf import settings
+
 import json
 import random
 import string
@@ -29,8 +30,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.user_name = self.scope["url_route"]["kwargs"]["user_name"]
         self.room_group_name = "chat_%s" % self.room_name
 
-        # logger_info.info(str(self.scope["headers"]))
-
         # 사용자 현황
         self.uc = userCounter(self.room_group_name)
         await self.uc.connect()
@@ -51,7 +50,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     # Receive message from WebSocket
     async def receive(self, text_data=None):
-
         text_data_json = json.loads(text_data)
         data = {
             "type": "chat_message",

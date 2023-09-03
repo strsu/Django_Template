@@ -1,5 +1,4 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
-from config.settings.base import logger_info
 import json
 
 

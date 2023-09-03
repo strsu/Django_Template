@@ -2,9 +2,6 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 from api.v1.file.service.file_save import save_bytes
 
-from config.settings.base import MEDIA_ROOT
-from config.settings.base import logger_info
-
 
 class Consumer(AsyncWebsocketConsumer):
     async def connect(self):

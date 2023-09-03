@@ -7,7 +7,7 @@ from celery import Celery
 # 이 줄은 필요하지 않지만 항상 설정 모듈을 셀러리 프로그램으로 전달하는 것을 방지합니다. 앱 인스턴스를 생성하기 전에 다음 작업을 수행해야 합니다.
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE",
-    "config.settings.base",
+    "config.settings.settings",
 )
 
 app = Celery("config")

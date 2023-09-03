@@ -9,7 +9,7 @@ from config.exceptions.custom_exceptions import (
     CustomDictException,
     CustomParameterException,
 )
-from config.settings.base import logger_error
+
 from config.exceptions.exception_codes import STATUS_RSP_INTERNAL_ERROR
 
 import logging
@@ -17,6 +17,7 @@ import traceback
 
 logger = logging.getLogger("django")
 exception_logger = logging.getLogger("exception")
+logger_error = logging.getLogger("logstash_error")
 
 
 def set_rollback():

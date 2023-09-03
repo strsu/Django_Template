@@ -2,7 +2,6 @@ from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import authenticate
-from config.settings.base import logger_info
 
 from datetime import datetime
 import pytz
@@ -14,6 +13,7 @@ import traceback
 
 request_logger = logging.getLogger("middleware")
 exception_logger = logging.getLogger("exception")
+logger_info = logging.getLogger("logstash_info")
 
 
 class LoggingMiddleware:

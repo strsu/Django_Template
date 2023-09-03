@@ -1,6 +1,8 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 
+from django.conf import settings
+
 import os
 import json
 import random
@@ -12,11 +14,7 @@ from api.v1.chat.service.food_recommand import foodRecommand
 from api.v1.chat.service.user_counter import userCounter
 from api.v1.chat.service.file_saver import save_base64, save_bytes
 
-#
-
-from config.settings.base import STATIC_ROOT
-from config.settings.base import logger_info
-
+STATIC_ROOT = settings.STATIC_ROOT
 
 # https://blog.logrocket.com/django-channels-and-websockets/
 """
@@ -43,8 +41,6 @@ class MafiaConsumer(AsyncWebsocketConsumer):
         self.room_group_name = "game_%s" % self.room_name
         self.user_token = generate_random_string(10)
         self.my_role = ""
-
-        # logger_info.info(str(self.scope["headers"]))
 
         # 사용자 현황
         self.uc = userCounter(self.room_group_name)
@@ -118,7 +114,6 @@ class MafiaConsumer(AsyncWebsocketConsumer):
         )
 
     async def chat_message(self, event):
-
         data = copy.deepcopy(event["data"])
         if data["token"] == self.user_token:
             data["flag"] = True

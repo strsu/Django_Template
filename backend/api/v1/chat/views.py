@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from config.settings.base import logger_info
 import time
 
 from rest_framework import status, generics, mixins
