@@ -1,8 +1,12 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from api.v1.model_view_set.models import Product
-from api.v1.model_view_set.serializer import ProductSerializer, ProductRawSerializer
+from api.v1.model_view_set.models import Product, ProductType
+from api.v1.model_view_set.serializer import (
+    ProductSerializer,
+    ProductRawSerializer,
+    ProductTypeSerializer,
+)
 
 
 class ProductView(viewsets.ModelViewSet):
@@ -12,6 +16,7 @@ class ProductView(viewsets.ModelViewSet):
     lookup_field = "pk"
 
     def get_serializer_class(self):
+        print(self.kwargs)
         return self.serializer_class
 
     def get_queryset(self):
@@ -42,6 +47,12 @@ class ProductView(viewsets.ModelViewSet):
         response = super().destroy(request, *args, **kwargs)
         print("destroy 이후 작업 정의")
         return response
+
+
+class ProductTypeView(viewsets.ModelViewSet):
+    queryset = ProductType.objects.all()
+    serializer_class = ProductTypeSerializer
+    http_method_names = ["post"]  # 이렇게 하면 simplerouter에서 post만 연결해준다.
 
 
 class ProductRawView(viewsets.ModelViewSet):
