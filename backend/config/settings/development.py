@@ -1,5 +1,3 @@
-from config.settings.base import *
-
 DEBUG = True
 
 """
@@ -22,3 +20,5 @@ CSRF_TRUSTED_ORIGINS = [
     "https://localhost",
     "https://192.168.1.243",
 ]
+
+ALLOWED_HOSTS = ["*"]

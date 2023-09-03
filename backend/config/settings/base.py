@@ -3,6 +3,23 @@ import os
 import logging
 from datetime import timedelta
 
+##
+WHOAMI = os.getenv("WHOAMI")
+if WHOAMI:
+    WHOAMI = WHOAMI.lower()
+    if WHOAMI == "prod":
+        from .production import *
+    elif WHOAMI == "dev":
+        from .development import *
+    else:
+        print("Unknown WHOAMI -", WHOAMI)
+        exit()
+else:
+    print("Need to setting WHOAMI variable")
+    exit()
+
+print(f"Running - {WHOAMI}")
+
 ## --- Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -31,9 +48,6 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 SESSION_COOKIE_SECURE = True
 USE_X_FORWARDED_HOST = True
 X_FRAME_OPTIONS = "DENY"  # Prevent iframes. Can be overwritten per view using the @xframe_options_.. decorators
-
-ALLOWED_HOSTS = ["*"]
-
 
 # Application definition
 
@@ -123,7 +137,7 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "config.exceptions.api_exception.custom_exception_handler",
     # "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 5000,
+    "PAGE_SIZE": 50,
 }
 
 

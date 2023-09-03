@@ -1,5 +1,3 @@
-from config.settings.base import *
-
 DEBUG = False
 
 CORS_ORIGIN_WHITELIST = [
@@ -16,3 +14,5 @@ CSRF_TRUSTED_ORIGINS = [
     "https://localhost",
     "https://172.104.96.127",
 ]
+
+ALLOWED_HOSTS = ["*"]
