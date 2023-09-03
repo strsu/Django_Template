@@ -9,6 +9,17 @@ class ProductView(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
+    lookup_field = "pk"
+
+    def get_serializer_class(self):
+        return self.serializer_class
+
+    def get_queryset(self):
+        return super().get_queryset().filter()
+
+    def get_object(self):
+        return super().get_object()
+
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         print("create 이후 작업 정의")
