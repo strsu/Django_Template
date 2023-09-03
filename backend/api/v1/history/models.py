@@ -11,9 +11,12 @@ def get_authenticated_user(func):
         func,
     )
     def inner(request, *args, **kwargs):
-        user = request.user
-
-        # 모든 모델에 사용자 정보를 전달합니다.
+        try:
+            # 호출하는 모델에서 User 객체를 저장해야 request에 user가 담겨서 온다.
+            user = request.user
+        except Exception as e:
+            # 유저객체를 찾을 수 없는 경우
+            user = None
         kwargs["user"] = user
 
         return func(request, *args, **kwargs)
