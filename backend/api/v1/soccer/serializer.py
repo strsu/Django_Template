@@ -6,6 +6,7 @@ from copy import deepcopy
 
 
 class SoccerPlaceSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=False)  # 이렇게 해야 id로 조회, 수정이 가능하다.
     name = serializers.CharField(max_length=30)
     address = serializers.CharField(max_length=100)
     latitude = serializers.FloatField()
@@ -82,9 +83,7 @@ class SoccerSerializer(serializers.Serializer):
 
     def get_where(self, where_data):
         try:
-            where = SoccerPlace.objects.get(
-                latitude=where_data["latitude"], longitude=where_data["longitude"]
-            )
+            where = SoccerPlace.objects.get(id=where_data["id"])
         except SoccerPlace.DoesNotExist:
             where = SoccerPlaceSerializer(data=where_data)
             if where.is_valid():
@@ -94,7 +93,7 @@ class SoccerSerializer(serializers.Serializer):
     def create(self, validated_data):
         user = self.context["request"].user
         where = self.get_where(validated_data.pop("where"))
-        return Soccer(user=user, where=where, **validated_data)
+        return Soccer.objects.create(user=user, where=where, **validated_data)
 
     def update(self, instance, validated_data):
         where = self.get_where(validated_data.pop("where"))

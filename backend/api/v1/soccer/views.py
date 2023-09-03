@@ -87,13 +87,15 @@ class SoccerView(
         else:
             return self.list(request)
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         # 직접 serializer를 사용하는 경우
-        # soccer_serializer = SoccerSerializer(data=request.data)
+        # soccer_serializer = SoccerSerializer(
+        #     data=request.data, context={"request": request}
+        # )
         # soccer_serializer.is_valid(raise_exception=True)
         # soccer = soccer_serializer.save()
         # soccer.save()
-        return self.create(request)
+        return super().create(request, *args, **kwargs)
 
     def patch(self, request, pk):
         return self.update(request, pk)

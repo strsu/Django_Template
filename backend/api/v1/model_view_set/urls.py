@@ -24,6 +24,6 @@ product_raw_detail = views.ProductRawView.as_view(
 )
 
 urlpatterns = [
-    path("raw", product_raw_list, name=""),
-    path("raw/<int:pk>", product_raw_detail, name=""),
+    path("raw/", product_raw_list, name=""),
+    path("raw/<int:pk>/", product_raw_detail, name=""),
 ] + router.urls

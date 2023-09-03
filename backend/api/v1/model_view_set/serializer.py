@@ -19,8 +19,7 @@ class ProductTypeRawSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=64)
 
     def create(self, validated_data):
-        soccer = ProductType.objects.create(**validated_data)
-        return soccer
+        return ProductType.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get("name", instance.name)
@@ -46,8 +45,15 @@ class ProductRawSerializer(serializers.Serializer):
     demo_6 = serializers.CharField(max_length=64, required=False, allow_null=True)
 
     def create(self, validated_data):
-        product = Product.objects.create(**validated_data)
-        return product
+        """
+        return Product(**validated_data)
+        예제에서는 Product 저장할 때 위처럼 했으나, 실제 저장이 안 된다.
+        drf github에서 serializer.save()를 보면 함수에서 obj를 받고, save없이 return을 해준다.
+        여기서 문제는 Mixin에서 이 객체를 받아 save()를 호출하는 로직이 없어서 실제론 저장이 안 되는 문제가 발생한다.
+        따라서 아래와 같이 create로 return을 해 줘야 한다.
+        ...그럼 뭐하러 save()를 호출하는거지?
+        """
+        return Product.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get("name", instance.name)
@@ -63,7 +69,8 @@ class ProductRawSerializer(serializers.Serializer):
         type = validated_data.get("type")
         if type:
             instance.type = type
-        instance.save()
+
+        instance.save()  # 아마 이것도 create 처럼 이곳에서 save()를 호출하지 않는다면, 업데이트가 안되는 초유의 사태가 발생할 것이다.
         return instance
 
     class Meta:
