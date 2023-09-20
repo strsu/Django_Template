@@ -270,6 +270,7 @@ LOGGING = {
         },
         "standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"},
         "simple": {"format": "%(message)s"},
+        "loki": {"format": "%(message)s"},
     },
     "handlers": {
         "console": {
@@ -284,7 +285,7 @@ LOGGING = {
             "when": "D",  # when: 시간 단위 ('S' - 초, 'M' - 분, 'H' - 시간, 'D' - 일, 'W' - 주차, 'midnight' - 자정)
             "interval": 1,  # interval: 로그 파일을 회전시키는 시간 간격
             "backupCount": 30,  # 보존할 백업 파일 수
-            "formatter": "standard",
+            "formatter": "loki",
         },
         "exception": {
             "level": "INFO",

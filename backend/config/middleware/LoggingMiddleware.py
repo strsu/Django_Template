@@ -204,21 +204,19 @@ class LoggingMiddleware:
 
             if response.status_code in range(400, 500):
                 log_data["LEVEL"] = "ERROR"
-                exception_logger.error(
-                    json.dumps(log_data, indent=4, default=str, ensure_ascii=False)
-                )
+                exception_logger.error(self.jsondump(log_data))
             elif response.status_code in range(500, 600):
                 log_data["LEVEL"] = "CRITICAL"
-                exception_logger.error(
-                    json.dumps(log_data, indent=4, default=str, ensure_ascii=False)
-                )
+                exception_logger.error(self.jsondump(log_data))
 
-            request_logger.info(
-                json.dumps(log_data, indent=4, default=str, ensure_ascii=False)
-            )
+            request_logger.info(self.jsondump(log_data))
 
         except Exception as e:
             print(f"[LOGGING ERROR]", e)
             print(traceback.format_exc())
 
         return response
+
+    def jsondump(self, log):
+        return log
+        return json.dumps(log, indent=4, default=str, ensure_ascii=False)
