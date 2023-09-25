@@ -79,5 +79,7 @@ services:
     volumes:
       - ./promtail:/mnt/config
       - ./backend/log:/var/log
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
     command: -config.file=/mnt/config/promtail-config.yml
