@@ -18,6 +18,23 @@ class ProductSerializer(serializers.ModelSerializer):
 class ProductTypeRawSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=64)
 
+    """
+    ### Serializer 공부!!!!!
+
+    ## 이렇게 하면 id, plant_id 가 있는 경우엔 update, 없으면 create 하는 방식으로 구별할 수 있다.
+    id = serializers.IntegerField(required=False)
+    product_id = serializers.IntegerField(required=False, write_only=True)
+
+    name = serializers.CharField(max_length=64, read_only=True) # get에서만 호출된다.
+    name = serializers.CharField(max_length=64, write_only=True) # post에서만 호출된다.
+
+    두 개 모두 같은 역할을 한다. list로 받을 수 있다.
+    product = ProductSerializer(required=False, allow_null=True, many=True)
+    product = serializers.ListField(
+        required=False, allow_null=True, child=ProductSerializer()
+    )
+    """
+
     def create(self, validated_data):
         return ProductType.objects.create(**validated_data)
 
@@ -25,6 +42,23 @@ class ProductTypeRawSerializer(serializers.Serializer):
         instance.name = validated_data.get("name", instance.name)
         instance.save()
         return instance
+
+    def to_representation(self, instance):
+        """
+        to_representation은 retrieve 함수 등 get_serializer(instance).data
+        를 호출할 때 실행되어 진다.
+        따라서 deserializer후 원하는 값을 넣고싶으면 이곳에서 넣으면 된다.
+        혹은 역참조하고 있는 model의 값을 여기서 넣을수도 있다.
+
+        instance : 당연히 이 serializer의 model이다, 즉 ProductType
+        """
+        ret = super().to_representation(instance)
+
+        product_objs = Product.actives.filter(type=instance)
+        product = ProductSerializer(product_objs, many=True)
+        ret.update({"inverter": product.data})
+
+        return ret
 
     class Meta:
         model = ProductType
