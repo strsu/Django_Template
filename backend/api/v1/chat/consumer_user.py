@@ -51,24 +51,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.uc = None
 
         if self.user == "AnonymousUser":
-            await self.close(4004)
-        else:
-            # 사용자 현황
-            self.uc = userCounter(self.room_group_name)
-            await self.uc.connect()
+            # await self.close(4004)
+            ...
 
-            # 음식 추천
-            self.fr = foodRecommand()
+        # 사용자 현황
+        self.uc = userCounter(self.room_group_name)
+        await self.uc.connect()
 
-            # 채팅 매니저
-            self.message_manager = MessageManager(self.room_name)
+        # 음식 추천
+        self.fr = foodRecommand()
 
-            # Join room group
-            await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-            await self.accept()
-            await self.user_in()
+        # 채팅 매니저
+        self.message_manager = MessageManager(self.room_name)
 
-            asyncio.create_task(self.push_messages())  # 1초 마다 push
+        # Join room group
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.accept()
+        await self.user_in()
+
+        asyncio.create_task(self.push_messages())  # 1초 마다 push
 
     async def disconnect(self, close_code):
         # Leave room group

@@ -1,0 +1,79 @@
+version: '3.3'
+name: django_local
+services:
+  backend:
+    build:
+      context: ./backend
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/opt
+    command: /opt/scripts/start.sh
+    env_file: .env
+    ports:
+      - "3000:3000"
+
+  nginx:
+    build:
+      context: ./nginx
+    depends_on:
+      - backend
+    volumes:
+      - ./backend/media/:/media/
+      - ./backend/staticfiles/:/staticfiles/
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/error-page.conf:/etc/nginx/snippets/error-page.conf:ro
+      - ./nginx/log:/var/log/nginx/
+      - ./nginx/ssl:/usr/share/nginx/ssl/
+      - ./nginx/php:/usr/share/nginx/php/
+      - ./nginx/html:/usr/share/nginx/html/
+      - ./nginx/listing:/usr/share/nginx/listing/
+      #- F:\:/usr/share/nginx/listing/media/
+    ports:
+      - "80:80"
+      - "443:443"
+
+  php:
+    image: php:7.4-fpm
+    volumes:
+      - ./nginx/php:/usr/share/nginx/php/
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo "security.limit_extensions = .php .phtml .php3 .php4 .php5 .html .htm" >> /usr/local/etc/php-fpm.d/www.conf
+        php-fpm
+
+  postgres:
+    image: postgres:13
+    volumes:
+      - ./.pgdata:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical" # 이렇게 해야 kafka connect에서 jdbc connect를 사용할 수 있다
+    env_file: .env
+    ports:
+      - "54320:5432"
+
+  redis:
+    image: redis:7.0.7
+
+  celery:
+    build:
+      context: ./backend
+    depends_on:
+      - backend
+    volumes:
+      - ./backend:/opt
+    command: bash -c "celery -A config worker --loglevel=info"
+    env_file: .env
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ./promtail:/mnt/config
+      - ./backend/log:/var/log
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    command: -config.file=/mnt/config/promtail-config.yml
