@@ -10,7 +10,7 @@ class TimestampModel(models.Model):
     deleted_at = models.DateTimeField("삭제일", blank=True, null=True)
 
     objects = models.Manager()  # default manager
-    active_objects = ActiveManager()
+    actives = ActiveManager()
 
     class Meta:
         abstract = True

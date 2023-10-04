@@ -68,4 +68,5 @@ urlpatterns = [
         "api/v1/serializerWithoutModel/",
         include("api.v1.serializer_without_model.urls"),
     ),
+    re_path("api/v1/board/", include("api.v1.board.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

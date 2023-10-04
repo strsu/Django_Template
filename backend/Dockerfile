@@ -8,7 +8,7 @@ ENV PYTHONFAULTHANDLER=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100
 
-RUN apt-get update && apt-get install -y supervisor && apt-get install -y ffmpeg
+RUN apt-get update && apt-get install -y supervisor ffmpeg cron
 COPY ./conf/daphne.conf /etc/supervisor/conf.d/
 COPY ./conf/requirements.txt /
 RUN /usr/local/bin/python -m pip install --upgrade pip && pip install -r ./requirements.txt

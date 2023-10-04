@@ -39,6 +39,22 @@ SESSION_COOKIE_SECURE = True
 USE_X_FORWARDED_HOST = True
 X_FRAME_OPTIONS = "DENY"  # Prevent iframes. Can be overwritten per view using the @xframe_options_.. decorators
 
+
+# --- crontab
+envs = []
+for envkey in os.environ.keys():
+    envs.append(envkey + "=" + os.environ[envkey])
+CRONTAB_COMMAND_PREFIX = " ".join(envs)
+CRONTAB_DJANGO_SETTINGS_MODULE = "config.settings.base"
+CRONJOBS = [
+    (
+        "*/1 * * * *",
+        "cron.test.ttt",
+        ">> " + os.path.join(BASE_DIR, "log/cron.log") + " 2>&1 ",
+    ),
+]
+
+
 # Application definition
 
 DJANGO_APPS = [
@@ -63,6 +79,7 @@ THIRD_APPS = [
     "drf_yasg",
     "sass_processor",
     "corsheaders",  # CORS 관련 추가
+    "django_crontab",
 ]
 
 LOCAL_APPS = [
@@ -76,6 +93,7 @@ LOCAL_APPS = [
     "api.v1.celery_practice",
     "api.v1.model_view_set",
     "api.v1.serializer_without_model",
+    "api.v1.board",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + LOCAL_APPS
