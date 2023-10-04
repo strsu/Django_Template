@@ -17,6 +17,17 @@ class PriceApiView(APIView):
             .annotate(total_values=Sum("values"))
         )
 
+        """
+        result => 
+        [
+            {
+                "date": "2023-10-01",
+                "time": 1,
+                "total_values": 430.0
+            }
+        ]
+        """
+
         return Response(result, status=200)
 
     def post(self, request):
