@@ -26,6 +26,7 @@ services:
       - ./nginx/log:/var/log/nginx/
       - ./nginx/ssl:/usr/share/nginx/ssl/
       - ./nginx/html:/usr/share/nginx/html/
+      - ./nginx/react:/usr/share/nginx/react/
       - ./nginx/listing:/usr/share/nginx/listing/
       #- F:\:/usr/share/nginx/listing/media/
     ports:
