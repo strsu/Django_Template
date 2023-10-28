@@ -8,6 +8,9 @@ from api.common.models import TimestampModel
 class BoardCategory(TimestampModel):
     name = models.CharField("게시판 카테고리", max_length=32)
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         db_table = "board_category"
         verbose_name = "board_category"

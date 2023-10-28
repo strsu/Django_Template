@@ -32,7 +32,7 @@ class BoardView(viewsets.ModelViewSet, PermissionRequiredMixin):
         filters.OrderingFilter,
     ]  # DjangoFilterBackend 지정, OrderingFitering 지정
     filterset_class = custom_filters.BoardFilter
-    # filterset_fields = ["comment__author"]  # filtering 기능을 사용할 field 입력
+    # filterset_fields = {"author": ["icontain"]}  # filtering 기능을 사용할 field 입력
     ordering_fields = ["author", "category"]  # 정렬 대상이 될 field 지정
     ordering = ["author"]  # Default 정렬 기준 지정
 
