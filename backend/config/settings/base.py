@@ -142,8 +142,21 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",  # airflow 등 변하지 않는 토큰이 필요한 곳에 필요.
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
+    "DEFAULT_THROTTLE_CLASSES": [
+        # "rest_framework.throttling.AnonRateThrottle",
+        # "rest_framework.throttling.UserRateThrottle",
+        "rest_framework.throttling.ScopedRateThrottle",  # UserRate와 같이 동작해서, 같이 선언하면 안된다.
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "100/day",
+        "user": "10/day",
+        "board": "5/day",
+        "premium_user": "50/day",
+        "light_user": "5/day",
+    },
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "EXCEPTION_HANDLER": "config.exceptions.api_exception.custom_exception_handler",
     # "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",

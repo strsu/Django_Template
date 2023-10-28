@@ -11,6 +11,9 @@ from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 from . import filters as custom_filters
 
+# throttle
+from config.throttles.premium_throttle import PremiumThrottle
+
 from django.utils import timezone
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Permission, User
@@ -37,6 +40,10 @@ class BoardView(viewsets.ModelViewSet, PermissionRequiredMixin):
     ordering = ["author"]  # Default 정렬 기준 지정
 
     permission_classes = [DjangoModelPermissions]
+
+    throttle_classes = [PremiumThrottle]
+    premium_scope = "premium_user"
+    light_scope = "light_user"
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
