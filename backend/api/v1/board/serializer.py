@@ -3,7 +3,9 @@ from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 
 from api.v1.user.models import User
-from api.v1.board.models import Board, BoardCategory, BoardComment
+from api.v1.board.models import Board, BoardCategory, BoardComment, BoardMedia
+
+from api.common.utils import save_base64, read_base64
 
 
 class BoardCategorySerializer(serializers.Serializer):
@@ -85,6 +87,7 @@ class BoardSerializer(serializers.Serializer):
     )  # 이렇게 하면 BoardCategory pk로 검색해서 넣어준다. 굳이 BoardCategorySerializer로 할 필요가 없다.
     title = serializers.CharField(max_length=128)
     text = serializers.CharField()
+    views = serializers.IntegerField(read_only=True)
     is_secret = serializers.BooleanField(required=False)
 
     def validate(self, data):
@@ -122,6 +125,10 @@ class BoardSerializer(serializers.Serializer):
         comment = BoardComment.actives.filter(board=instance)
         comment_list = BoardCommentSerializer(instance=comment, many=True)
         ret.update({"comment": comment_list.data})
+
+        media_objs = BoardMedia.actives.filter(board=instance)
+        media_list = [media.filename for media in media_objs]
+        ret.update({"media": media_list})
 
         return ret
 

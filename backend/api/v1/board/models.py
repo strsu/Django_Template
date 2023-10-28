@@ -96,6 +96,7 @@ class Board(TimestampModel):
     title = models.CharField(max_length=128)  # 게시글 제목
     text = models.TextField("내용")
 
+    views = models.IntegerField("조회수", default=0)
     likes = models.ManyToManyField(User, related_name="liked_board")
 
     is_secret = models.BooleanField("비밀글", default=False)

@@ -1,7 +1,10 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.models import BaseUserManager
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin,
+)
 
 
 class CustomUserManager(BaseUserManager):
@@ -36,12 +39,13 @@ class CustomUserManager(BaseUserManager):
         return superuser
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     """
     AbstractUser: Use this option if you are happy with the existing fields on the user model and just want to remove the username field.
     AbstractBaseUser: Use this option if you want to start from scratch by creating your own, completely new user model.
 
     PermissionsMixin 을 함께 상속하면 Django의 기본그룹, 허가권 관리 등을 사용할 수 있습니다.
+     -> PermissionsMixin이 없으면 get_all_permissions 등 permission 관련 method를 사용할 수 없다.
     """
 
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -66,19 +70,12 @@ class User(AbstractBaseUser):
         아래 함수를 넣어야 위 오류가 해결된다.
         
         이럴거면 그냥 is_staff, is_admin, is_superuser 를 넣는게 낫지 않나?
+
+        이 문제는 PermissionsMixin을 상속받으면 해결된다. 아니면 내부를 직접구현해 줘야해서 권장하지 않는다.
     """
 
     @property
     def is_staff(self):
-        return self.auth
-
-    def has_perms(self, perm, obj=None):
-        # perm : permission
-        # return self.is_superuser
-        return self.auth
-
-    def has_module_perms(self, app_label):
-        # return self.is_superuser
         return self.auth
 
     def __str__(self):

@@ -74,11 +74,12 @@ THIRD_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
-    "django_elasticsearch_dsl",
     "channels",
     "drf_yasg",
     "sass_processor",
     "corsheaders",  # CORS 관련 추가
+    "django_elasticsearch_dsl",
+    "django_filters",  # django-filter 등록
     "django_crontab",
 ]
 
@@ -143,6 +144,7 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "EXCEPTION_HANDLER": "config.exceptions.api_exception.custom_exception_handler",
     # "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",

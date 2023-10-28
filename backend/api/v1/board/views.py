@@ -1,9 +1,19 @@
 from rest_framework import viewsets
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import (
+    AllowAny,
+    DjangoModelPermissions,
+)
 from rest_framework.response import Response
 
+# filter
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
+from . import filters as custom_filters
+
 from django.utils import timezone
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.models import Permission, User
 
 from config.exceptions.custom_exceptions import CustomParameterException
 
@@ -13,11 +23,20 @@ from api.v1.board.serializer import BoardSerializer, BoardCommentSerializer
 from api.common.utils import save_base64, read_base64
 
 
-class BoardView(viewsets.ModelViewSet):
+class BoardView(viewsets.ModelViewSet, PermissionRequiredMixin):
     queryset = Board.actives.all()
     serializer_class = BoardSerializer
 
-    permission_classes = [AllowAny]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.OrderingFilter,
+    ]  # DjangoFilterBackend 지정, OrderingFitering 지정
+    filterset_class = custom_filters.BoardFilter
+    # filterset_fields = ["comment__author"]  # filtering 기능을 사용할 field 입력
+    ordering_fields = ["author", "category"]  # 정렬 대상이 될 field 지정
+    ordering = ["author"]  # Default 정렬 기준 지정
+
+    permission_classes = [DjangoModelPermissions]
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
