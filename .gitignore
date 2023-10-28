@@ -151,3 +151,6 @@ backend/media/
 
 00*.py
 .DS_Store
+
+# react
+nginx/react/

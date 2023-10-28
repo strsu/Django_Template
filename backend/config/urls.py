@@ -69,5 +69,5 @@ urlpatterns = [
         include("api.v1.serializer_without_model.urls"),
     ),
     re_path("api/v1/board/", include("api.v1.board.urls")),
-    re_path("api/v1/aggregate/", include("api.v1.aggregate.urls")),
+    re_path("api/v1/orm/", include("api.v1.orm.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

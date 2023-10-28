@@ -27,6 +27,7 @@ class SignViewSet(ModelViewSet):
     permission_classes = (AllowAny,)
 
     queryset = User.objects.all()
+    serializer_class = None
 
     def get_queryset(self):
         return super().get_queryset()

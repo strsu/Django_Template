@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class CustomPermissionConfig(AppConfig):
+class OrmConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "api.v1.custom_permission"
+    name = "api.v1.orm"
