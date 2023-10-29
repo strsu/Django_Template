@@ -151,11 +151,9 @@ class LoggingMiddleware:
                 "QUERY_STRING": request.META["QUERY_STRING"]
                 if "QUERY_STRING" in request.META.keys()
                 else None,
-                "USER_ID": request.user.uuid
-                if str(request.user) != "AnonymousUser"
-                else None,
+                "USER_ID": request.user.uuid if not request.user.is_anonymous else None,
                 "USER_NAME": request.user.username
-                if str(request.user) != "AnonymousUser"
+                if not request.user.is_anonymous
                 else None,
                 "RESPONSE_TIME": round(time.time() - request.start_time, 8),
                 "HTTP_USER_AGENT": request.META["HTTP_USER_AGENT"]

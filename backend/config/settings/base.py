@@ -137,7 +137,7 @@ SECURE_SCHEMES = ["http", "https"]
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         # 모든 view에 Auth 체크가 적용된다.
-        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ),
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
@@ -146,7 +146,7 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
     "DEFAULT_THROTTLE_CLASSES": [
-        # "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.AnonRateThrottle",
         # "rest_framework.throttling.UserRateThrottle",
         "rest_framework.throttling.ScopedRateThrottle",  # UserRate와 같이 동작해서, 같이 선언하면 안된다.
     ],

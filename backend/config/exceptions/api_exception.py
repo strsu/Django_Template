@@ -8,6 +8,8 @@ from config.exceptions.custom_exceptions import (
     CustomException,
     CustomDictException,
     CustomParameterException,
+    Code400Exception,
+    Code403Exception,
 )
 
 from config.exceptions.exception_codes import STATUS_RSP_INTERNAL_ERROR
@@ -98,6 +100,18 @@ def custom_exception_handler(exc, context):
         elif isinstance(exc, CustomParameterException):
             code = CustomParameterException.default_code
             msg = CustomParameterException.default_detail
+        if isinstance(exc, Code400Exception):
+            msg = exc.detail
+            code = Code400Exception.default_code
+            if not msg:
+                msg = Code400Exception.default_detail
+            status_code = Code400Exception.default_code
+        if isinstance(exc, Code403Exception):
+            msg = exc.detail
+            code = Code403Exception.default_code
+            if not msg:
+                msg = Code403Exception.default_detail
+            status_code = Code403Exception.default_code
         elif isinstance(exc, CustomException):
             msg = exc.detail.get("message")
             code = exc.detail.get("code")

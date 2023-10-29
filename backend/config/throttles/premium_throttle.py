@@ -1,5 +1,7 @@
 from rest_framework.throttling import UserRateThrottle
 
+from config.exceptions.custom_exceptions import Code403Exception
+
 
 class PremiumThrottle(UserRateThrottle):
     def __init__(self):
@@ -13,16 +15,19 @@ class PremiumThrottle(UserRateThrottle):
         premium_scope = getattr(view, "premium_scope", None)
         light_scope = getattr(view, "light_scope", None)
 
-        if request.user.auth:
-            if not premium_scope:
-                return True
-            self.scope = premium_scope  # premium_scope설정이 없다면, 제한을 두지 않습니다.
+        if request.user.is_anonymous:
+            raise Code403Exception
         else:
-            if not light_scope:
-                return True
-            self.scope = light_scope  # light_scope 설정이 없다면, 제한을 두지 않습니다.
+            if request.user.auth:
+                if not premium_scope:
+                    return True
+                self.scope = premium_scope  # premium_scope설정이 없다면, 제한을 두지 않습니다.
+            else:
+                if not light_scope:
+                    return True
+                self.scope = light_scope  # light_scope 설정이 없다면, 제한을 두지 않습니다.
 
-        self.rate = self.get_rate()
+            self.rate = self.get_rate()
         self.num_requests, self.duration = self.parse_rate(self.rate)
 
         return super().allow_request(request, view)

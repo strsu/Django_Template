@@ -50,7 +50,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.user = self.scope["user"]
         self.uc = None
 
-        if self.user == "AnonymousUser":
+        if (
+            self.user == "AnonymousUser"
+        ):  # 이건 token_auth_middleware 때문에 is_anonymous를 못 쓴다.
             # await self.close(4004)
             ...
 
