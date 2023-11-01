@@ -154,7 +154,7 @@ REST_FRAMEWORK = {
         "anon": "100/day",
         "user": "10/day",
         "board": "5/day",
-        "premium_user": "50/day",
+        "premium_user": "50/minute",
         "light_user": "5/day",
     },
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
@@ -228,9 +228,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CELERY_ALWAYS_EAGER = False
 CELERY_TIMEZONE = "Asia/Seoul"
 CELERY_BROKER_URL = f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"
-CELERY_BROKER_TRANSPORT = (
-    f"{os.getenv('BROKER_URL')}"  # 이걸 넣으니까 rabbitmq가 아니라 redis에 연결한다.
-)
+CELERY_BROKER_TRANSPORT = "redis"  # 이걸 넣으니까 rabbitmq가 아니라 redis에 연결한다.
 CELERY_RESULT_BACKEND = f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
