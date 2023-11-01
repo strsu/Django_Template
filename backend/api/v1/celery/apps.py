@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class CeleryPracticeConfig(AppConfig):
+class CeleryConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
-    name = "api.v1.celery_practice"
+    name = "api.v1.celery"

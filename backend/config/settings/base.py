@@ -91,7 +91,7 @@ LOCAL_APPS = [
     "api.v1.soccer",
     "api.v1.rating",
     "api.v1.history",
-    "api.v1.celery_practice",
+    "api.v1.celery",
     "api.v1.model_view_set",
     "api.v1.serializer_without_model",
     "api.v1.board",
@@ -233,6 +233,8 @@ CELERY_RESULT_BACKEND = f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_P
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
+CELERY_ACKS_LATE = True
+CELERY_PREFETCH_MULTIPLIER = 1
 
 # Elastic
 ELASTICSEARCH_DSL = {

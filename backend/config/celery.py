@@ -19,6 +19,8 @@ app.config_from_object(
     namespace="CELERY",
 )
 
+app.conf.update(worker_late_ack=True, worker_prefetch_multiplier=1)  # prefetch 모드 활성화
+
 # 등록된 django apps 내부의 모든 task 모듈을 찾습니다.
 app.autodiscover_tasks()
 

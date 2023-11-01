@@ -55,7 +55,20 @@ services:
       - backend
     volumes:
       - ./backend:/opt
-    command: bash -c "celery -A config worker --loglevel=info"
+    command: bash -c "celery -A config worker --pool prefork --loglevel=info"
+    # command: bash -c "celery multi start 1"
+    env_file: .env
+  
+  flower:
+    build:
+      context: ./backend
+    depends_on:
+      - celery
+    volumes:
+      - ./backend:/opt
+    command: bash -c "celery -A config flower"
+    ports:
+      - "5555:5555"
     env_file: .env
 
   promtail:

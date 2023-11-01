@@ -62,7 +62,7 @@ urlpatterns = [
     re_path("api/v1/user/", include("api.v1.user.urls")),
     re_path("api/v1/soccer/", include("api.v1.soccer.urls")),
     re_path("api/v1/movie/", include("api.v1.rating.urls")),
-    re_path("api/v1/celery/", include("api.v1.celery_practice.urls")),
+    re_path("api/v1/celery/", include("api.v1.celery.urls")),
     re_path("api/v1/modelViewSet/", include("api.v1.model_view_set.urls")),
     re_path(
         "api/v1/serializerWithoutModel/",

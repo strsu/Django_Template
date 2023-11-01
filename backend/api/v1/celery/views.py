@@ -9,7 +9,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from api.v1.celery_practice.tasks import file_task
+from api.v1.celery.tasks import file_task
 
 
 class CeleryPacticeView(APIView):
@@ -21,9 +21,9 @@ class CeleryPacticeView(APIView):
         operation_id="시스템설정 옵션 조희",
         manual_parameters=[
             openapi.Parameter(
-                "id",
+                "msg",
                 openapi.IN_QUERY,
-                description="api/v1/celery_practice/",
+                description="api/v1/celery/",
                 required=True,
                 type=openapi.TYPE_STRING,
             ),
@@ -46,5 +46,9 @@ class CeleryPacticeView(APIView):
         },
     )
     def get(self, request):
-        file_task.delay("test")
+        msg = request.GET.get("msg")
+
+        print("###", msg)
+
+        file_task.delay(msg)
         return Response(status=status.HTTP_200_OK)
