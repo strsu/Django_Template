@@ -60,14 +60,22 @@ class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
 
+    def group(self, user):
+        groups = []
+        for group in user.groups.all():
+            groups.append(group.name)
+        return " ".join(groups)
+
+    group.short_description = "권한그룹"
+
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ("email", "username")
+    list_display = ("email", "username", "auth", "is_superuser", "group")
     list_filter = ("auth",)
     fieldsets = (
         (None, {"fields": ("email", "password")}),
-        ("Permissions", {"fields": ("auth",)}),
+        ("Permissions", {"fields": ("auth", "groups", "user_permissions")}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
@@ -82,7 +90,10 @@ class UserAdmin(BaseUserAdmin):
     )
     search_fields = ("email",)
     ordering = ("email",)
-    filter_horizontal = ()
+    filter_horizontal = (
+        "groups",
+        "user_permissions",
+    )
 
 
 # Now register the new UserAdmin...

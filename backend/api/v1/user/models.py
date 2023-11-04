@@ -58,6 +58,19 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ["username"]
 
     """
+        PermissionsMixin 필드 리스트
+            1. groups - ManyToMany
+            2. user_permissions - ManyToMany
+            3. is_superuser
+    """
+
+    """
+        AbstractBaseUser 필드 리스트
+            1. password
+            2. last_login
+    """
+
+    """
         기존에 django에서 만들어주는 auth_user에 없는 필드들이 있기 때문에
         사용자를 저장하려면 내 user model에 맞도록 manager를 재 정의 해줘야 한다.
     """
