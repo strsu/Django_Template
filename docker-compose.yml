@@ -79,3 +79,5 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     command: -config.file=/mnt/config/promtail-config.yml
+
+# docker-compose -f docker-compose-local.yml -p <<원하는 이름>> up
