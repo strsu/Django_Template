@@ -1,4 +1,5 @@
 import aioredis
+import os
 
 
 class userCounter:
@@ -7,7 +8,9 @@ class userCounter:
         self.cache_key = cache_key
 
     async def connect(self):
-        self.redis = await aioredis.from_url("redis://redis")
+        self.redis = await aioredis.from_url(
+            f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"
+        )
         # key_list = await self.redis.keys(f"{self.cache_key}*")
 
     async def close(self):
