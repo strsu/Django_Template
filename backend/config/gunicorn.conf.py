@@ -17,8 +17,8 @@ class HealthCheckFilter(logging.Filter):
         return "HealthChecker" not in record.getMessage()
 
 
-# workers = multiprocessing.cpu_count() * 2
-workers = 1
+workers = multiprocessing.cpu_count() * 2
+# workers = 1
 worker_class = "gevent"
 thread = 4
 
@@ -40,3 +40,7 @@ capture_output = True
 
 spew = False  # True명 모든 내용을 console에 출력한다. 배포는 False로
 reload = True
+
+# restart
+pidfile = "gunicorn.pid"
+graceful_timeout = 10

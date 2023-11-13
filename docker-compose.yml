@@ -1,8 +1,8 @@
 version: '3.3'
 # name: django_local
 services:
-  backend_a:
-    container_name: backend_a
+  backend:
+    container_name: backend
     build:
       context: ./backend
     volumes:
@@ -13,20 +13,7 @@ services:
       - "3030:3000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    
-  backend_b:
-    container_name: backend_b
-    build:
-      context: ./backend
-    volumes:
-      - ./backend:/opt
-    command: /opt/scripts/start.sh
-    env_file: .env
-    ports:
-      - "3031:3000"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
+      
   nginx:
     build:
       context: ./nginx
