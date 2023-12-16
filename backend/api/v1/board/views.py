@@ -25,6 +25,11 @@ from api.v1.board.serializer import BoardSerializer, BoardCommentSerializer
 
 from api.common.utils import save_base64, read_base64
 
+from decimal import Decimal, ROUND_HALF_UP, getcontext
+
+getcontext().prec = 10  # 소수점 자릿수를 10으로 설정
+getcontext().rounding = ROUND_HALF_UP
+
 
 class BoardView(viewsets.ModelViewSet, PermissionRequiredMixin):
     queryset = Board.actives.all()

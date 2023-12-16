@@ -46,13 +46,13 @@ for envkey in os.environ.keys():
     envs.append(envkey + "=" + os.environ[envkey])
 CRONTAB_COMMAND_PREFIX = " ".join(envs)
 CRONTAB_DJANGO_SETTINGS_MODULE = "config.settings.base"
-CRONJOBS = [
-    (
-        "*/1 * * * *",
-        "cron.test.ttt",
-        ">> " + os.path.join(BASE_DIR, "log/cron.log") + " 2>&1 ",
-    ),
-]
+# CRONJOBS = [
+#     (
+#         "*/1 * * * *",
+#         "cron.test.ttt",
+#         ">> " + os.path.join(BASE_DIR, "log/cron.log") + " 2>&1 ",
+#     ),
+# ]
 
 
 # Application definition
@@ -68,6 +68,8 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_celery_results",
+    "django_celery_beat",
 ]
 
 THIRD_APPS = [
@@ -225,16 +227,23 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024 * 5  # 업로드 파일 사이�
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # CELERY SETTINGS
+CELERY_ENABLE_UTC = False
 CELERY_ALWAYS_EAGER = False
 CELERY_TIMEZONE = "Asia/Seoul"
+
 CELERY_BROKER_URL = f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"
 CELERY_BROKER_TRANSPORT = "redis"  # 이걸 넣으니까 rabbitmq가 아니라 redis에 연결한다.
-CELERY_RESULT_BACKEND = f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"
+# CELERY_RESULT_BACKEND = f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"
+CELERY_RESULT_BACKEND = "django-db"
+
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
+
 CELERY_ACKS_LATE = True
 CELERY_PREFETCH_MULTIPLIER = 1
+
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 # Elastic
 ELASTICSEARCH_DSL = {

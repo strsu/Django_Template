@@ -17,5 +17,6 @@ supervisord & # 이렇게 하면 os.environ을 사용할 수 있다, 즉 환경�
 if [ "$WHOAMI" == "prod" ]; then
     gunicorn -c config/gunicorn.conf.py config.wsgi:application
 else
+    #gunicorn -c config/gunicorn.conf.py config.wsgi:application
     python manage.py runserver 0.0.0.0:8000
 fi

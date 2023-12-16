@@ -1,9 +1,9 @@
 from celery import shared_task
+from config.celery import app
 
 from django.conf import settings
 
 import os
-
 import time
 
 """
@@ -22,3 +22,8 @@ def file_task(filename):
     f.close()
 
     return None
+
+
+@app.task
+def say_hello():  # 실제 백그라운드에서 작업할 내용을 task로 정의한다.
+    print("Hello, celery!")

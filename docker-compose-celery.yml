@@ -12,8 +12,7 @@ services:
       context: ./backend
     volumes:
       - ./backend:/opt
-    command: bash -c "celery -A config worker --pool prefork --loglevel=info"
-    # command: bash -c "celery multi start 1"
+    command: bash -c "celery -A config worker --beat --pool prefork --loglevel=info" # bash -c "celery multi start 1"
     env_file: .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -28,8 +27,8 @@ services:
     command: bash -c "celery -A config flower"
     ports:
       - "5555:5555"
+    env_file: .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    env_file: .env
 
 # docker-compose -f docker-compose-celery.yml -p prup-celery up
