@@ -2,7 +2,10 @@
 
 import os
 from celery import Celery
-from datetime import timedelta
+from datetime import datetime, timedelta
+import pytz
+
+nowfun = lambda: datetime.datetime.now(pytz.timezone("Asia/Seoul"))
 
 # 이 부분은 'celery' program 구동을 위한 Default Django settings module을 setting합니다.
 # 이 줄은 필요하지 않지만 항상 설정 모듈을 셀러리 프로그램으로 전달하는 것을 방지합니다. 앱 인스턴스를 생성하기 전에 다음 작업을 수행해야 합니다.
@@ -26,6 +29,16 @@ app.conf.update(
     CELERYBEAT_SCHEDULE={
         "say_hello-every-seconds": {
             "task": "api.v1.celery.tasks.say_hello",
+            "schedule": timedelta(seconds=30),
+            "args": (),
+        },
+        "say_world-every-seconds": {
+            "task": "api.v1.celery.tasks.say_world",
+            "schedule": timedelta(seconds=30),
+            "args": (),
+        },
+        "say_world_v2": {
+            "task": "api.v1.celery.tasks.say_world_v2",
             "schedule": timedelta(seconds=30),
             "args": (),
         },

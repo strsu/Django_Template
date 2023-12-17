@@ -12,7 +12,8 @@ services:
       context: ./backend
     volumes:
       - ./backend:/opt
-    command: bash -c "celery -A config worker --beat --pool prefork --loglevel=info" # bash -c "celery multi start 1"
+    command: /opt/scripts/start_celery.sh
+    #command: bash -c "celery -A config worker --beat --scheduler django --pool prefork --loglevel=info" # info,debug # bash -c "celery multi start 1"
     env_file: .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
