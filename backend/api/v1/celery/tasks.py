@@ -25,20 +25,5 @@ def file_task(filename):
 
 
 @app.task
-def say_hello():  # 실제 백그라운드에서 작업할 내용을 task로 정의한다.
+def say_hello(*args, **kwargs):  # 실제 백그라운드에서 작업할 내용을 task로 정의한다.
     print("Hello, celery!")
-
-
-@app.task
-def say_hello_v2():  # 실제 백그라운드에서 작업할 내용을 task로 정의한다.
-    print("Hello, celery v2!")
-
-
-@shared_task
-def say_world():  # 실제 백그라운드에서 작업할 내용을 task로 정의한다.
-    print("Hello, world!")
-
-
-@shared_task
-def say_world_v2():  # 실제 백그라운드에서 작업할 내용을 task로 정의한다.
-    print("Hello, world v2!")
