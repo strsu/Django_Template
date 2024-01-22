@@ -71,9 +71,27 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
         await self.user_in()
 
-        asyncio.create_task(self.push_messages())  # 1초 마다 push
+        self.task = asyncio.create_task(self.push_messages())  # 1초 마다 push
 
     async def disconnect(self, close_code):
+        # async task 종료
+        """
+        확실하지는 않지만!!
+        연결 종료시 task를 종료하지 않으면 task가 계속 동작하는 것 같다.
+
+            1.  socket은 daphne로 동작한다
+            2.  유저와 연결은 channel 단위 이지만, 결국 이 channel을 관리하는게 daphne
+                그래서 channel이 종료되어도 daphne 위에서 동작했던 task는 자동으로 종료되지 않는다.
+            3.  시간이 흐르면 task가 계속 쌓여서 CPU load rate가 높아진다.
+                -> 2, 3 이 확실하진 않음.
+
+            다만, task.cancel 을 추가하고 나서 cpu load가 확연하게 줄어들었다.
+            항시 90%를 유지했으나 코드 추가 후 20%를 넘는 일이 거의 없어졌다.
+            보통 10% 언더에서 동작한다.
+            -> 동시접속이 많아져도 daphne cpu 점유율이 거의 없음
+        """
+        self.task.cancel()
+
         # Leave room group
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
         if self.uc is not None:
