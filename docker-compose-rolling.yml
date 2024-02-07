@@ -7,23 +7,30 @@ services:
       context: ./backend
     volumes:
       - ./backend:/opt
-    command: /opt/scripts/start.sh
+    command: /opt/scripts/start_server.sh
     env_file: .env
-    ports:
-      - "3030:3000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    
+
   backend_b:
     container_name: backend_b
     build:
       context: ./backend
     volumes:
       - ./backend:/opt
-    command: /opt/scripts/start.sh
+    command: /opt/scripts/start_server.sh
     env_file: .env
-    ports:
-      - "3031:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  channels:
+    container_name: channels
+    build:
+      context: ./backend
+    volumes:
+      - ./backend:/opt
+    command: /opt/scripts/start_channels.sh
+    env_file: .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
