@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-docker-compose -f docker-compose-celery.yml -p prup restart channels
+docker-compose -f docker-compose.yml -p prup restart channels
