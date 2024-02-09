@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 from api.common.manager import ActiveManager
 
@@ -11,6 +12,13 @@ class TimestampModel(models.Model):
 
     objects = models.Manager()  # default manager
     actives = ActiveManager()
+
+    def delete(self):
+        self.deleted_at = timezone.now()
+        self.save()
+
+    def hard_delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
 
     class Meta:
         abstract = True
