@@ -1,7 +1,12 @@
-from pathlib import Path
-import os
-import logging
 from datetime import timedelta
+from pathlib import Path
+
+import requests
+import socket
+import logging
+import re
+import os
+
 
 WHOAMI = os.getenv("WHOAMI")
 if WHOAMI:
@@ -9,6 +14,22 @@ if WHOAMI:
 else:
     print("Need to setting WHOAMI variable")
     exit()
+
+if WHOAMI not in ("local", "dev", "prod"):
+    print("WHOAMI must be one of local, dev, prod")
+    exit()
+
+MY_PUBLIC_IP = "localhost"
+MY_LOCAL_IP = socket.gethostbyname(socket.gethostname())
+
+if WHOAMI in ("prod", "dev"):
+    try:
+        req = requests.get("http://ipconfig.kr")
+        MY_PUBLIC_IP = re.search(
+            r"IP Address : (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", req.text
+        )[1]
+    except Exception as e:
+        print("##", e)
 
 ## --- Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -111,7 +132,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "config.middleware.LoggingMiddleware.LoggingMiddleware",
+    "config.middleware.LoggingMiddleware.LoggingMiddleware",  # Custom Middleware
 ]
 
 TEMPLATES = [
@@ -239,6 +260,8 @@ CELERY_RESULT_BACKEND = "django-db"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
 
 CELERY_ACKS_LATE = True
 CELERY_PREFETCH_MULTIPLIER = 1
