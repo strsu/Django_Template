@@ -9,8 +9,9 @@ ENV PYTHONFAULTHANDLER=1 \
     PIP_DEFAULT_TIMEOUT=100
 
 RUN apt-get update && apt-get install -y supervisor ffmpeg cron
-COPY ./conf/daphne.conf /etc/supervisor/conf.d/
-COPY ./conf/requirements.txt /
+# COPY ./conf/daphne.conf /etc/supervisor/conf.d/
+# COPY ./conf/celery.conf /etc/supervisor/conf.d/
+COPY ./requirements.txt /
 RUN /usr/local/bin/python -m pip install --upgrade pip && pip install -r ./requirements.txt
 
 # supervisor를 foreground로 실행시켜야 컨테이너가 꺼지지 않는다.

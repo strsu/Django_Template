@@ -265,6 +265,17 @@ CELERY_TASK_TIME_LIMIT = 30 * 60
 
 CELERY_ACKS_LATE = True
 CELERY_PREFETCH_MULTIPLIER = 1
+"""
+[x] PREFETCH_MULTIPLIER
+How many messages to prefetch at a time multiplied by the number of concurrent processes. 
+The default is 4 (four messages for each process). The default setting is usually a good choice, 
+however - if you have very long running tasks waiting in the queue and you have to start the workers, 
+note that the first worker to start will receive four times the number of messages initially. 
+Thus the tasks may not be fairly distributed to the workers.
+
+To disable prefetching, set worker_prefetch_multiplier to 1. 
+Changing that setting to 0 will allow the worker to keep consuming as many messages as it wants.
+"""
 
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
