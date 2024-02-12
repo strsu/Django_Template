@@ -2,6 +2,7 @@ from celery import shared_task
 from config.celery import app
 
 from django.conf import settings
+from django.utils import timezone
 
 import os
 import time
@@ -16,9 +17,13 @@ MEDIA_ROOT = settings.MEDIA_ROOT
 
 @shared_task
 def file_task(filename):
+
+    format = "%Y-%m-%d %H:%M:%S"
+
+    filename += str(timezone.now().strftime(format))
     time.sleep(60)
-    f = open(os.path.join(STATIC_ROOT, f"{filename}.log"), "w", encoding="utf-8")
-    f.write("test")
+    f = open(os.path.join(STATIC_ROOT, f"DD_{filename}.log"), "w", encoding="utf-8")
+    f.write("testss")
     f.close()
 
     return None

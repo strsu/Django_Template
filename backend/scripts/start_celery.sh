@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-python3 init_celery_schedule.py
+mkdir -p log
 
 cp /opt/supervisor/celery.conf /etc/supervisor/conf.d/celery.conf
 supervisord

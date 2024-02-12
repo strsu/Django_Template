@@ -1,26 +1,45 @@
+from django.core.management.base import BaseCommand, CommandError
+from django.utils import autoreload
+from django.conf import settings
+
+import os
 import shlex
 import subprocess
 
-from django.core.management.base import BaseCommand
-from django.utils import autoreload
+from django_celery_beat.models import PeriodicTask
+
+WORKER = os.path.join(settings.BASE_DIR, "celery.pid")
 
 
-def restart_celery():
+def init_celery():
+    try:
+        os.remove(WORKER)
+    except Exception as e:
+        print(e)
+
+    PeriodicTask.objects.update(last_run_at=None)
+
+
+def start_celery(action):
+    init_celery()
+
     cmd = 'pkill -f "celery worker"'
     subprocess.call(shlex.split(cmd))
-    cmd = "celery -A config worker --loglevel=info"
+    cmd = f"celery -A config worker --pool prefork --loglevel=info --pidfile={WORKER}"
     subprocess.call(shlex.split(cmd))
 
 
 class Command(BaseCommand):
+
+    def add_arguments(self, parser):
+        ## 명령 추가 인자를 받는 방법
+        parser.add_argument("action", type=str)
+
     def handle(self, *args, **options):
-        print("Starting celery worker with autoreload...")
+        action = options["action"]
 
-        # For Django>=2.2
-        autoreload.run_with_reloader(restart_celery)
-
-        # For django<2.1
-        # autoreload.main(restart_celery)
+        autoreload.run_with_reloader(start_celery, action=action)
 
 
-# commands: bash -c "python3 manage.py celery"
+# commands: python3 command.py celery_worker start
+# commands: python3 command.py celery_worker restart
