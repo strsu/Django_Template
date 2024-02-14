@@ -129,7 +129,7 @@ class LoggingMiddleware:
         # exception_handler에서 None, HttpResponse가 넘어와야 이쪽으로 넘어온다.
         # Response가 넘어오면 이쪽으로 안 빠진다.
         exception_logger.error(traceback.format_exc())
-        return None
+        return exception
 
     def process_response(self, request, response):
         """
@@ -142,23 +142,29 @@ class LoggingMiddleware:
 
             log_data = {
                 "DATE": str(seoul_time),
-                "REMODE_ADDR": self.get_client_ip_address(request)
-                if "REMOTE_ADDR" in request.META.keys()
-                else None,
+                "REMODE_ADDR": (
+                    self.get_client_ip_address(request)
+                    if "REMOTE_ADDR" in request.META.keys()
+                    else None
+                ),
                 "PATH_INFO": request.get_full_path(),
                 "STATUS_CODE": response.status_code,
                 "METHOD": request.method,
-                "QUERY_STRING": request.META["QUERY_STRING"]
-                if "QUERY_STRING" in request.META.keys()
-                else None,
+                "QUERY_STRING": (
+                    request.META["QUERY_STRING"]
+                    if "QUERY_STRING" in request.META.keys()
+                    else None
+                ),
                 "USER_ID": request.user.uuid if not request.user.is_anonymous else None,
-                "USER_NAME": request.user.username
-                if not request.user.is_anonymous
-                else None,
+                "USER_NAME": (
+                    request.user.username if not request.user.is_anonymous else None
+                ),
                 "RESPONSE_TIME": round(time.time() - request.start_time, 8),
-                "HTTP_USER_AGENT": request.META["HTTP_USER_AGENT"]
-                if "HTTP_USER_AGENT" in request.META.keys()
-                else None,
+                "HTTP_USER_AGENT": (
+                    request.META["HTTP_USER_AGENT"]
+                    if "HTTP_USER_AGENT" in request.META.keys()
+                    else None
+                ),
                 "LEVEL": "INFO",
             }
 
@@ -179,21 +185,25 @@ class LoggingMiddleware:
             ):
                 return response
 
-            if response.content:
-                if isinstance(response.content, bytes):
-                    log_data["RESPONSE"] = (
-                        str(response.content.decode(encoding="utf-8"))[
-                            : self.response_limit
-                        ].replace(" ", "")
-                        if getattr(response, "content")
-                        else None
-                    )
-                else:
-                    log_data["RESPONSE"] = (
-                        str(json.loads(response.content))[: self.response_limit]
-                        if getattr(response, "content")
-                        else None
-                    )
+            try:
+                ## 내가 만든 config.exceptions.custom_exceptions type은 content가 없다!
+                if response.content:
+                    if isinstance(response.content, bytes):
+                        log_data["RESPONSE"] = (
+                            str(response.content.decode(encoding="utf-8"))[
+                                : self.response_limit
+                            ].replace(" ", "")
+                            if getattr(response, "content")
+                            else None
+                        )
+                    else:
+                        log_data["RESPONSE"] = (
+                            str(json.loads(response.content))[: self.response_limit]
+                            if getattr(response, "content")
+                            else None
+                        )
+            except Exception as e:
+                pass
 
             # 민감한 정보제거.
             if "token" in log_data["PATH_INFO"]:

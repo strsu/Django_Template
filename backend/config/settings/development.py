@@ -1,4 +1,4 @@
-DEBUG = True
+DEBUG = False
 
 # CORS_ALLOW_ALL_ORIGINS = True # 이건 True해도 WHITELIST 없으면 cors 발생함,,
 

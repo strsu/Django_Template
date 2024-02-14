@@ -125,7 +125,6 @@ def custom_exception_handler(exc, context):
 
         ## 위 handler에서 exception내용이 response에 들어가는 것 같다.
         # response.data.pop("status_code", None)
-
         set_rollback()
         return Response(data, status=status_code)
 
@@ -140,5 +139,4 @@ def custom_exception_handler(exc, context):
         #         status_code: 500,
         #     },
         # }
-
         return Response(msg, status=500)
