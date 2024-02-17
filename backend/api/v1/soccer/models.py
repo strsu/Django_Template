@@ -9,6 +9,8 @@ from api.v1.history.models import TrackedModel
 
 from datetime import datetime
 
+from config.exceptions.custom_exceptions import Code400Exception
+
 
 class SoccerPlace(models.Model):
     """
@@ -24,7 +26,7 @@ class SoccerPlace(models.Model):
         ## 할 일 정의
         if self.pk:
             ## NOTE - 내가 만든 Code400Exception 같은 Exception은 django에서 500으로 인지하기 때문에 Handler400을 사용하려면 django에서 만든 400 Exception을 사용해야한다.
-            raise BadRequest("수정금지")
+            raise Code400Exception("수정금지")
 
     def __str__(self):
         if self.name:
