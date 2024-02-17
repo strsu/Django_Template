@@ -31,17 +31,13 @@ class JWTTokenAuthMiddleware:
                 None,
             )
             if cookie_header is not None:
-                cookies = dict(
-                    cookie.split("=")
-                    for cookie in cookie_header.decode("utf-8").split("; ")
-                )
-                cookies = {
-                    key.lower(): value for key, value in cookies.items()
-                }  # 헤더 키를 소문자로 변환
-                x_authorization_value = cookies.get("x-authorization")
-
-                if x_authorization_value is not None:
-                    scope["user"] = await self.verify_token(x_authorization_value)
+                cookie_header = cookie_header.decode("utf-8")
+                if "x-authorization" in cookie_header.lower():
+                    for cookie in cookie_header.split("; "):
+                        if "x-authorization" in cookie.lower():
+                            _, value = cookie.split("=")
+                            scope["user"] = await self.verify_token(value)
+                            break
                 else:
                     print("X-Authorization header not found")
             else:
