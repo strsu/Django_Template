@@ -6,11 +6,13 @@ from api.common.manager import ActiveManager
 
 # Create your models here.
 class TimestampModel(models.Model):
-    created_at = models.DateTimeField("생성일", auto_now_add=True, blank=True, null=True)
+    created_at = models.DateTimeField(
+        "생성일", auto_now_add=True, blank=True, null=True
+    )
     modified_at = models.DateTimeField("수정일", auto_now=True, blank=True, null=True)
     deleted_at = models.DateTimeField("삭제일", blank=True, null=True)
 
-    objects = models.Manager()  # default manager
+    raw_objects = models.Manager()  # default manager
     actives = ActiveManager()
 
     def delete(self):

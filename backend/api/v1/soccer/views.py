@@ -47,7 +47,7 @@ class SoccerView(
     mixins.DestroyModelMixin,
     generics.GenericAPIView,
 ):
-    queryset = Soccer.objects.all()
+    queryset = Soccer.actives.all()
     serializer_class = SoccerSerializer
     pagination_class = SoccerPagination  # 👈 pagination_class 값에 매핑
 

@@ -114,7 +114,7 @@ class MovieView(
 ):
     permission_classes = [AllowAny]
 
-    queryset = Movie.objects.all()
+    queryset = Movie.actives.all()
     serializer_class = MovieSerializer
     pagination_class = MoviePagination
 

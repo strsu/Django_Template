@@ -16,7 +16,7 @@ class BoardCategorySerializer(serializers.Serializer):
         return data
 
     def create(self, validated_data):
-        return BoardCategory.objects.create(**validated_data)
+        return BoardCategory.actives.create(**validated_data)
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get("name", instance.name)
@@ -35,7 +35,7 @@ class BoardCommentSerializer(serializers.Serializer):
     )
     comment = serializers.CharField()
     parent_comment = serializers.PrimaryKeyRelatedField(
-        queryset=BoardComment.objects.all(), allow_null=True
+        queryset=BoardComment.actives.all(), allow_null=True
     )
 
     def validate(self, data):
@@ -55,9 +55,9 @@ class BoardCommentSerializer(serializers.Serializer):
             hashed_password = make_password(password)  # 비밀번호 해싱
             validated_data.update({"password": hashed_password})
 
-            return BoardComment.objects.create(**validated_data)
+            return BoardComment.actives.create(**validated_data)
 
-        return BoardComment.objects.create(**validated_data, author=user)
+        return BoardComment.actives.create(**validated_data, author=user)
 
     def update(self, instance, validated_data):
         instance.comment = validated_data.get("comment", instance.comment)
@@ -105,9 +105,9 @@ class BoardSerializer(serializers.Serializer):
             hashed_password = make_password(password)  # 비밀번호 해싱
             validated_data.update({"password": hashed_password})
 
-            return Board.objects.create(**validated_data)
+            return Board.actives.create(**validated_data)
 
-        return Board.objects.create(**validated_data, author=user)
+        return Board.actives.create(**validated_data, author=user)
 
     def update(self, instance, validated_data):
         instance.category = validated_data.get("category", instance.category)

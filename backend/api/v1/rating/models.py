@@ -3,17 +3,7 @@ from django.core.validators import FileExtensionValidator
 
 from api.v1.user.models import User
 
-
-# Create your models here.
-class TimestampModel(models.Model):
-    memo = models.CharField(max_length=256, blank=True, null=True)
-
-    created_at = models.DateTimeField("생성일", auto_now_add=True, blank=True, null=True)
-    modified_at = models.DateTimeField("수정일", auto_now=True, blank=True, null=True)
-    deleted_at = models.DateTimeField("삭제일", blank=True, null=True)
-
-    class Meta:
-        abstract = True
+from api.common.models import TimestampModel
 
 
 class Genre(models.Model):
