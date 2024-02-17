@@ -1,12 +1,16 @@
-from rest_framework import generics, mixins
+from rest_framework import generics, mixins, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import BasicAuthentication
 
 from rest_framework.pagination import PageNumberPagination  # 👈 페이지 기반 파지네이션
 
-from api.v1.soccer.models import Soccer
-from api.v1.soccer.serializer import SoccerListSerializer, SoccerSerializer
+from api.v1.soccer.models import Soccer, SoccerPlace
+from api.v1.soccer.serializer import (
+    SoccerListSerializer,
+    SoccerSerializer,
+    SoccerPlaceSerializer,
+)
 
 from config.exceptions.custom_exceptions import CustomException
 from api.common.message import UserFault
@@ -17,6 +21,17 @@ from datetime import datetime
 class SoccerLevelView(APIView):
     def get(self, request):
         return Response(Soccer.Level.choices, status=200)
+
+
+class SoccerPlaceView(
+    mixins.UpdateModelMixin,
+    generics.GenericAPIView,
+):
+    queryset = SoccerPlace.objects.all()
+    serializer_class = SoccerPlaceSerializer
+
+    def put(self, request, pk):
+        return self.update(request, pk)
 
 
 # StudentPagination # 👈 개별 View에 적용시킬 Pagination Class

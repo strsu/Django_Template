@@ -118,7 +118,7 @@ def custom_exception_handler(exc, context):
             status_code = int(exc.detail.get("status_code"))
         else:
             code = response.status_code
-            msg = "unknown error"
+            # msg = "unknown error"
 
         status_code = status_code
         data = {"message": msg, "code": code}

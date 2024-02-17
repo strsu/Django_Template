@@ -9,4 +9,5 @@ urlpatterns = [
     path("", views.SoccerView.as_view(), name=""),
     path("<int:pk>/", views.SoccerView.as_view(), name=""),
     path("level/", views.SoccerLevelView.as_view(), name=""),
+    path("place/<int:pk>/", views.SoccerPlaceView.as_view(), name=""),
 ]
