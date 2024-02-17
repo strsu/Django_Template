@@ -1,4 +1,5 @@
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import BadRequest
 from django.db import models
 
 from api.common.models import TimestampModel
@@ -18,6 +19,12 @@ class SoccerPlace(models.Model):
     address = models.CharField("주소", max_length=100, blank=True, null=True)
     latitude = models.FloatField("위도", blank=True, null=True)
     longitude = models.FloatField("경도", blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        ## 할 일 정의
+        if self.pk:
+            ## NOTE - 내가 만든 Code400Exception 같은 Exception은 django에서 500으로 인지하기 때문에 Handler400을 사용하려면 django에서 만든 400 Exception을 사용해야한다.
+            raise BadRequest("수정금지")
 
     def __str__(self):
         if self.name:
@@ -68,8 +75,12 @@ class Soccer(TrackedModel, TimestampModel):
     )
     score = models.FloatField("내 점수", blank=True, null=True)
     memo = models.CharField("메모", max_length=100, blank=True, null=True)
-    picture = ArrayField(models.CharField("사진명", max_length=100), blank=True, null=True)
-    video = ArrayField(models.CharField("비디오명", max_length=100), blank=True, null=True)
+    picture = ArrayField(
+        models.CharField("사진명", max_length=100), blank=True, null=True
+    )
+    video = ArrayField(
+        models.CharField("비디오명", max_length=100), blank=True, null=True
+    )
     tags = ArrayField(
         models.CharField("태그", max_length=20), blank=True, null=True
     )  # 이건 혹시 나중에 공유하기 생기거나 태그별로 모아보기 있으면 좋을 것 같아서,,
@@ -106,7 +117,9 @@ class SoccerTime(models.Model):
     )
     time_from = models.TimeField("시작 시간", blank=True, null=True)
     time_to = models.TimeField("종료 시간", blank=True, null=True)
-    soccer_time = models.TimeField("운동 시간 = 종료시간 - 시간시작", blank=True, null=True)
+    soccer_time = models.TimeField(
+        "운동 시간 = 종료시간 - 시간시작", blank=True, null=True
+    )
 
     def save(self, *args, **kwargs):
         if self.time_from and self.time_to:

@@ -7,15 +7,10 @@ def handler404(request):
 
 
 def bad_request(request, exception, *args, **kwargs):
-    """
-    Generic 400 error handler.
-    """
-    data = {"error": "Bad Request (400)"}
+    data = {"error": str(exception)}
     return JsonResponse(data, status=400)
 
 
 def server_error(request, *args, **kwargs):
     data = {"error": "Server Error (500)"}
-    print(data)
     return JsonResponse(data, status=500)
-    return render(request, "500.html", status=500)

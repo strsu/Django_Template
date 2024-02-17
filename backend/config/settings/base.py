@@ -108,6 +108,7 @@ THIRD_APPS = [
 ]
 
 LOCAL_APPS = [
+    "config.admin_page",
     "api.v1.chat",
     "api.v1.file",
     "api.v1.blog",
