@@ -142,6 +142,7 @@ dmypy.json
 backend/staticfiles/admin*
 backend/staticfiles/drf-yasg/
 backend/staticfiles/rest_framework*
+backend/staticfiles/debug_toolbar
 
 backend/staticfiles/chat/img/
 

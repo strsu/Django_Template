@@ -41,7 +41,16 @@ schema_view = get_schema_view(
     permission_classes=[permissions.AllowAny],
 )
 
-urlpatterns = [
+urlpatterns = []
+
+if settings.DEBUG:
+    import debug_toolbar
+
+    urlpatterns += [
+        re_path(r"^__debug__/", include(debug_toolbar.urls)),
+    ]
+
+urlpatterns += [
     re_path(r"^admin_tools/", include("admin_tools.urls")),
     path("admin/", admin.site.urls),
     re_path(

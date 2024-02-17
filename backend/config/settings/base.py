@@ -79,6 +79,7 @@ CRONTAB_DJANGO_SETTINGS_MODULE = "config.settings.base"
 # Application definition
 
 DJANGO_APPS = [
+    "debug_toolbar",
     "admin_tools",
     "admin_tools.theming",
     "admin_tools.menu",
@@ -125,6 +126,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",  # CORS 관련 추가
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
