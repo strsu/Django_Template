@@ -129,13 +129,21 @@ class LoggingMiddleware:
         # exception_handler에서 None, HttpResponse가 넘어와야 이쪽으로 넘어온다.
         # Response가 넘어오면 이쪽으로 안 빠진다.
         exception_logger.error(traceback.format_exc())
-        return exception
+
+        try:
+            if exception.status_code:
+                ## 내가 만든 Exception인 경우
+                return exception
+        except Exception as e:
+            # Django 내장 Exception, like BadRequest ...
+            return None
 
     def process_response(self, request, response):
         """
         정의되어 있으면 호출
             -> __call__ 때문엔지 실제로 호출되지 않는다.
         """
+
         try:
             seoul_tz = pytz.timezone("Asia/Seoul")
             seoul_time = datetime.now(seoul_tz)
