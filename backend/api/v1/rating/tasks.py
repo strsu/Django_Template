@@ -39,6 +39,6 @@ def transcoding_task(filename):
     dash.representations(_360p, _720p)
     dash.output(os.path.join(save_path, "dash.mpd"))
 
-    movie = Movie.objects.create(title=filename)
+    movie = Movie.actives.create(title=filename)
 
     return None

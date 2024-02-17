@@ -196,7 +196,7 @@ class MovieGenreView(
         return self.serializer_class
 
     def post(self, request, pk):
-        movie = Movie.objects.get(id=pk)
+        movie = Movie.actives.get(id=pk)
         genre = Genre.objects.get(id=request.data.get("genre"))
         if genre in movie.genre.all():
             movie.genre.remove(genre)
@@ -221,7 +221,7 @@ class MovieNationView(
         return self.serializer_class
 
     def post(self, request, pk):
-        movie = Movie.objects.get(id=pk)
+        movie = Movie.actives.get(id=pk)
         nation = Nation.objects.get(id=request.data.get("nation"))
         movie.nation = nation
         movie.save()
@@ -253,7 +253,7 @@ class MovieRatingView(
         return self.list(request, pk)
 
     def post(self, request, pk):
-        movie = Movie.objects.get(id=pk)
+        movie = Movie.actives.get(id=pk)
         rate_type = MovieRateType.objects.get(id=request.data.get("rate_type"))
         movie_rating, created = MovieRating.objects.update_or_create(
             movie=movie,
