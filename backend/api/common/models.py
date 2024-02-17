@@ -24,4 +24,4 @@ class TimestampModel(models.Model):
 
     class Meta:
         abstract = True
-        default_manager_name = "objects"  # 이걸 안 쓰면 TimestampModel을 상속받은 모델에서 새로운 manager를 할당하면 obejcts를 쓸 수 없게된다.
+        default_manager_name = "raw_objects"  # 이걸 안 쓰면 TimestampModel을 상속받은 모델에서 새로운 manager를 할당하면 obejcts를 쓸 수 없게된다.
