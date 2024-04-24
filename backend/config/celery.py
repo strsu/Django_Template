@@ -2,6 +2,8 @@
 
 import os
 from celery import Celery
+from kombu import Queue
+
 from datetime import datetime, timedelta
 import pytz
 
@@ -24,14 +26,14 @@ app.config_from_object(
 app.conf.update(
     worker_late_ack=True,
     worker_prefetch_multiplier=1,  # prefetch 모드 활성화
-    CELERYBEAT_SCHEDULE={
-        # "say_hello-every-seconds": {
-        #     "task": "api.v1.celery.tasks.say_hello",
-        #     "schedule": timedelta(seconds=30),
-        #     "args": (),
-        # },
-        ## 스케줄을 admin page에서 추가하는 방식으로,,,
-    },
+)
+
+app.conf.task_default_queue = "lopri"
+app.conf.task_default_exchange = "lopri"
+
+app.conf.task_queues = (
+    Queue("lopri", routing_key="lopri.#"),
+    Queue("hipri", routing_key="hipri.#"),
 )
 
 # 등록된 django apps 내부의 모든 task 모듈을 찾습니다.

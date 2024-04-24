@@ -155,3 +155,6 @@ backend/media/
 
 # react
 nginx/react/
+
+# pid
+*.pid
