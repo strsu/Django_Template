@@ -14,6 +14,12 @@ RUN apt-get update && apt-get install -y supervisor ffmpeg cron
 COPY ./requirements.txt /
 RUN /usr/local/bin/python -m pip install --upgrade pip && pip install -r ./requirements.txt
 
+# HTML to PDF Lib
+RUN apt-get update && apt-get install -y wkhtmltopdf xvfb fontconfig
+COPY ./SpoqaHanSansNeo_all.zip /usr/share/fonts/
+RUN unzip /usr/share/fonts/SpoqaHanSansNeo_all.zip -d /usr/share/fonts/
+RUN fc-cache -f -v
+
 # supervisor를 foreground로 실행시켜야 컨테이너가 꺼지지 않는다.
 RUN echo '[supervisord]'  >> /etc/supervisor/supervisord.conf
 RUN echo 'nodaemon=true'  >> /etc/supervisor/supervisord.conf 
