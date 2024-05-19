@@ -87,6 +87,13 @@ class PDFUploadView(APIView):
         return render(request, "pdf.html", {})
 
 
+class PDFUpload2View(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return render(request, "pdf2.html", {})
+
+
 class PDFMergeView(APIView):
     permission_classes = [AllowAny]
 

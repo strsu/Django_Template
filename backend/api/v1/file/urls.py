@@ -10,4 +10,5 @@ urlpatterns = [
     path("media/", views.VideoListView.as_view(), name=""),
     path("pdf/merge/", views.PDFMergeView.as_view(), name="pdf"),
     path("pdf/upload/", views.PDFUploadView.as_view(), name=""),
+    path("pdf/upload2/", views.PDFUpload2View.as_view(), name=""),
 ]

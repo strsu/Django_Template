@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload and Merge PDF Files</title>
+</head>
+<body>
+    <h1>Upload PDF Files to Merge</h1>
+    <input type="file" id="fileInput" multiple required>
+    <ul id="fileList"></ul>
+    <button onclick="mergePDFs()">Merge and Download</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        
+        fileInput.addEventListener('change', updateFileList);
+
+        function updateFileList() {
+            while (fileList.firstChild) {
+                fileList.removeChild(fileList.firstChild);
+            }
+
+            Array.from(fileInput.files).forEach((file, index) => {
+                const li = document.createElement('li');
+                li.textContent = file.name;
+                fileList.appendChild(li);
+            });
+        }
+
+        async function mergePDFs() {
+            const files = fileInput.files;
+            if (files.length === 0) {
+                alert('Please select PDF files to merge.');
+                return;
+            }
+
+            const pdfDoc = await PDFLib.PDFDocument.create();
+
+            for (const file of files) {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await PDFLib.PDFDocument.load(arrayBuffer);
+                const copiedPages = await pdfDoc.copyPages(pdf, pdf.getPageIndices());
+                copiedPages.forEach((page) => {
+                    pdfDoc.addPage(page);
+                });
+            }
+
+            const mergedPdfBytes = await pdfDoc.save();
+            download(mergedPdfBytes, 'merged.pdf', 'application/pdf');
+        }
+
+        function download(data, filename, type) {
+            const blob = new Blob([data], { type: type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 0);
+        }
+    </script>
+</body>
+</html>
