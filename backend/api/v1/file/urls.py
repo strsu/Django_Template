@@ -8,4 +8,6 @@ from api.v1.file import views
 urlpatterns = [
     path("", views.FileView.as_view(), name=""),
     path("media/", views.VideoListView.as_view(), name=""),
+    path("pdf/merge/", views.PDFMergeView.as_view(), name="pdf"),
+    path("pdf/upload/", views.PDFUploadView.as_view(), name=""),
 ]

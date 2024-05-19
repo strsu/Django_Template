@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload PDF Files</title>
+</head>
+<body>
+    <h1>Upload PDF Files to Merge</h1>
+    <form action="{% url 'pdf' %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="pdfs" multiple required>
+        <button type="submit">Upload and Merge</button>
+    </form>
+</body>
+</html>

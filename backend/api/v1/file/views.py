@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
+from django.conf import settings
 
 from rest_framework import status, generics, mixins
 from rest_framework.views import APIView
@@ -18,6 +19,8 @@ from api.v1.file.serializer import FileSerializer
 from datetime import datetime
 import requests
 import urllib3
+import PyPDF2
+import os
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -75,3 +78,54 @@ class VideoListView(APIView):
         get_video_list("/")
 
         return Response(video_dict, status=200)
+
+
+class PDFUploadView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        return render(request, "pdf.html", {})
+
+
+class PDFMergeView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        # HTML 파일 경로 리스트
+        pdfs = request.FILES.getlist("pdfs")
+
+        # 변환된 PDF 파일을 저장할 경로 리스트
+        pdf_files = []
+        for i, pdf in enumerate(pdfs):
+            pdf_path = os.path.join(settings.MEDIA_ROOT, f"temp_{i}.pdf")
+            pdf_files.append(pdf_path)
+            with open(pdf_path, "wb") as f:
+                f.write(pdf.read())
+
+        # 병합된 PDF 파일을 저장할 경로
+        merged_pdf_path = os.path.join(settings.MEDIA_ROOT, "merged.pdf")
+
+        # PDF 파일 병합
+        pdf_merger = PyPDF2.PdfMerger()
+        for pdf in pdf_files:
+            pdf_merger.append(pdf)
+
+        with open(merged_pdf_path, "wb") as merged_pdf_file:
+            pdf_merger.write(merged_pdf_file)
+
+        # 중간에 생성된 PDF 파일 삭제 (선택 사항)
+        for pdf in pdf_files:
+            os.remove(pdf)
+
+        # 병합된 PDF 파일을 HTTP 응답으로 반환
+        with open(merged_pdf_path, "rb") as merged_pdf_file:
+            response = HttpResponse(
+                merged_pdf_file.read(), content_type="application/pdf"
+            )
+            response["Content-Disposition"] = f'attachment; filename="merged.pdf"'
+            response["Content-Disposition"] = f'inline; filename="merged.pdf"'
+
+        # 병합된 PDF 파일 삭제 (선택 사항)
+        os.remove(merged_pdf_path)
+
+        return response
