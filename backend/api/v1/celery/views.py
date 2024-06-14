@@ -9,7 +9,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-from api.v1.celery.tasks import file_task
+from api.v1.celery.tasks import sleep_task
 
 
 class CeleryPacticeView(APIView):
@@ -46,9 +46,7 @@ class CeleryPacticeView(APIView):
         },
     )
     def get(self, request):
-        msg = request.GET.get("msg")
+        sec = request.GET.get("msg")
 
-        print("###", msg)
-
-        file_task.delay(msg)
+        sleep_task.delay(sec)
         return Response(status=status.HTTP_200_OK)
