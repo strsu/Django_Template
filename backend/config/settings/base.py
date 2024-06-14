@@ -284,7 +284,10 @@ To disable prefetching, set worker_prefetch_multiplier to 1.
 Changing that setting to 0 will allow the worker to keep consuming as many messages as it wants.
 """
 
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+# CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_BEAT_SCHEDULER = (
+    "config.schedulers:CustomDatabaseScheduler"  # custom 스케줄러 적용
+)
 
 # Elastic
 ELASTICSEARCH_DSL = {
@@ -327,6 +330,8 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+ASGI_THREADS = 1000
 
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
