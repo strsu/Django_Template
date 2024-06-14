@@ -360,6 +360,9 @@ LOGGING = {
         "standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"},
         "simple": {"format": "%(message)s"},
         "loki": {"format": "%(message)s"},
+        "debug": {
+            "format": "%(asctime)s pid:%(process)s {%(pathname)s:%(lineno)d} - %(message)s"
+        },
     },
     "handlers": {
         "console": {
@@ -399,6 +402,14 @@ LOGGING = {
             "filters": ["require_debug_false"],
             "class": "django.utils.log.AdminEmailHandler",
         },
+        "debug": {
+            "level": "DEBUG",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": os.path.join(BASE_DIR, "log/debug.log"),
+            "maxBytes": 1024 * 1024 * 10,  # 10 MB
+            "backupCount": 10,
+            "formatter": "debug",
+        },
         "logstash_info": {
             "level": "INFO",
             "class": "logstash.TCPLogstashHandler",
@@ -435,6 +446,10 @@ LOGGING = {
         "exception": {
             "handlers": ["exception"],
             "level": "ERROR",
+        },
+        "debug": {
+            "handlers": ["debug"],
+            "level": "DEBUG",
         },
         "logstash_info": {
             # "handlers": ["console", "mail_admins", "file"],
