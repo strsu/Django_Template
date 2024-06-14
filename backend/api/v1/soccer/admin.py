@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.core.exceptions import BadRequest
 
+from api.common.admin import BaseAdmin
 from api.v1.soccer.models import Soccer, SoccerTime, SoccerWith, SoccerPlace
 
 # Register your models here.
@@ -38,8 +39,8 @@ class SoccerWithInstanceInline(admin.TabularInline):
     model = SoccerWith
 
 
-class SoccerAdmin(admin.ModelAdmin):
-    list_display = ("username", "validated_where_list", "when", "level", "score")
+class SoccerAdmin(BaseAdmin):
+    list_display = ("username", "validated_where_list", "when", "level_choice", "score")
     list_display_links = ("username", "validated_where_list")
 
     inlines = [SoccerTimeInstanceInline, SoccerWithInstanceInline]
@@ -57,6 +58,41 @@ class SoccerAdmin(admin.ModelAdmin):
         if obj.where:
             return obj.where.name if obj.where.name is not None else "-"
         return "-"
+
+    # 겉에 보이는
+    def level_choice(self, obj):
+        custom_display = {
+            Soccer.Level.RED: "빨강색",
+            Soccer.Level.ORANGE: "주황색",
+            Soccer.Level.YELLO: "노랑색",
+            Soccer.Level.GREEN: "초록색",
+            Soccer.Level.BLUE: "파랑색",
+            Soccer.Level.INDIGO: "남색",
+            Soccer.Level.PURPLE: "자주색",
+            Soccer.Level.BLACK: "검정색",
+            Soccer.Level.WHITE: "하얀색",
+            Soccer.Level.GRAY: "회색",
+        }
+        return custom_display.get(obj.level)
+
+    level_choice.short_description = "난이도"  # 컬럼 이름 설정
+
+    # 안에 보이는
+    def formfield_for_choice_field(self, db_field, request, **kwargs):
+        if db_field.name == "level":
+            kwargs["choices"] = (
+                (Soccer.Level.RED, "빨강색"),
+                (Soccer.Level.ORANGE, "주황색"),
+                (Soccer.Level.YELLO, "노랑색"),
+                (Soccer.Level.GREEN, "초록색"),
+                (Soccer.Level.BLUE, "파랑색"),
+                (Soccer.Level.INDIGO, "남색"),
+                (Soccer.Level.PURPLE, "자주색"),
+                (Soccer.Level.BLACK, "검정색"),
+                (Soccer.Level.WHITE, "하얀색"),
+                (Soccer.Level.GRAY, "회색"),
+            )
+        return super().formfield_for_choice_field(db_field, request, **kwargs)
 
     # validated_where_list.admin_order_field = "where__name"
     # validated_where_list.short_description = "Soccer Name"
