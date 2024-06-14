@@ -4,6 +4,8 @@ from config.celery import app
 from django.conf import settings
 from django.utils import timezone
 
+from .base_task import BaseTask
+
 import os
 import time
 
@@ -16,19 +18,27 @@ MEDIA_ROOT = settings.MEDIA_ROOT
 
 
 @shared_task
-def file_task(filename):
-
-    format = "%Y-%m-%d %H:%M:%S"
-
-    filename += str(timezone.now().strftime(format))
-    time.sleep(60)
-    f = open(os.path.join(STATIC_ROOT, f"DD_{filename}.log"), "w", encoding="utf-8")
-    f.write("testss")
-    f.close()
-
+def sleep_task(sec=10):
+    time.sleep(sec)
     return None
 
 
-@app.task
+@app.task(
+    max_retries=3, autoretry_for=(Exception,), default_retry_delay=10, queue="hipri"
+)
 def say_hello(*args, **kwargs):  # 실제 백그라운드에서 작업할 내용을 task로 정의한다.
-    print("Hello, celery!")
+    now_try_cnt = say_hello.request.retries
+    max_try_cnt = say_hello.max_retries
+
+    if now_try_cnt != max_try_cnt:
+        ## NOTE - 오류가 일어나면 일단 작업은 수행하고, Celery Task는 실패로 기록한다!
+        raise Exception()
+
+
+@app.task(base=BaseTask, queue="hipri")
+def world(*args, **kwargs):  # 실제 백그라운드에서 작업할 내용을 task로 정의한다.
+    now_try_cnt = world.request.retries
+    max_try_cnt = world.max_retries
+
+    if now_try_cnt != max_try_cnt:
+        raise Exception()
