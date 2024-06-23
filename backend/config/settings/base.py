@@ -24,12 +24,13 @@ MY_LOCAL_IP = socket.gethostbyname(socket.gethostname())
 
 if WHOAMI in ("prod", "dev"):
     try:
-        req = requests.get("http://ipconfig.kr")
-        MY_PUBLIC_IP = re.search(
-            r"IP Address : (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", req.text
-        )[1]
+        # req = requests.get("http://ipconfig.kr")
+        # MY_PUBLIC_IP = re.search(
+        #     r"IP Address : (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", req.text
+        # )[1]
+        MY_PUBLIC_IP = requests.get("https://api.ipify.org").content.decode("utf8")
     except Exception as e:
-        print("##", e)
+        print("## ", e)
 
 ## --- Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
