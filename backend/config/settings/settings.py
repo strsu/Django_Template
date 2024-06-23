@@ -27,6 +27,5 @@ elif WHOAMI == "prod":
     print("╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚════╝      ╚═════╝ ╚═════╝ ")
     print("                                            PROD DB  ")
 
-import platform
-
-print(platform.system())
+CORS_ORIGIN_WHITELIST += [MY_LOCAL_IP, MY_PUBLIC_IP]
+CSRF_TRUSTED_ORIGINS += [MY_LOCAL_IP, MY_PUBLIC_IP]
