@@ -1,22 +1,17 @@
-server:
-  http_listen_port: 9080
-  grpc_listen_port: 0
-
 positions:
   filename: /positions.yaml
 
 clients:
-  - url: http://host.docker.internal:7100/loki/api/v1/push
+  - url: http://host.docker.internal:3100/loki/api/v1/push
 
-# {job="django"}
 scrape_configs:
-- job_name: django
-  static_configs:
-  - targets:
-      - localhost
-    labels:
-      job: django
-      __path__: /var/log/response.log
+  - job_name: info
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: info_logs
+        __path__: /var/log/*.log
 
 # - job_name: syslog
 #   syslog:
