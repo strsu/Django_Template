@@ -27,5 +27,12 @@ elif WHOAMI == "prod":
     print("╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚════╝      ╚═════╝ ╚═════╝ ")
     print("                                            PROD DB  ")
 
-CORS_ORIGIN_WHITELIST += [MY_LOCAL_IP, MY_PUBLIC_IP]
-CSRF_TRUSTED_ORIGINS += [MY_LOCAL_IP, MY_PUBLIC_IP]
+MYIP = [
+    f"http://{MY_LOCAL_IP}",
+    f"https://{MY_LOCAL_IP}",
+    f"http://{MY_PUBLIC_IP}",
+    f"https://{MY_PUBLIC_IP}",
+]
+
+CORS_ORIGIN_WHITELIST += MYIP
+CSRF_TRUSTED_ORIGINS += MYIP
