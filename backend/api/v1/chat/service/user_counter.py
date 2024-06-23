@@ -1,16 +1,13 @@
-import aioredis
-import os
+from api.common.manager.async_cache_manager import AsyncCacheManager
 
 
 class userCounter:
     def __init__(self, cache_key):
-        self.redis = None
+        self.redis = AsyncCacheManager()
         self.cache_key = cache_key
 
     async def connect(self):
-        self.redis = await aioredis.from_url(
-            f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"
-        )
+        self.redis.connect()
         # key_list = await self.redis.keys(f"{self.cache_key}*")
 
     async def close(self):

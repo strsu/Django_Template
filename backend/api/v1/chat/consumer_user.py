@@ -40,19 +40,21 @@ def generate_random_string(length):
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
-        self.room_name = "mzoffice"
         self.user_name = self.scope["url_route"]["kwargs"]["user_name"]
         self.room_group_name = "chat_%s" % self.room_name
         self.user_token = generate_random_string(10)
         self.filesize = 0
         self.path = os.path.join(settings.STATIC_ROOT, f"chat/img/{self.room_name}")
 
+        self.room_name = "mzoffice"
+        self.room_group_name = "prup"
+
         self.user = self.scope["user"]
         self.uc = None
+        self.task = None
 
-        if (
-            self.user == "AnonymousUser"
-        ):  # 이건 token_auth_middleware 때문에 is_anonymous를 못 쓴다.
+        # 이건 token_auth_middleware 때문에 is_anonymous를 못 쓴다.
+        if self.user is None:
             # await self.close(4004)
             ...
 
@@ -66,12 +68,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # 채팅 매니저
         self.message_manager = MessageManager(self.room_name)
 
+        """
+        self.channel_name
+        절대 건들지 말자, 저거 바꾸면 group_send를 사용할 수 없다.
+        """
+
         # Join room group
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
         await self.user_in()
 
-        self.task = asyncio.create_task(self.push_messages())  # 1초 마다 push
+        # self.task = asyncio.create_task(self.push_messages())  # 1초 마다 push
 
     async def disconnect(self, close_code):
         # async task 종료
@@ -90,7 +97,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
             보통 10% 언더에서 동작한다.
             -> 동시접속이 많아져도 daphne cpu 점유율이 거의 없음
         """
-        self.task.cancel()
+        if self.task:
+            self.task.cancel()
+
+            """
+            NOTE - 여기서 절대 await self.task.cancel()을 사용하면 안된다.
+            !! 추측 !!
+            그럼 task가 cancel될 때 까지 wait을 하는데,
+            어느곳에서도 해당 task를 cancel 하지 않기 때문에
+            자원이 계속 취소되지 않아 CPU에 부하가 걸리는 것 같다!!
+            """
 
         # Leave room group
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
@@ -99,9 +115,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.uc.close()
 
     async def push_messages(self):
+        """
+        이렇게 while로 무한루프를 돌리면서 sleep을 쓰는 작업은 엄청난 CPU 부하를 발생시킨다.
+        연경이 좀만 늘어도 cpu가 100%에 치닫는 모습을 볼 수 있다.
+        웬만하면 broadcast를 쓰자..!
+        """
         while True:
-            await asyncio.sleep(5)  # 1초 대기
             await self.send(text_data=json.dumps({"info": "push"}))
+            await asyncio.sleep(5)  # 1초 대기
 
     # Receive message from WebSocket
     async def receive(self, text_data=None, bytes_data=None):

@@ -61,6 +61,11 @@ USE_X_FORWARDED_HOST = True
 X_FRAME_OPTIONS = "DENY"  # Prevent iframes. Can be overwritten per view using the @xframe_options_.. decorators
 
 
+# --- variable
+BROKER_URL = os.getenv("BROKER_URL_")
+BROKER_PORT = os.getenv("BROKER_PORT_")
+BROKER_PASSWORD = os.getenv("REDIS_PASSWORD")
+
 # --- crontab
 envs = []
 for envkey in os.environ.keys():
@@ -178,9 +183,9 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_THROTTLE_RATES": {
         "anon": "100/day",
-        "user": "10/day",
+        "user": "2000/minute",
         "board": "5/day",
-        "premium_user": "50/minute",
+        "premium_user": "2000/minute",
         "light_user": "5/day",
     },
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
@@ -255,9 +260,22 @@ CELERY_ENABLE_UTC = False
 CELERY_ALWAYS_EAGER = False
 CELERY_TIMEZONE = "Asia/Seoul"
 
-CELERY_BROKER_URL = f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"
+"""
+env에 BROKER_URL 변수가 있으면, celery worker에서 os의 env에서 broker_url을 가져온다
+즉, settings의 broker_url을 사용하지 않음
+따라서 env파일에 broker_url을 넣을 때 이름을 broker_url_ 등 조금 변형해서 사용해야 한다.
+"""
+
+CELERY_BROKER_URL = f"redis://:{BROKER_PASSWORD}@{BROKER_URL}:{BROKER_PORT}"
 CELERY_BROKER_TRANSPORT = "redis"  # 이걸 넣으니까 rabbitmq가 아니라 redis에 연결한다.
-# CELERY_RESULT_BACKEND = f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    "max_retries": 5,
+    "interval_start": 0,  # 첫 번째 재시도를 즉시 수행
+    "interval_step": 0.2,  # 이후 각 재시도 간격을 200ms씩 증가
+    "interval_max": 0.5,  # 재시도 간격이 0.5초를 넘지 않도록 설정
+}
+
+# CELERY_RESULT_BACKEND = f"redis://:{BROKER_PASSWORD}@{BROKER_URL}:{BROKER_PORT}"
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_RESULT_EXTENDED = True
 
@@ -312,7 +330,7 @@ CACHE_TTL = 60 * 1500  # 60초 * 1500분 = 25시간
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": [f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"],
+        "LOCATION": [f"redis://:{BROKER_PASSWORD}@{BROKER_URL}:{BROKER_PORT}"],
     }
 }
 
@@ -321,9 +339,11 @@ CHANNEL_LAYERS = {
         # "BACKEND": "channels_redis.core.RedisChannelLayer",
         "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
         "CONFIG": {
-            # "hosts": [(os.getenv('BROKER_URL'), os.getenv('BROKER_PORT'))], # RedisChannelLayer
+            # "hosts": [
+            #     (BROKER_PASSWORD@BROKER_URL, BROKER_PORT)
+            # ],  # RedisChannelLayer
             "hosts": [
-                f"redis://{os.getenv('BROKER_URL')}:{os.getenv('BROKER_PORT')}"  # RedisPubSubChannelLayer
+                f"redis://:{BROKER_PASSWORD}@{BROKER_URL}:{BROKER_PORT}"  # RedisPubSubChannelLayer
             ],
             "capacity": 1500,  # default 100, Once a channel is at capacity, it will refuse more messages.
             "expiry": 10,  # default 60 seconds

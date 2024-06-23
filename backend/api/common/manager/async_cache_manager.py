@@ -14,7 +14,9 @@ class AsyncCacheManager:
         self.redis = None
 
     async def connect(self):
-        self.redis = await aioredis.from_url(f"redis://{settings.CACHE_URL}")
+        self.redis = await aioredis.from_url(
+            f"redis://:{settings.BROKER_PASSWORD}@{settings.BROKER_URL}"
+        )
         try:
             await self.redis.ping()
         except Exception as e:
@@ -64,7 +66,9 @@ class CacheManager:
         self.redis = None
 
     def connect(self):
-        self.redis = sync_redis.Redis(f"{settings.CACHE_URL}")
+        self.redis = sync_redis.Redis(
+            host=settings.BROKER_URL, password=settings.BROKER_PASSWORD
+        )
         try:
             self.redis.ping()
         except Exception as e:
