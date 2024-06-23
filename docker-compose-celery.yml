@@ -27,7 +27,7 @@ services:
       - celery
     volumes:
       - ./backend:/opt
-    command: bash -c "celery -A config flower"
+    command: bash -c "cd /opt && celery -A config flower --basic-auth=${FLOWER_ID}:${FLOWER_PW}"
     ports:
       - "5555:5555"
     env_file: .env
