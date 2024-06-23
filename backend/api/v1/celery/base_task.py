@@ -1,4 +1,6 @@
 from celery import Task
+from celery.exceptions import SoftTimeLimitExceeded
+
 import logging
 
 debug_logger = logging.getLogger("debug")
@@ -11,7 +13,10 @@ class BaseTask(Task):
         raise KeyError()
     """
 
-    autoretry_for = (Exception,)
+    autoretry_for = (Exception,)  # 모든 Exception에 대해 retry
+    dont_autoretry_for = (
+        SoftTimeLimitExceeded,
+    )  # SoftTimeLimitException은 retry 안 함
     max_retries = 3  # 3회 재시도
     default_retry_delay = 10  # 10초 후 재시도
     soft_time_limit = 60 * 15  # 15분
