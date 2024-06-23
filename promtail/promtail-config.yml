@@ -13,6 +13,15 @@ scrape_configs:
         job: info_logs
         __path__: /var/log/*.log
 
+scrape_configs:
+  - job_name: error
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: error_logs
+        __path__: /var/log/*.err
+
 # - job_name: syslog
 #   syslog:
 #     listen_address: 0.0.0.0:1514
