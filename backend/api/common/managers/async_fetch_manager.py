@@ -27,7 +27,10 @@ class AsyncFetchManager:
                         print(f"Fail to Fetch - {response.status}\n\t res: {res}")
                         res = await response.text()
                         return None
-                    res = await response.json()
+                    if response.content_type == "application/json":
+                        res = await response.json()
+                    else:
+                        res = await response.text()
                     return res
         except Exception as e:
             print(f"Fail to Fetch - {e}\n\t url: {url}")
