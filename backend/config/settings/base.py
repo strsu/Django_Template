@@ -23,14 +23,21 @@ MY_PUBLIC_IP = "localhost"
 MY_LOCAL_IP = socket.gethostbyname(socket.gethostname())
 
 if WHOAMI in ("prod", "dev"):
+    # 한국에서만 사용가능
     try:
-        # req = requests.get("http://ipconfig.kr")
-        # MY_PUBLIC_IP = re.search(
-        #     r"IP Address : (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", req.text
-        # )[1]
-        MY_PUBLIC_IP = requests.get("https://api.ipify.org").content.decode("utf8")
+        req = requests.get("http://ipconfig.kr")
+        MY_PUBLIC_IP = re.search(
+            r"IP Address : (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", req.text
+        )[1]
     except Exception as e:
-        print("## ", e)
+        print("##", e)
+
+    if MY_PUBLIC_IP == "localhost":
+        # 해외에서 사용가능
+        try:
+            MY_PUBLIC_IP = requests.get("https://api.ipify.org").content.decode("utf8")
+        except Exception as e:
+            print("##", e)
 
 ## --- Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -133,9 +140,9 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",  # CORS 관련 추가
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.gzip.GZipMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
