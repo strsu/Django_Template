@@ -92,3 +92,4 @@ libsass
 python-ffmpeg-video-streaming==0.1.15
 pypdf2
 pdfkit
+aiohttp
