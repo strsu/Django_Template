@@ -1,52 +1,22 @@
-from django.shortcuts import render
+from django.utils import timezone
 
-from rest_framework import status, generics, mixins
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.authentication import BasicAuthentication
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
 
-from api.v1.celery.tasks import sleep_task
+from api.v1.celery.tasks import sleep_task, world
 
 
 class CeleryPacticeView(APIView):
-    # permission_classes = [IsAuthenticated] # 전역으로 설정되어 있어서 굳이 또 넣을 필요는 없다.
-    # permission_classes = [AllowAny] # Auth가 전역으로 되어 있어서 해당 view에 Auth를 없애려면 이렇게 넣어주면 된다.
-    authentication_classes = (JWTAuthentication, BasicAuthentication)
-
-    @swagger_auto_schema(
-        operation_id="시스템설정 옵션 조희",
-        manual_parameters=[
-            openapi.Parameter(
-                "msg",
-                openapi.IN_QUERY,
-                description="api/v1/celery/",
-                required=True,
-                type=openapi.TYPE_STRING,
-            ),
-        ],
-        responses={
-            "200": openapi.Response(
-                description="요청 성공",
-                examples={
-                    "application/json": {
-                        "results": {
-                            "generation_hour": "05-21",
-                        }
-                    },
-                },
-            ),
-            "400": openapi.Response(
-                description="잘못된 요청",
-                examples={"application/json": {"message": "요청 실패"}},
-            ),
-        },
-    )
     def get(self, request):
-        sec = request.GET.get("msg")
 
-        sleep_task.delay(sec)
+        world.delay()
+
+        sleep_task.apply_async(
+            args=[],
+            kwargs={
+                "request_at": timezone.now(),
+            },
+        )
+
         return Response(status=status.HTTP_200_OK)
