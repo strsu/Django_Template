@@ -6,12 +6,16 @@ from config.celery import app
 from django.conf import settings
 from django.utils import timezone
 
+from api.common.managers.async_fetch_manager import AsyncFetchManager
 from api.v1.chat.service.socket_manager import SocketManager
 
 from .base_task import BaseTask
 
 import os
 import time
+
+import requests
+import asyncio
 
 """
     코드가 변경되면 celery worker도 재시작 해줘야 된다.
@@ -22,8 +26,8 @@ MEDIA_ROOT = settings.MEDIA_ROOT
 
 
 @shared_task
-def sleep_task(sec=10):
-    time.sleep(sec)
+def sleep_task(*args, **kwargs):
+    time.sleep(10)
     return None
 
 
@@ -54,14 +58,26 @@ def world(*args, **kwargs):  # 실제 백그라운드에서 작업할 내용을 
         world 함수의 except에 걸리지 않기 때문에
         Task는 끝나지 않고 계속 돌아가는 문제가 발생한다.
         """
+
+        url = "http://host.docker.internal/api/v1/soccer/level/"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": "Basic YWRtaW46YWRtaW4=",
+        }
+
+        params = [{} for _ in range(10)]
+
+        afm = AsyncFetchManager(headers)
+
         try:
-            ...
+            loop = asyncio.get_event_loop()
+            response = loop.run_until_complete(afm.get_data(url, params))
         except SoftTimeLimitExceeded as stle:
             raise SoftTimeLimitExceeded()
         except Exception as e:
-            ...
+            print(e)
         else:
-            ...
+            print(response)
 
     try:
         do_something()
