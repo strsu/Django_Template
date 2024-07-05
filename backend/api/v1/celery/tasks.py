@@ -1,8 +1,12 @@
 from celery import shared_task
+from celery.exceptions import SoftTimeLimitExceeded
+
 from config.celery import app
 
 from django.conf import settings
 from django.utils import timezone
+
+from api.v1.chat.service.socket_manager import SocketManager
 
 from .base_task import BaseTask
 
@@ -40,5 +44,38 @@ def world(*args, **kwargs):  # 실제 백그라운드에서 작업할 내용을 
     now_try_cnt = world.request.retries
     max_try_cnt = world.max_retries
 
-    if now_try_cnt != max_try_cnt:
-        raise Exception()
+    is_error_occured = False
+    is_task_timeout = False
+
+    def do_something():
+        """
+        main ps에서 fork ps로 exception을 준다
+        이때 이 함수에서 SoftTimeLimitExceeded에 따른 로직처리를 안해주면
+        world 함수의 except에 걸리지 않기 때문에
+        Task는 끝나지 않고 계속 돌아가는 문제가 발생한다.
+        """
+        try:
+            ...
+        except SoftTimeLimitExceeded as stle:
+            raise SoftTimeLimitExceeded()
+        except Exception as e:
+            ...
+        else:
+            ...
+
+    try:
+        do_something()
+    except SoftTimeLimitExceeded as stle:
+        is_task_timeout = True
+    except Exception as e:
+        is_error_occured = True
+    else:
+        SocketManager.info("success")
+    finally:
+        print(f"finally - now_try_cnt: {now_try_cnt}, max_try_cnt : {max_try_cnt}")
+        if is_task_timeout:
+            SocketManager.info("fail")
+            raise SoftTimeLimitExceeded()
+
+        if is_error_occured:
+            raise Exception()
