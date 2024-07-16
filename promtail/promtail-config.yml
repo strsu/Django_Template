@@ -2,7 +2,7 @@ positions:
   filename: /positions.yaml
 
 clients:
-  - url: http://host.docker.internal:3100/loki/api/v1/push
+  - url: http://${LOKI_URL}:3100/loki/api/v1/push
 
 scrape_configs:
   - job_name: info
@@ -10,7 +10,7 @@ scrape_configs:
     - targets:
         - localhost
       labels:
-        job: info_logs
+        job: info_logs_${WHOAMI}
         __path__: /var/log/*.log
 
   - job_name: error
@@ -18,7 +18,7 @@ scrape_configs:
     - targets:
         - localhost
       labels:
-        job: error_logs
+        job: error_logs_${WHOAMI}
         __path__: /var/log/*.err
 
 # - job_name: syslog
