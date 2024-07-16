@@ -5,8 +5,6 @@ services:
     container_name: backend_a
     build:
       context: ./backend
-    volumes:
-      - ./backend:/opt
     command: /opt/scripts/start_server.sh
     env_file: .env
     extra_hosts:
@@ -16,8 +14,6 @@ services:
     container_name: backend_b
     build:
       context: ./backend
-    volumes:
-      - ./backend:/opt
     command: /opt/scripts/start_server.sh
     env_file: .env
     extra_hosts:
@@ -71,6 +67,9 @@ services:
       - ./backend/log:/var/log
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    command: -config.file=/mnt/config/promtail-config.yml
+    env_file: .env
+    command:
+      - -config.file=/mnt/config/promtail-config.yml
+      - -config.expand-env=true
 
 # docker-compose -f docker-compose.yml -p <<원하는 이름>> up

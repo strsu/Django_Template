@@ -11,8 +11,9 @@ ENV PYTHONFAULTHANDLER=1 \
 RUN apt-get update && apt-get install -y supervisor ffmpeg cron
 # COPY ./conf/daphne.conf /etc/supervisor/conf.d/
 # COPY ./conf/celery.conf /etc/supervisor/conf.d/
-COPY ./requirements.txt /
-RUN /usr/local/bin/python -m pip install --upgrade pip && pip install -r ./requirements.txt
+# COPY ./requirements.txt /
+COPY . /opt/
+RUN /usr/local/bin/python -m pip install --upgrade pip && pip install -r ./opt/requirements.txt
 
 # HTML to PDF Lib
 RUN apt-get update && apt-get install -y wkhtmltopdf xvfb fontconfig
