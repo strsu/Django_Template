@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.12.4-slim
 
 # python envs
 ENV PYTHONFAULTHANDLER=1 \
@@ -8,12 +8,14 @@ ENV PYTHONFAULTHANDLER=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100
 
-RUN apt-get update && apt-get install -y supervisor ffmpeg cron
+RUN apt-get update --fix-missing && apt-get install -y supervisor ffmpeg cron libpq-dev gcc unzip curl
 # COPY ./conf/daphne.conf /etc/supervisor/conf.d/
 # COPY ./conf/celery.conf /etc/supervisor/conf.d/
 # COPY ./requirements.txt /
 COPY . /opt/
 RUN /usr/local/bin/python -m pip install --upgrade pip && pip install -r ./opt/requirements.txt
+# chromiun 등 설치
+RUN playwright install
 
 # HTML to PDF Lib
 RUN apt-get update && apt-get install -y wkhtmltopdf xvfb fontconfig

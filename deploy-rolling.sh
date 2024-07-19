@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+## Redis 올리기
+EXIST=$(docker-compose -f docker-compose-celery.yml -p prup ps | grep redis)
+if [ -z "$EXIST" ]; then
+    docker-compose -f docker-compose-celery.yml -p celery up redis -d
+fi
+
 RUNNING=$(docker-compose -f docker-compose-rolling.yml -p prup ps -q | wc -l)
 
 ## 서비스가 없으면 서비스를 올린다
@@ -27,7 +33,7 @@ fi
 echo "Build $GREEN"
 docker-compose -f docker-compose-rolling.yml -p prup up -d --build $GREEN
 
-echo "Build Complete, Server Start"
+echo "Build Complete, Server Start `date`"
 while [ $STATUS -ne 200 ]; do
     STATUS=$(docker-compose -f docker-compose-rolling.yml -p prup exec $GREEN curl -s -o /dev/null -w "%{http_code}" $URL)
     echo -n -e "\r[`date`] Waiting for the server to respond with status 200... Current State : $STATUS"
