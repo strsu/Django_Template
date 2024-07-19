@@ -134,6 +134,7 @@ LOCAL_APPS = [
     "api.v1.serializer_without_model",
     "api.v1.board",
     "api.v1.orm",
+    "api.v2.board",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + LOCAL_APPS

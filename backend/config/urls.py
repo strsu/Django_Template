@@ -82,4 +82,5 @@ urlpatterns += [
     ),
     re_path("api/v1/board/", include("api.v1.board.urls")),
     re_path("api/v1/orm/", include("api.v1.orm.urls")),
+    re_path("api/v2/board/", include("api.v2.board.urls")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
