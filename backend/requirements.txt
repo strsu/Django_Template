@@ -29,7 +29,10 @@ aioredis
 gunicorn==22.0.0
 gevent==24.2.1
 greenlet==3.0.3
+
 playwright==1.45.0
+beautifulsoup4==4.12.3
+lxml==5.2.2
 
 django-elasticsearch-dsl==7.3
 elasticsearch==7.17.9

@@ -8,7 +8,8 @@ services:
     command: /opt/scripts/start_server.sh
     env_file: .env
     volumes:
-      - ./backend/logs/:/opt/logs/
+      - ./backend/log/:/opt/log/
+      - ./backend/media/:/opt/media/
       - ./backend/staticfiles/:/opt/staticfiles/
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -20,7 +21,8 @@ services:
     command: /opt/scripts/start_server.sh
     env_file: .env
     volumes:
-      - ./backend/logs/:/opt/logs/
+      - ./backend/log/:/opt/log/
+      - ./backend/media/:/opt/media/
       - ./backend/staticfiles/:/opt/staticfiles/
     extra_hosts:
       - "host.docker.internal:host-gateway"

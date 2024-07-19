@@ -29,10 +29,10 @@ class CustomUserManager(BaseUserManager):
             password=password,
         )
         superuser.auth = 1
+        superuser.is_superuser = True
 
         # 아래 핃드는 사라졌기 때문에 필요가 없어졌다.
         # superuser.is_staff = True
-        # superuser.is_superuser = True
         # superuser.is_active = True
 
         superuser.save(using=self._db)
@@ -54,7 +54,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(max_length=100)
     auth = models.IntegerField(default=0)
 
-    USERNAME_FIELD = "email"  # 사용자 로그인 필드로 user_id가 아니라 email을 기본값으로 지정
+    USERNAME_FIELD = (
+        "email"  # 사용자 로그인 필드로 user_id가 아니라 email을 기본값으로 지정
+    )
     REQUIRED_FIELDS = ["username"]
 
     """
