@@ -2,7 +2,7 @@
 
 mkdir -p log
 
-# python manage.py makemigrations
+python manage.py makemigrations # 실제 운영에서는 주석처리 하기!
 python manage.py migrate
 python manage.py collectstatic --noinput --verbosity 0
 

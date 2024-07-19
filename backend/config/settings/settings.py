@@ -27,6 +27,11 @@ elif WHOAMI == "prod":
     print("╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚════╝      ╚═════╝ ╚═════╝ ")
     print("                                            PROD DB  ")
 
+if not DEBUG:
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = [
+        "rest_framework.renderers.JSONRenderer"
+    ]
+
 MYIP = [
     f"http://{MY_LOCAL_IP}",
     f"https://{MY_LOCAL_IP}",
