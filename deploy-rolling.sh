@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ## Redis 올리기
-EXIST=$(docker-compose -f docker-compose-celery.yml -p prup ps | grep redis)
+EXIST=$(docker-compose -f docker-compose-celery.yml -p celery ps | grep redis)
 if [ -z "$EXIST" ]; then
     docker-compose -f docker-compose-celery.yml -p celery up redis -d
 fi
