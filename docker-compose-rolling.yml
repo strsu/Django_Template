@@ -33,6 +33,7 @@ services:
       context: ./backend
     volumes:
       - ./backend:/opt
+      - ./backend/log/:/opt/log/
     command: /opt/scripts/start_channels.sh
     env_file: .env
     extra_hosts:
