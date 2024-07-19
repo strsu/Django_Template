@@ -1,5 +1,5 @@
 version: '3.3'
-# name: django_local
+
 services:
   backend_a:
     container_name: backend_a
@@ -32,7 +32,6 @@ services:
     build:
       context: ./backend
     volumes:
-      - ./backend:/opt
       - ./backend/log/:/opt/log/
     command: /opt/scripts/start_channels.sh
     env_file: .env

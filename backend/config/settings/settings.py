@@ -8,7 +8,7 @@ else:
     print("Unknown WHOAMI -", WHOAMI)
     exit()
 
-print(f"Running - {WHOAMI}")
+print(f"Running - {WHOAMI}, DEBUG - {DEBUG}")
 
 if WHOAMI == "dev":
     print("██████╗ ███████╗██╗   ██╗    ██████╗ ██████╗ ")
