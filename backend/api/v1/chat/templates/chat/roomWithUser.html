@@ -3,50 +3,53 @@
 
 {% load static %}
 {% load sass_tags %}
+{% csrf_token %}
 
 <html>
+
 <head>
-    <meta charset="utf-8"/>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <title>Chat Room</title>
 
     <link rel="stylesheet" href="{% static 'chat/css/chat.css' %}">
     <link href="{% sass_src 'chat/css/chat.scss' %}" rel="stylesheet" type="text/css" />
-    
-	<link rel="stylesheet" href="{% static 'chat/css/main.css' %}" />
-	<noscript>
-		<link rel="stylesheet" href="{% static 'chat/css/noscript.css' %}" />
-	</noscript>
+
+    <link rel="stylesheet" href="{% static 'chat/css/main.css' %}" />
+    <noscript>
+        <link rel="stylesheet" href="{% static 'chat/css/noscript.css' %}" />
+    </noscript>
 
     <script src="{% static 'chat/js/receiver.js' %}"></script>
     <script src="{% static 'chat/js/sender.js' %}"></script>
     <script src="{% static 'chat/js/file.js' %}"></script>
     <script src="{% static 'chat/js/websocket.js' %}"></script>
 </head>
+
 <body class="is-preload">
     <!-- 모달 -->
-	<div id="myModal" class="modal">
-		<div class="modal-content">
+    <div id="myModal" class="modal">
+        <div class="modal-content">
             <div style="display: flex; flex-direction: column;" onclick="modal.close()">
-                <img id="img-modal" style="width: 100%" onclick="modal.close()"/>
+                <img id="img-modal" style="width: 100%" onclick="modal.close()" />
             </div>
-		</div>
-	</div>
+        </div>
+    </div>
 
     <canvas id="myCanvas"></canvas>
 
     <!-- Page Wrapper -->
-	<div id="page-wrapper">
+    <div id="page-wrapper">
 
-		<!-- Banner -->
-		<section id="banner">
-			<div class="inner">
-				<!--div class="logo"><span class="icon fa-gem"></span></div-->
+        <!-- Banner -->
+        <section id="banner">
+            <div class="inner">
+                <!--div class="logo"><span class="icon fa-gem"></span></div-->
                 <div id="chat-outer">
                     <div id="chat-container">
                         <div id="chat-user"></div>
                         <div id="chat-log"></div>
-                        <div id="preview"><img id="preview-img"/><button onclick="preview.hide()">X</button></div>
+                        <div id="preview"><img id="preview-img" /><button onclick="preview.hide()">X</button></div>
                         <div id="chat-input">
                             <div id="chat-file">
                                 <label className="input-file-button" for="filename" style="cursor: pointer !important;">
@@ -82,16 +85,16 @@
                                 </tbody>
                             </table>
                         </div>
-                        
-                    </div>
-                    
-                    
-                </div>
-				
-			</div>
-		</section>
 
-	</div>
+                    </div>
+
+
+                </div>
+
+            </div>
+        </section>
+
+    </div>
 
     <script>
         const roomName = "{{ room_name }}";
@@ -99,7 +102,7 @@
 
         const authToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk1MDkzMTQzLCJpYXQiOjE2OTI1MDExNDMsImp0aSI6IjEwMjExMDZmOTFkNjQzNWM5NzBkYWE5MGExMjk3ZWIwIiwiZW1haWwiOiJhZG1pbiIsIm5hbWUiOiJhZG1pbiJ9.pz79B0f9wEjaddAFDzmY2DVgHMwRpffDWThPoTmUaos";
         document.cookie = `X-Authorization=${authToken}; path=/;`;
-        
+
         const path = `wss://${window.location.host}/ws/chat/${roomName}/${userName}/`;
         const receiveManager = new ReceiveManager("#chat-log");
         const socketManager = new WebSocketManager(path, receiveManager, userName);
@@ -107,7 +110,7 @@
         const fileManager = new FileManager(socketManager);
 
         function getMousePosition(event) {
-            socketManager.sendText({"mouse": [event.pageX, event.pageY] });
+            socketManager.sendText({ "mouse": [event.pageX, event.pageY] });
         }
 
         const logPath = `https://${window.location.host}/api/chat/history/?name=${roomName}/`;
@@ -154,14 +157,14 @@
             },
             down: () => {
                 let code = document.getElementById('filecode').value;
-                if(code) {
+                if (code) {
                     let url = `localhost/api/v1/file/?code=${code}`
 
                     let xhr = new XMLHttpRequest();
                     xhr.open('GET', url, true);
                     xhr.responseType = 'blob';
 
-                    xhr.onload = function() {
+                    xhr.onload = function () {
                         if (xhr.status === 200) {
                             let contentDisposition = xhr.getResponseHeader("Content-Disposition");
                             let filename = contentDisposition.replace(`attachment; filename="`, "").replace(`"`, "")
@@ -181,7 +184,7 @@
 
         const socket = {
             state: () => {
-                if(socketManager.getReadyState() > 1) {
+                if (socketManager.getReadyState() > 1) {
                     // 재연결 하는 작업
                     socketManager.connect();
                 }
@@ -189,20 +192,20 @@
         }
 
         //document.cookie = `X-Authorization=토큰값; path=/`;
-       
+
         document.querySelector('#chat-message-input').focus();
-        document.querySelector('#chat-message-input').onkeyup = function(e) {
+        document.querySelector('#chat-message-input').onkeyup = function (e) {
             if (e.keyCode === 13) {  // enter, return
                 document.querySelector('#chat-message-submit').click();
             }
         };
 
-        document.querySelector('#chat-message-submit').onclick = function(e) {
+        document.querySelector('#chat-message-submit').onclick = function (e) {
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
 
             var file = document.getElementById('filename').files[0];
-            if(file) {
+            if (file) {
                 fileManager.image(file, "preview-img", "send");
                 preview.hide();
             }
@@ -221,7 +224,7 @@
             preview.hide();
         }
 
-        document.getElementById('filename').addEventListener('change', function(e) {
+        document.getElementById('filename').addEventListener('change', function (e) {
             if (e.target.files[0]) {
                 preview.show();
                 fileManager.image(e.target.files[0], "preview-img");
@@ -231,11 +234,12 @@
     </script>
 
     <!-- Scripts -->
-	<script src="{% static "/chat/js/jquery.min.js" %}" ></script>
-	<script src="{% static "/chat/js/jquery.scrollex.min.js" %}"></script>
-	<script src="{% static "/chat/js/browser.min.js" %}" ></script>
-	<script src="{% static "/chat/js/breakpoints.min.js" %}"></script>
-	<script src="{% static "/chat/js/util.js" %}"></script>
-	<script src="{% static "/chat/js/main.js" %}"></script>
+    <script src="{% static " /chat/js/jquery.min.js" %}"></script>
+    <script src="{% static " /chat/js/jquery.scrollex.min.js" %}"></script>
+    <script src="{% static " /chat/js/browser.min.js" %}"></script>
+    <script src="{% static " /chat/js/breakpoints.min.js" %}"></script>
+    <script src="{% static " /chat/js/util.js" %}"></script>
+    <script src="{% static " /chat/js/main.js" %}"></script>
 </body>
+
 </html>
