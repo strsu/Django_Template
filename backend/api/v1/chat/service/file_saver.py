@@ -42,6 +42,7 @@ def save_base64(base64_string, room):
 async def save_bytes(raw, room, flag, user_token, filename=""):
     path = os.path.join(STATIC_ROOT, f"chat/img/{room}")
     mkdir(path)
+    print(f"path: {path}")
     if flag == 2:
         # 파일 전송 중
         img_file = open(os.path.join(path, user_token), "ab")
