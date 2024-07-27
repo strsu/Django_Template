@@ -4,7 +4,7 @@ from asgiref.sync import async_to_sync
 
 class SocketManager:
 
-    channel_name = "prup"
+    room_group_name = "prup" # socket에 연결된 group에 보낼 때 보내려는 group의 이름
 
     @classmethod
     def _group_send_(cls, data):
@@ -19,7 +19,7 @@ class SocketManager:
         """
         try:
             async_to_sync(channels.layers.get_channel_layer().group_send)(
-                cls.channel_name, data
+                cls.room_group_name, data
             )
         except Exception as e:
             """
