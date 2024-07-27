@@ -32,7 +32,7 @@ services:
     build:
       context: ./backend
     volumes:
-      - ./backend/log/:/opt/log/
+      - ./backend:/opt
     command: /opt/scripts/start_channels.sh
     env_file: .env
     networks:
