@@ -37,6 +37,8 @@ MYIP = [
     f"https://{MY_LOCAL_IP}",
     f"http://{MY_PUBLIC_IP}",
     f"https://{MY_PUBLIC_IP}",
+    f"http://{HOST}",
+    f"https://{HOST}",
 ]
 
 CORS_ORIGIN_WHITELIST += MYIP
