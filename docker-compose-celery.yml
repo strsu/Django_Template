@@ -9,8 +9,8 @@ services:
     command: /opt/scripts/start_celery.sh
     #command: bash -c "celery -A config worker --beat --scheduler django --pool prefork --loglevel=info" # info,debug # bash -c "celery multi start 1"
     env_file: .env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    networks:
+      - proxynet
 
   flower:
     build:
@@ -23,7 +23,9 @@ services:
     ports:
       - "5555:5555"
     env_file: .env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    networks:
+      - proxynet
 
-# docker-compose -f docker-compose-celery.yml -p prup-celery up
+networks:
+  proxynet:
+    external: true
