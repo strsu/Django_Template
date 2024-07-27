@@ -1,0 +1,51 @@
+version: '3.3'
+
+services:
+  apigate:
+    build:
+      context: ./nginx
+    volumes:
+      - ./backend/media/:/media/
+      - ./backend/staticfiles/:/staticfiles/
+      - ./nginx/nginx_enter.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/error-page.conf:/etc/nginx/snippets/error-page.conf:ro
+      - ./nginx/log:/var/log/nginx/
+      - ./nginx/ssl:/usr/share/nginx/ssl/
+      - ./nginx/html:/usr/share/nginx/html/
+      - ./nginx/react:/usr/share/nginx/react/
+      - ./nginx/listing:/usr/share/nginx/listing/
+      #- F:\:/usr/share/nginx/listing/media/
+    networks:
+      - proxynet
+    ports:
+      - "80:80"
+      - "443:443"
+
+  postgres:
+    image: postgres:13
+    volumes:
+      - ./.pgdata:/var/lib/postgresql/data
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical" # 이렇게 해야 kafka connect에서 jdbc connect를 사용할 수 있다
+    env_file: .env
+    networks:
+      - proxynet
+    ports:
+      - "54320:5432"
+
+  redis:
+    image: redis:7.0.7
+    command: bash -c "redis-server --requirepass ${REDIS_PASSWORD}"
+    env_file: .env
+    networks:
+      - proxynet
+    ports:
+      - "6379:6379"
+
+networks:
+  proxynet:
+    driver: bridge
+    external: true
+    internal: true

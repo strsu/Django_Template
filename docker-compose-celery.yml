@@ -1,14 +1,6 @@
 version: '3.3'
 
 services:
-
-  redis:
-    image: redis:7.0.7
-    command: bash -c "redis-server --requirepass ${REDIS_PASSWORD}"
-    env_file: .env
-    ports:
-      - "6379:6379"
-
   celery:
     build:
       context: ./backend
@@ -19,7 +11,7 @@ services:
     env_file: .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
-  
+
   flower:
     build:
       context: ./backend
