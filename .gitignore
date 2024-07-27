@@ -155,6 +155,7 @@ backend/media/
 
 # react
 nginx/react/
+nginx/nginx_rolling.conf
 
 # pid
 *.pid
