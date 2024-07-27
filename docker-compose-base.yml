@@ -1,7 +1,7 @@
 version: '3.3'
 
 services:
-  apigate:
+  apigateway:
     build:
       context: ./nginx
     volumes:
@@ -48,4 +48,4 @@ networks:
   proxynet:
     driver: bridge
     external: true
-    internal: true
+    # internal: true
