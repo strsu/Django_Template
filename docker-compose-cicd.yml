@@ -1,0 +1,11 @@
+version: '3.3'
+
+services:
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+    volumes:
+      - ./backend:/opt
+    command: /opt/scripts/start_server.sh
+    env_file: .env
