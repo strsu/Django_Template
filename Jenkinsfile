@@ -28,7 +28,15 @@ pipeline {
             steps {
                 echo 'WHOAMI: $env.WHOAMI'
                 echo 'building the application...'
-                sh 'docker-compose -f docker-compose-cicd.yml -p prup up -d --build'
+                
+                sh 'docker build -t backend_image ./backend'
+                sh '''
+                    docker run -d \
+                        --name backend \
+                        --env-file .env \
+                        backend_image \
+                        /opt/scripts/start_server.sh
+                '''
 
                 sh '''
                 STATUS=0
