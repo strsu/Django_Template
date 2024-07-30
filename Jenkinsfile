@@ -28,7 +28,7 @@ pipeline {
             steps {
                 echo 'WHOAMI: $env.WHOAMI'
                 echo 'building the application...'
-                
+
                 sh 'docker build -t backend_image ./backend'
                 sh '''
                     docker run -d \
@@ -41,7 +41,7 @@ pipeline {
                 sh '''
                 STATUS=0
                 while [ $STATUS -ne 200 ]; do
-                    STATUS=$(docker-compose -f docker-compose-cicd.yml -p prup exec backend curl -s -o /dev/null -w "%{http_code}" $URL)
+                    STATUS=$(docker exec backend curl -s -o /dev/null -w "%{http_code}" $URL)
                     echo -n -e "\\r[`date`] Waiting for the server to respond with status 200... Current State : $STATUS"
                     sleep 1
                 done
