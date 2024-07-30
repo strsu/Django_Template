@@ -26,7 +26,7 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                echo 'WHOAMI: ${env.WHOAMI}'
+                echo 'WHOAMI: ${WHOAMI}'
                 echo 'building the application...'
 
                 sh 'docker build -t backend_image ./backend'
@@ -52,12 +52,12 @@ pipeline {
                 '''
 
                 sh '''
-                URL="http://localhost:8000/api/swagger/"
-                STATUS=0
-                while [ $STATUS -ne 200 ]; do
-                    STATUS=$(docker exec backend curl -s -o /dev/null -w "%{http_code}" $URL)
-                    echo -n -e "\\r[`date`] Waiting for the server to respond with status 200... Current State : $STATUS"
-                    sleep 1
+                URL="http://localhost:8000/api/swagger/" \
+                STATUS=0 \
+                while [ $STATUS -ne 200 ]; do \
+                    STATUS=$(docker exec backend curl -s -o /dev/null -w "%{http_code}" $URL) \
+                    echo -n -e "\\r[`date`] Waiting for the server to respond with status 200... Current State : $STATUS" \
+                    sleep 1 \
                 done
                 '''
             }
