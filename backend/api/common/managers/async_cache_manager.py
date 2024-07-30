@@ -81,7 +81,6 @@ class CacheManager:
 
     def get_value(self, key):
         if not self.redis:
-            print("asdf")
             return None
 
         try:
