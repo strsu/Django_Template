@@ -26,19 +26,33 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                echo 'WHOAMI: $env.WHOAMI'
+                echo 'WHOAMI: ${env.WHOAMI}'
                 echo 'building the application...'
 
                 sh 'docker build -t backend_image ./backend'
                 sh '''
                     docker run -d \
+                        -e WHOAMI=$env.WHOAMI \
+                        -e SECRET_KEY=$env.SECRET_KEY \
+                        -e ELASTICSEARCH_DSL_IP=$env.ELASTICSEARCH_DSL_IP \
+                        -e ELASTICSEARCH_DSL_PORT=$env.ELASTICSEARCH_DSL_PORT \
+                        -e LOGSTASH_PORT=$env.LOGSTASH_PORT \
+                        -e POSTGRES_DB=$env.POSTGRES_DB \
+                        -e POSTGRES_USER=$env.POSTGRES_USER \
+                        -e POSTGRES_PASSWORD=$env.POSTGRES_PASSWORD \
+                        -e POSTGRES_HOST=$env.POSTGRES_HOST \
+                        -e POSTGRES_PORT=$env.POSTGRES_PORT \
+                        -e BROKER_URL_=$env.BROKER_URL_ \
+                        -e BROKER_PORT_=$env.BROKER_PORT_ \
+                        -e REDIS_PASSWORD=$env.REDIS_PASSWORD \
+                        -e HOST=$env.HOST \
                         --name backend \
-                        --env-file .env \
                         backend_image \
                         /opt/scripts/start_server.sh
                 '''
 
                 sh '''
+                URL="http://localhost:8000/api/swagger/"
                 STATUS=0
                 while [ $STATUS -ne 200 ]; do
                     STATUS=$(docker exec backend curl -s -o /dev/null -w "%{http_code}" $URL)
