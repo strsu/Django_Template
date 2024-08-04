@@ -1,13 +1,13 @@
 version: '3.3'
 
 services:
-  apigateway:
+  static_server:
     build:
       context: ./nginx
     volumes:
       - ./backend/media/:/media/
       - ./backend/staticfiles/:/staticfiles/
-      - ./nginx/nginx_enter.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx_static.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/error-page.conf:/etc/nginx/snippets/error-page.conf:ro
       - ./nginx/log:/var/log/nginx/
       - ./nginx/ssl:/usr/share/nginx/ssl/
@@ -18,8 +18,7 @@ services:
     networks:
       - proxynet
     ports:
-      - "80:80"
-      - "443:443"
+      - "89:89"
 
   postgres:
     image: postgres:13

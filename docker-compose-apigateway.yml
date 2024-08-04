@@ -1,0 +1,20 @@
+version: '3.3'
+
+services:
+  apigateway:
+    build:
+      context: ./nginx
+    volumes:
+      - ./nginx/apigateway.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/log:/var/log/nginx/
+      - ./nginx/ssl:/usr/share/nginx/ssl/
+    networks:
+      - proxynet
+    ports:
+      - "80:80"
+      - "443:443"
+
+networks:
+  proxynet:
+    driver: bridge
+    external: true
