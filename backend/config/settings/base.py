@@ -1,3 +1,4 @@
+from typing import List, Tuple
 from datetime import timedelta
 from pathlib import Path
 
@@ -26,7 +27,7 @@ HOST = os.getenv("HOST")
 if WHOAMI in ("prod", "dev"):
     # 한국에서만 사용가능
     try:
-        req = requests.get("http://ipconfig.kr")
+        req = requests.get("http://ipconfig.kr", timeout=10)
         MY_PUBLIC_IP = re.search(
             r"IP Address : (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", req.text
         )[1]
@@ -36,7 +37,9 @@ if WHOAMI in ("prod", "dev"):
     if MY_PUBLIC_IP == "localhost":
         # 해외에서 사용가능
         try:
-            MY_PUBLIC_IP = requests.get("https://api.ipify.org").content.decode("utf8")
+            MY_PUBLIC_IP = requests.get(
+                "https://api.ipify.org", timeout=10
+            ).content.decode("utf8")
         except Exception as e:
             print("##", e)
 
@@ -55,6 +58,24 @@ MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
 ROOT_URLCONF = "config.urls"
 APPEND_SLASH = True
+
+# -- AWS Setting
+AWS_REGION = "asia"  # AWS서버의 지역
+AWS_STORAGE_BUCKET_NAME = "django"  # 생성한 버킷 이름
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+
+# 버킷이름.s3.AWS서버지역.amazonaws.com 형식
+# AWS_S3_ENDPOINT_URL = "%s.s3.%s.amazonaws.com" % (AWS_STORAGE_BUCKET_NAME, AWS_REGION)
+AWS_S3_ENDPOINT_URL = os.environ.get("S3_ENDPOINT")
+
+# Static Setting
+STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/static/"
+STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+# Media Setting
+STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/media/"
+
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
 # --- Locale settingss
 LANGUAGE_CODE = "ko-kr"
@@ -119,6 +140,7 @@ THIRD_APPS = [
     "django_elasticsearch_dsl",
     "django_filters",  # django-filter 등록
     "django_crontab",
+    "storages",
 ]
 
 LOCAL_APPS = [

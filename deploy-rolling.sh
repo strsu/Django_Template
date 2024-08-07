@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+## docker network 생성
+docker network create proxynet
+
 ## Redis 올리기
 EXIST=$(docker-compose -f docker-compose-base.yml -p base ps | grep redis)
 if [ -z "$EXIST" ]; then
