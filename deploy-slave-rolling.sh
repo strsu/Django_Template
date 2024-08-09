@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+## docker network 생성
+docker network create proxynet
+
 RUNNING=$(docker-compose -f docker-compose-slave-rolling.yml -p prup ps -q | wc -l)
 
 ## 서비스가 없으면 서비스를 올린다

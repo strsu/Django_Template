@@ -11,8 +11,6 @@ services:
       - ./backend/log/:/opt/log/
       - ./backend/media/:/opt/media/
       - ./backend/staticfiles/:/opt/staticfiles/
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   backend_b:
     container_name: backend_b
@@ -24,8 +22,6 @@ services:
       - ./backend/log/:/opt/log/
       - ./backend/media/:/opt/media/
       - ./backend/staticfiles/:/opt/staticfiles/
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   channels:
     container_name: channels
@@ -35,34 +31,22 @@ services:
       - ./backend/log/:/opt/log/
     command: /opt/scripts/start_channels.sh
     env_file: .env
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   nginx:
     build:
       context: ./nginx
     volumes:
-      - ./backend/media/:/media/
-      - ./backend/staticfiles/:/staticfiles/
       - ./nginx/nginx_rolling.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/error-page.conf:/etc/nginx/snippets/error-page.conf:ro
-      - ./nginx/log:/var/log/nginx/
-      - ./nginx/ssl:/usr/share/nginx/ssl/
-      - ./nginx/html:/usr/share/nginx/html/
-      - ./nginx/react:/usr/share/nginx/react/
-      - ./nginx/listing:/usr/share/nginx/listing/
-      #- F:\:/usr/share/nginx/listing/media/
+    networks:
+      - proxynet
     ports:
-      - "80:80"
-      - "443:443"
+      - 88:88
 
   promtail:
     image: grafana/promtail:latest
     volumes:
       - ./promtail:/mnt/config
       - ./backend/log:/var/log
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     env_file: .env
     command:
       - -config.file=/mnt/config/promtail-config.yml
