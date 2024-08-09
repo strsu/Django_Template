@@ -7,6 +7,8 @@ services:
       context: ./backend
     command: /opt/scripts/start_slave_server.sh
     env_file: .env
+    networks:
+      - proxynet
     volumes:
       - ./backend/log/:/opt/log/
       - ./backend/media/:/opt/media/
@@ -18,6 +20,8 @@ services:
       context: ./backend
     command: /opt/scripts/start_slave_server.sh
     env_file: .env
+    networks:
+      - proxynet
     volumes:
       - ./backend/log/:/opt/log/
       - ./backend/media/:/opt/media/
@@ -29,6 +33,8 @@ services:
       context: ./backend
     volumes:
       - ./backend/log/:/opt/log/
+    networks:
+      - proxynet
     command: /opt/scripts/start_channels.sh
     env_file: .env
 
@@ -47,9 +53,15 @@ services:
     volumes:
       - ./promtail:/mnt/config
       - ./backend/log:/var/log
+    networks:
+      - proxynet
     env_file: .env
     command:
       - -config.file=/mnt/config/promtail-config.yml
       - -config.expand-env=true
+
+networks:
+  proxynet:
+    external: true
 
 # docker-compose -f docker-compose.yml -p <<원하는 이름>> up
