@@ -37,9 +37,13 @@ MYIP = [
     f"https://{MY_LOCAL_IP}",
     f"http://{MY_PUBLIC_IP}",
     f"https://{MY_PUBLIC_IP}",
-    f"http://{HOST}",
-    f"https://{HOST}",
 ]
+
+for _host in HOST:
+    MYIP += [
+        f"http://{_host}",
+        f"https://{_host}",
+    ]
 
 CORS_ORIGIN_WHITELIST += MYIP
 CSRF_TRUSTED_ORIGINS += MYIP

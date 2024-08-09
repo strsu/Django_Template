@@ -22,7 +22,7 @@ if WHOAMI not in ("local", "dev", "prod"):
 
 MY_PUBLIC_IP = "localhost"
 MY_LOCAL_IP = socket.gethostbyname(socket.gethostname())
-HOST = os.getenv("HOST")
+HOST = os.getenv("HOST").split(",")
 
 if WHOAMI in ("prod", "dev"):
     # 한국에서만 사용가능
