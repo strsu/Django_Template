@@ -12,7 +12,6 @@ from ffmpeg_streaming import Formats, Bitrate, Representation, Size
     코드가 변경되면 celery worker도 재시작 해줘야 된다.
 """
 
-STATIC_ROOT = settings.STATIC_ROOT
 MEDIA_ROOT = settings.MEDIA_ROOT
 
 

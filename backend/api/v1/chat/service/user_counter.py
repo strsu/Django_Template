@@ -8,7 +8,6 @@ class userCounter:
 
     async def connect(self):
         self.redis.connect()
-        # key_list = await self.redis.keys(f"{self.cache_key}*")
 
     async def close(self):
         self.redis.close()

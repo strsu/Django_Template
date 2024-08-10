@@ -14,8 +14,6 @@ from api.v1.chat.service.food_recommand import foodRecommand
 from api.v1.chat.service.user_counter import userCounter
 from api.v1.chat.service.file_saver import save_base64, save_bytes
 
-STATIC_ROOT = settings.STATIC_ROOT
-
 # https://blog.logrocket.com/django-channels-and-websockets/
 """
     consumer의 코드반영은 바로 이루어 지지 않는다.

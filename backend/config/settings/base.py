@@ -49,33 +49,38 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 STATIC_URL = "staticfiles/"
 STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL)
 
-SASS_OUTPUT_STYLE = "compact"
-SASS_PROCESSOR_ENABLED = True
-SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, STATIC_URL)
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
+
+# --- sass
+SASS_OUTPUT_STYLE = "compact"
+SASS_PROCESSOR_ENABLED = True
+SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, STATIC_URL)
 
 ROOT_URLCONF = "config.urls"
 APPEND_SLASH = True
 
 # -- AWS Setting
-AWS_REGION = "asia"  # AWS서버의 지역
-AWS_STORAGE_BUCKET_NAME = "django"  # 생성한 버킷 이름
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+if WHOAMI == "prod":
+    AWS_REGION = "asia"  # AWS서버의 지역
+    AWS_STORAGE_BUCKET_NAME = "django"  # 생성한 버킷 이름
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 
-# 버킷이름.s3.AWS서버지역.amazonaws.com 형식
-# AWS_S3_ENDPOINT_URL = "%s.s3.%s.amazonaws.com" % (AWS_STORAGE_BUCKET_NAME, AWS_REGION)
-AWS_S3_ENDPOINT_URL = os.environ.get("S3_ENDPOINT")
+    # 버킷이름.s3.AWS서버지역.amazonaws.com 형식
+    # AWS_S3_ENDPOINT_URL = "%s.s3.%s.amazonaws.com" % (AWS_STORAGE_BUCKET_NAME, AWS_REGION)
+    AWS_S3_ENDPOINT_URL = os.environ.get("S3_ENDPOINT")
 
-# Static Setting
-STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/static/"
-STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-# Media Setting
-STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/media/"
+    # Static Setting
+    STATIC_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/static/"
+    STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    # Media Setting
+    MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/media/"
 
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+    SASS_PROCESSOR_ROOT = STATIC_URL
 
 # --- Locale settingss
 LANGUAGE_CODE = "ko-kr"
