@@ -61,6 +61,16 @@ SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, STATIC_URL)
 ROOT_URLCONF = "config.urls"
 APPEND_SLASH = True
 
+# Static files (CSS, JavaScript, Images)
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "sass_processor.finders.CssFinder",
+]
+
+# MEDIA CONFIGURATION
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024 * 5  # 업로드 파일 사이즈 1gb * 5
+
 # -- AWS Setting
 if WHOAMI == "prod":
     AWS_REGION = "asia"  # AWS서버의 지역
@@ -279,16 +289,6 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
 }
-
-# Static files (CSS, JavaScript, Images)
-STATICFILES_FINDERS = [
-    "django.contrib.staticfiles.finders.FileSystemFinder",
-    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-    "sass_processor.finders.CssFinder",
-]
-
-# MEDIA CONFIGURATION
-DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024 * 5  # 업로드 파일 사이즈 1gb * 5
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
