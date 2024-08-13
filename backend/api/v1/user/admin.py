@@ -73,18 +73,25 @@ class UserAdmin(BaseUserAdmin):
     # that reference specific fields on auth.User.
     list_display = ("email", "username", "auth", "is_superuser", "group")
     list_filter = ("auth",)
-    fieldsets = (
-        (None, {"fields": ("email", "password")}),
+    fieldsets = (  # 수정 할 때
+        (None, {"fields": ("email", "username", "password")}),
         ("Permissions", {"fields": ("auth", "groups", "user_permissions")}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
-    add_fieldsets = (
+    add_fieldsets = (  # 회원가입 할 때
         (
             None,
             {
                 "classes": ("wide",),
-                "fields": ("email", "password1", "password2"),
+                "fields": (
+                    "email",
+                    "username",
+                    "auth",
+                    "password1",
+                    "password2",
+                    "groups",
+                ),
             },
         ),
     )
