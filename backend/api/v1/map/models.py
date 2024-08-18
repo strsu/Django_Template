@@ -3,6 +3,7 @@ from django.db import connection
 
 from django.contrib.gis.db import models as gis_models
 from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import Distance
 
 from api.common.models import TimestampModel
 
@@ -31,30 +32,19 @@ class Map(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        self.coord = Point(self.longitude, self.latitude, srid=4326)
+        self.coord = Point((float(self.longitude), float(self.latitude)), srid=4326)
         super().save(*args, kwargs)
 
     @classmethod
-    def get_places(cls, longitude, latitude, map_type):
-        def _generate_linestring(longitude, latitude):
-            RADIUS = 0.02  # 반경 2km
+    def get_places(cls, longitude, latitude, radius, map_type):
 
-            left_top = (longitude - RADIUS, latitude + RADIUS)
-            right_btm = (longitude + RADIUS, latitude - RADIUS)
-
-            return f"LINESTRING ({left_top[0]} {left_top[1]}, {right_btm[0]} {right_btm[1]})"
-
-        _linestring = _generate_linestring(longitude, latitude)
-        _query = f"""
-            select id, address, latitude, longitude from map 
-            where map_type={map_type} and '{_linestring}'::geometry ~ coord
-        """
-        queryset = None
-
-        with connection.cursor() as cursor:
-            cursor.execute(_query)
-            rows = cursor.fetchall()
-            queryset = [Map(*row) for row in rows]
+        queryset = Map.objects.filter(map_type=map_type)
+        queryset = queryset.filter(
+            coord__distance_lt=(
+                Point(float(longitude), float(latitude)),
+                Distance(m=float(radius)),
+            )
+        )
 
         return queryset
 
