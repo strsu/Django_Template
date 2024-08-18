@@ -21,7 +21,10 @@ services:
       - "89:89"
 
   postgres:
-    image: postgres:13
+    build:
+      context: ./postgres
+    # image: postgres:13
+    # image: postgis/postgis:15-3.4
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
     command:
