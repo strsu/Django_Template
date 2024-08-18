@@ -13,6 +13,12 @@ CSRF_TRUSTED_ORIGINS = [
     "https://localhost",
 ]
 
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    # 이게 없으면 port 때문에 front에서 cors 오류가 남
+    r"^http:\/\/localhost:*([0-9]+)?$",
+    r"^https:\/\/localhost:*([0-9]+)?$",
+]
+
 ALLOWED_HOSTS = ["*"]
 
 # if DEBUG:
