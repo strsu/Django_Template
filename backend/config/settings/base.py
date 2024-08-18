@@ -172,6 +172,7 @@ LOCAL_APPS = [
     "api.v1.serializer_without_model",
     "api.v1.board",
     "api.v1.orm",
+    "api.v1.map",
     "api.v2.board",
 ]
 
@@ -355,7 +356,8 @@ ELASTICSEARCH_DSL = {
 # --- Databse, Cache
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        # "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
