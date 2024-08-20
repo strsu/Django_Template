@@ -47,6 +47,7 @@ def world(*args, **kwargs):  # 실제 백그라운드에서 작업할 내용을 
 
     is_error_occured = False
     is_task_timeout = False
+    is_revoke = False
 
     def do_something():
         """
@@ -80,15 +81,19 @@ def world(*args, **kwargs):  # 실제 백그라운드에서 작업할 내용을 
         do_something()
     except SoftTimeLimitExceeded as stle:
         is_task_timeout = True
+    except SystemExit:
+        # 수동종료한 경우, flower에서 terminate 한 경우
+        is_revoke = True
     except Exception as e:
         is_error_occured = True
     else:
         SocketManager.info("success")
     finally:
-        print(f"finally - now_try_cnt: {now_try_cnt}, max_try_cnt : {max_try_cnt}")
-        if is_task_timeout:
-            SocketManager.info("fail")
-            raise SoftTimeLimitExceeded()
+        if not is_revoke:
+            print(f"finally - now_try_cnt: {now_try_cnt}, max_try_cnt : {max_try_cnt}")
+            if is_task_timeout:
+                SocketManager.info("fail")
+                raise SoftTimeLimitExceeded()
 
-        if is_error_occured:
-            raise Exception()
+            if is_error_occured:
+                raise Exception()
