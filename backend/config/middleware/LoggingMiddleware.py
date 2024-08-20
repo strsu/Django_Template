@@ -1,7 +1,9 @@
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework_simplejwt.authentication import JWTAuthentication
+
 from django.contrib.auth import authenticate
+from django.template.response import TemplateResponse
 
 from datetime import datetime
 import pytz
@@ -194,22 +196,24 @@ class LoggingMiddleware:
                 return response
 
             try:
-                ## 내가 만든 config.exceptions.custom_exceptions type은 content가 없다!
-                if response.content:
-                    if isinstance(response.content, bytes):
-                        log_data["RESPONSE"] = (
-                            str(response.content.decode(encoding="utf-8"))[
-                                : self.response_limit
-                            ].replace(" ", "")
-                            if getattr(response, "content")
-                            else None
-                        )
-                    else:
-                        log_data["RESPONSE"] = (
-                            str(json.loads(response.content))[: self.response_limit]
-                            if getattr(response, "content")
-                            else None
-                        )
+                ## template는 따로 response를 안 남긴다
+                if not isinstance(response, TemplateResponse):
+                    ## 내가 만든 config.exceptions.custom_exceptions type은 content가 없다!
+                    if response.content:
+                        if isinstance(response.content, bytes):
+                            log_data["RESPONSE"] = (
+                                str(response.content.decode(encoding="utf-8"))[
+                                    : self.response_limit
+                                ].replace(" ", "")
+                                if getattr(response, "content")
+                                else None
+                            )
+                        else:
+                            log_data["RESPONSE"] = (
+                                str(json.loads(response.content))[: self.response_limit]
+                                if getattr(response, "content")
+                                else None
+                            )
             except Exception as e:
                 pass
 
@@ -218,11 +222,11 @@ class LoggingMiddleware:
                 log_data["BODY"] = None
                 log_data["RESPONSE"] = None
 
-            if response.status_code in range(400, 500):
-                log_data["LEVEL"] = "ERROR"
-                exception_logger.error(self.jsondump(log_data))
-            elif response.status_code in range(500, 600):
+            if response.status_code >= 500:
                 log_data["LEVEL"] = "CRITICAL"
+                exception_logger.error(self.jsondump(log_data))
+            elif response.status_code >= 400:
+                log_data["LEVEL"] = "ERROR"
                 exception_logger.error(self.jsondump(log_data))
 
             request_logger.info(self.jsondump(log_data))
