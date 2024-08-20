@@ -3,6 +3,7 @@ import time
 import base64
 import string
 import random
+from datetime import datetime, timedelta
 
 from django.conf import settings
 
@@ -35,3 +36,8 @@ def save_base64(base64_string, filename):
     img_file = open(os.path.join(path, filename), "w")
     img_file.write(base64_string)
     img_file.close()
+
+
+def convert_unix_to_datetime(unix_timestamp: int | str):
+    unix_timestamp = int(unix_timestamp)
+    return datetime.utcfromtimestamp(unix_timestamp)

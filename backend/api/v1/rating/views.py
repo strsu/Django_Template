@@ -131,12 +131,6 @@ class MovieView(
             data = self.list(request)
             id_list = [d["id"] for d in data.data["results"]]
 
-            nation = Nation.objects.get(nation="한국")
-            nation_obj = nation.movie_nation.all()  # 한국 영화를 모두 가져온다.
-
-            for m in nation_obj:
-                print(m.__dict__)
-
             movie_rating = (
                 MovieRating.objects.filter(movie_id__in=id_list)
                 .values("movie")
