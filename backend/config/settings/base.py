@@ -156,6 +156,7 @@ THIRD_APPS = [
     "django_filters",  # django-filter 등록
     "django_crontab",
     "storages",
+    "graphene_django",
 ]
 
 LOCAL_APPS = [
@@ -353,7 +354,7 @@ ELASTICSEARCH_DSL = {
     }
 }
 
-# --- Databse, Cache
+# --- Databse
 DATABASES = {
     "default": {
         # "ENGINE": "django.db.backends.postgresql_psycopg2",
@@ -366,6 +367,10 @@ DATABASES = {
     }
 }
 
+# --- Graphql
+GRAPHENE = {"SCHEMA": "myapp.schema.schema"}
+
+# --- Graphql, Cache
 CACHE_TTL = 60 * 1500  # 60초 * 1500분 = 25시간
 CACHES = {
     "default": {
