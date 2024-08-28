@@ -90,8 +90,11 @@ class ProductOrder(models.Model):
 
     @classmethod
     def purchase_by_cache(cls, product, purchaser, amount):
-        # user_id를 제거하고 product_id만 사용하여 키 생성
-        product_reserve_key = f"product_reserve_key:{product}"
+        """
+        주문자의 이중결제를 방지하기 위해서 `상품ID:주문자ID` 로 cache key를 생성한다.
+        이렇게 하면 주문자 이중결제는 방지할 수 있고, 상품의 개수 부족은 DB Lock으로 해결한다!!
+        """
+        product_reserve_key = f"product_reserve_key:{product}:{purchaser.uuid}"
 
         """
         Cache Lock을 함께 사용하면 데이터베이스 트랜잭션 이전에 애플리케이션 레벨에서 중복 작업을 더 빨리 차단할 수 있다. 
@@ -102,7 +105,7 @@ class ProductOrder(models.Model):
         # 캐시 키가 존재하지 않을 때만 키를 설정하고, 설정에 성공하면 True 반환
         if cache.set(
             product_reserve_key, "1", nx=True, timeout=5
-        ):  # 5초 동안 잠금 유지
+        ):  # 5초 동안 잠금 유지, 실수로 캐시가 안 지워져도 5초 뒤에는 지워질 수 있도록!
             with transaction.atomic():
                 try:
                     locked_product = Product.objects.select_for_update().get(id=product)
