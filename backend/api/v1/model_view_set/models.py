@@ -1,8 +1,10 @@
-from django.db import models, transaction
+from django.db import models, transaction, connection
 from django.db.utils import OperationalError
 from django.core.cache import cache
 
 from api.v1.user.models import User
+
+import time
 
 
 class ProductType(models.Model):
@@ -69,16 +71,9 @@ class ProductOrder(models.Model):
                 False : 2개 동시 요청이 와도 Exception 발생 안 함, 1개 처리 후 나머지 1개 처리되는 것 같다.
 
         """
-        with transaction.atomic():
-            try:
+        try:
+            with transaction.atomic():
                 locked_product = Product.objects.select_for_update().get(id=product)
-            except Product.DoesNotExist:
-                raise Exception("상품정보를 찾을 수 없습니다.")
-            except OperationalError:
-                raise Exception("주문실패, 다시 시도해주세요.")
-            except Exception as e:
-                raise Exception(e)
-            else:
                 if locked_product.remaining_items >= amount:
                     locked_product.remaining_items -= amount
                     locked_product.save()
@@ -87,12 +82,20 @@ class ProductOrder(models.Model):
                     )
                 else:
                     raise Exception("현재 남은 상품이 부족합니다.")
+        except Product.DoesNotExist:
+            raise Exception("상품정보를 찾을 수 없습니다.")
+        except OperationalError:
+            raise Exception("주문실패, 다시 시도해주세요.")
+        except Exception as e:
+            raise Exception(e)
 
     @classmethod
     def purchase_by_cache(cls, product, purchaser, amount):
         """
         주문자의 이중결제를 방지하기 위해서 `상품ID:주문자ID` 로 cache key를 생성한다.
-        이렇게 하면 주문자 이중결제는 방지할 수 있고, 상품의 개수 부족은 DB Lock으로 해결한다!!
+        이렇게 하면
+            * 주문자 이중결제는 Application Lock으로 예방
+            * 상품의 개수 부족은 DB Lock으로 해결한다
         """
         product_reserve_key = f"product_reserve_key:{product}:{purchaser.uuid}"
 
@@ -112,16 +115,16 @@ class ProductOrder(models.Model):
         if cache.set(
             product_reserve_key, "1", nx=True, timeout=5
         ):  # 5초 동안 잠금 유지, 실수로 캐시가 안 지워져도 5초 뒤에는 지워질 수 있도록!
-            with transaction.atomic():
-                try:
+
+            try:
+                """
+                    with transaction.atomic()
+                    내부에서 try except는 권장하지 않는다!!
+                    왜???
+                    안에서 exception 처리하다가 실수하면 rollback이 안될 수 있어서!
+                """
+                with transaction.atomic():
                     locked_product = Product.objects.select_for_update().get(id=product)
-                except Product.DoesNotExist:
-                    raise Exception("상품정보를 찾을 수 없습니다.")
-                except OperationalError:
-                    raise Exception("주문실패, 다시 시도해주세요.")
-                except Exception as e:
-                    raise Exception(e)
-                else:
                     if locked_product.remaining_items >= amount:
                         locked_product.remaining_items -= amount
                         locked_product.save()
@@ -129,13 +132,59 @@ class ProductOrder(models.Model):
                             product=locked_product, purchaser=purchaser, amount=amount
                         )
                     else:
-                        raise Exception("현재 남은 상품이 부족합니다.")
-                finally:
-                    # 어떤 Exception이 터지든 로직이 끝나면 캐시는 비워야 한다.
-                    cache.delete(product_reserve_key)
+                        raise ValueError("현재 남은 상품이 부족합니다.")
+            except Product.DoesNotExist:
+                raise ValueError("상품정보를 찾을 수 없습니다.")
+            except OperationalError:
+                raise ValueError("주문실패, 다시 시도해주세요.")
+            except Exception as e:
+                raise ValueError(e)
+            finally:
+                # 어떤 Exception이 터지든 로직이 끝나면 캐시는 비워야 한다.
+                cache.delete(product_reserve_key)
         else:
             # 이미 다른 프로세스가 예약 중이므로 적절한 응답을 반환
             raise ValueError("주문실패, 다시 시도해주세요.")
+
+    @classmethod
+    def purchase_with_retry(cls, product, purchaser, amount):
+        for attempt in range(3):  # 3번의 재시도
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        "SET LOCAL statement_timeout = 5000;"
+                    )  # 5초로 타임아웃 설정
+
+                    with transaction.atomic():
+                        locked_product = Product.objects.select_for_update().get(
+                            id=product
+                        )
+
+                        if locked_product.remaining_items >= amount:
+                            locked_product.remaining_items -= amount
+                            locked_product.save()
+
+                            ProductOrder.objects.create(
+                                product=locked_product,
+                                purchaser=purchaser,
+                                amount=amount,
+                            )
+                        else:
+                            raise Exception("현재 남은 상품이 부족합니다.")
+
+                # 성공적으로 끝났다면 루프 종료
+                return "구매 성공"
+
+            except OperationalError:
+                # 재시도 전에 잠시 대기
+                if attempt < 2:
+                    time.sleep(1)
+                else:
+                    raise Exception("주문 실패, 다시 시도해주세요.")
+            except Product.DoesNotExist:
+                raise Exception("상품 정보를 찾을 수 없습니다.")
+            except Exception as e:
+                raise Exception(str(e))
 
     class Meta:
         db_table = "product_order"
