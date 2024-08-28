@@ -84,4 +84,10 @@ urlpatterns += [
     re_path("api/v1/orm/", include("api.v1.orm.urls")),
     re_path("api/v1/map/", include("api.v1.map.urls")),
     re_path("api/v2/board/", include("api.v2.board.urls")),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+urlpatterns += [
+    re_path("graphql/v1/modelViewSet/", include("api.v1.model_view_set.urls_graphql")),
+]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

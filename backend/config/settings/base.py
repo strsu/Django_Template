@@ -279,8 +279,8 @@ SIMPLE_JWT = {
     "LEEWAY": 0,
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
-    "USER_ID_FIELD": "email",
-    "USER_ID_CLAIM": "email",  # jwt에 USER_ID_FIELD의 Key값 -> email: <user email>
+    "USER_ID_FIELD": "uuid",
+    "USER_ID_CLAIM": "uuid",  # jwt에 USER_ID_FIELD의 Key값 -> email: <user email>
     "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
@@ -366,9 +366,6 @@ DATABASES = {
         "PORT": os.getenv("POSTGRES_PORT"),
     }
 }
-
-# --- Graphql
-GRAPHENE = {"SCHEMA": "myapp.schema.schema"}
 
 # --- Graphql, Cache
 CACHE_TTL = 60 * 1500  # 60초 * 1500분 = 25시간

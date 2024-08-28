@@ -56,6 +56,11 @@ services:
     env_file: .env
     ports:
       - "54320:5432"
+  
+  redis:
+    image: redis:7.0.7
+    command: bash -c "redis-server --requirepass ${REDIS_PASSWORD}" # redis-cli 인증 : auth default password
+    env_file: .env
 
   promtail:
     image: grafana/promtail:latest
