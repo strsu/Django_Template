@@ -368,22 +368,30 @@ DATABASES = {
 }
 
 # --- Graphql, Cache
-CACHE_TTL = 60 * 1500  # 60초 * 1500분 = 25시간
+"""
+내장 core.cache
+    -> 이걸 사용하면 cache를 통한 race condition -> SETNX 기능을 사용할 수 없다.
+그래서 django-redis를 사용해야 한다.
+"""
 CACHES = {
+    # "default": {
+    #     "BACKEND": "django.core.cache.backends.redis.RedisCache",
+    #     "LOCATION": [f"redis://:{BROKER_PASSWORD}@{BROKER_URL}:{BROKER_PORT}"],
+    # },
     "default": {
-        "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": [f"redis://:{BROKER_PASSWORD}@{BROKER_URL}:{BROKER_PORT}"],
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://:{BROKER_PASSWORD}@{BROKER_URL}:{BROKER_PORT}",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
     }
 }
+CACHE_TTL = 60 * 1500  # 60초 * 1500분 = 25시간
 
 CHANNEL_LAYERS = {
     "default": {
-        # "BACKEND": "channels_redis.core.RedisChannelLayer",
         "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
         "CONFIG": {
-            # "hosts": [
-            #     (BROKER_PASSWORD@BROKER_URL, BROKER_PORT)
-            # ],  # RedisChannelLayer
             "hosts": [
                 f"redis://:{BROKER_PASSWORD}@{BROKER_URL}:{BROKER_PORT}"  # RedisPubSubChannelLayer
             ],
@@ -391,6 +399,16 @@ CHANNEL_LAYERS = {
             "expiry": 10,  # default 60 seconds
         },
     },
+    # "default": {
+    #     "BACKEND": "channels_redis.core.RedisChannelLayer",
+    #     "CONFIG": {
+    #         "hosts": [
+    #             (f"{BROKER_PASSWORD}@{BROKER_URL}", BROKER_PORT)
+    #         ],  # RedisChannelLayer
+    #         "capacity": 1500,  # default 100, Once a channel is at capacity, it will refuse more messages.
+    #         "expiry": 10,  # default 60 seconds
+    #     },
+    # },
 }
 
 ASGI_THREADS = 1000

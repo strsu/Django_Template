@@ -1,5 +1,6 @@
 from django.db import models, transaction
 from django.db.utils import OperationalError
+from django.core.cache import cache
 
 from api.v1.user.models import User
 
@@ -86,6 +87,46 @@ class ProductOrder(models.Model):
                     )
                 else:
                     raise Exception("현재 남은 상품이 부족합니다.")
+
+    @classmethod
+    def purchase_by_cache(cls, product, purchaser, amount):
+        # user_id를 제거하고 product_id만 사용하여 키 생성
+        product_reserve_key = f"product_reserve_key:{product}"
+
+        """
+        Cache Lock을 함께 사용하면 데이터베이스 트랜잭션 이전에 애플리케이션 레벨에서 중복 작업을 더 빨리 차단할 수 있다. 
+        이렇게 하면 동시성 문제에 대한 추가적인 안전장치를 마련하게 된다.
+
+        Cache Lock을 사용하면 nowait=True 를 설정하지 않아도 나중에 온 요청에 대해 Exception이 발생한다.
+        """
+        # 캐시 키가 존재하지 않을 때만 키를 설정하고, 설정에 성공하면 True 반환
+        if cache.set(
+            product_reserve_key, "1", nx=True, timeout=5
+        ):  # 5초 동안 잠금 유지
+            with transaction.atomic():
+                try:
+                    locked_product = Product.objects.select_for_update().get(id=product)
+                except Product.DoesNotExist:
+                    raise Exception("상품정보를 찾을 수 없습니다.")
+                except OperationalError:
+                    raise Exception("주문실패, 다시 시도해주세요.")
+                except Exception as e:
+                    raise Exception(e)
+                else:
+                    if locked_product.remaining_items >= amount:
+                        locked_product.remaining_items -= amount
+                        locked_product.save()
+                        ProductOrder.objects.create(
+                            product=locked_product, purchaser=purchaser, amount=amount
+                        )
+                    else:
+                        raise Exception("현재 남은 상품이 부족합니다.")
+                finally:
+                    # 어떤 Exception이 터지든 로직이 끝나면 캐시는 비워야 한다.
+                    cache.delete(product_reserve_key)
+        else:
+            # 이미 다른 프로세스가 예약 중이므로 적절한 응답을 반환
+            raise ValueError("주문실패, 다시 시도해주세요.")
 
     class Meta:
         db_table = "product_order"
