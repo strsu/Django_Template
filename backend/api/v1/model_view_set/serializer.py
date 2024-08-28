@@ -56,7 +56,7 @@ class ProductTypeRawSerializer(serializers.Serializer):
 
         product_objs = Product.actives.filter(type=instance)
         product = ProductSerializer(product_objs, many=True)
-        ret.update({"inverter": product.data})
+        ret.update({"product": product.data})
 
         return ret
 
@@ -71,12 +71,7 @@ class ProductRawSerializer(serializers.Serializer):
     price = serializers.IntegerField()
     type = ProductTypeRawSerializer(required=False, allow_null=True)
     memo = serializers.CharField(max_length=256)
-    demo_1 = serializers.CharField(max_length=64, required=False, allow_null=True)
-    demo_2 = serializers.CharField(max_length=64, required=False, allow_null=True)
-    demo_3 = serializers.CharField(max_length=64, required=False, allow_null=True)
-    demo_4 = serializers.CharField(max_length=64, required=False, allow_null=True)
-    demo_5 = serializers.CharField(max_length=64, required=False, allow_null=True)
-    demo_6 = serializers.CharField(max_length=64, required=False, allow_null=True)
+    remaining_items = serializers.IntegerField()
 
     def create(self, validated_data):
         """
@@ -93,12 +88,9 @@ class ProductRawSerializer(serializers.Serializer):
         instance.name = validated_data.get("name", instance.name)
         instance.price = validated_data.get("price", instance.price)
         instance.memo = validated_data.get("memo", instance.memo)
-        instance.demo_1 = validated_data.get("demo_1", instance.demo_1)
-        instance.demo_2 = validated_data.get("demo_2", instance.demo_2)
-        instance.demo_3 = validated_data.get("demo_3", instance.demo_3)
-        instance.demo_4 = validated_data.get("demo_4", instance.demo_4)
-        instance.demo_5 = validated_data.get("demo_5", instance.demo_5)
-        instance.demo_6 = validated_data.get("demo_6", instance.demo_6)
+        instance.remaining_items = validated_data.get(
+            "remaining_items", instance.remaining_items
+        )
 
         type = validated_data.get("type")
         if type:

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from django.db import transaction
 from django.contrib.auth.hashers import make_password
 
 from api.v1.user.models import User
@@ -110,10 +111,11 @@ class BoardSerializer(serializers.Serializer):
         return Board.actives.create(**validated_data, author=user)
 
     def update(self, instance, validated_data):
-        instance.category = validated_data.get("category", instance.category)
-        instance.title = validated_data.get("title", instance.title)
-        instance.text = validated_data.get("text", instance.text)
-        instance.save()
+        with transaction.atomic():
+            instance.category = validated_data.get("category", instance.category)
+            instance.title = validated_data.get("title", instance.title)
+            instance.text = validated_data.get("text", instance.text)
+            instance.save()
         return instance
 
     def to_representation(self, instance):

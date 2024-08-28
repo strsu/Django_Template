@@ -1,7 +1,8 @@
 from rest_framework import viewsets
+from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from api.v1.model_view_set.models import Product, ProductType
+from api.v1.model_view_set.models import Product, ProductType, ProductOrder
 from api.v1.model_view_set.serializer import (
     ProductSerializer,
     ProductRawSerializer,
@@ -58,3 +59,18 @@ class ProductTypeView(viewsets.ModelViewSet):
 class ProductRawView(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductRawSerializer
+
+
+class ProductOrderView(APIView):
+
+    def post(self, request, product_id):
+
+        amount = request.data.get("amount")
+
+        if not amount:
+            return Response({"message": "구매수량을 입력해주세요."}, status=400)
+
+        user = request.user
+        ProductOrder.purchase(product_id, user, amount)
+
+        return Response(status=200)
