@@ -48,7 +48,9 @@ class User(AbstractBaseUser, PermissionsMixin):
      -> PermissionsMixin이 없으면 get_all_permissions 등 permission 관련 method를 사용할 수 없다.
     """
 
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(
+        default=uuid.uuid4, editable=False
+    )  # uuid는 Token에서만 사용! 내부적으론 int를 쓰는게 좋을 것 같다
     username = models.CharField(max_length=20)
     email = models.CharField(max_length=256, unique=True)
     password = models.CharField(max_length=100)
