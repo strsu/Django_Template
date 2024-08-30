@@ -55,3 +55,5 @@ boto3
 django-storages
 
 graphene-django==3.2.2
+
+geopandas
