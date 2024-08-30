@@ -25,3 +25,20 @@ class TimestampModel(models.Model):
     class Meta:
         abstract = True
         default_manager_name = "raw_objects"  # 이걸 안 쓰면 TimestampModel을 상속받은 모델에서 새로운 manager를 할당하면 obejcts를 쓸 수 없게된다.
+
+
+class ResponseModel(models.Model):
+
+    request_at = models.DateTimeField(
+        "생성일", auto_now_add=True, blank=True, null=True
+    )
+
+    uri = models.CharField("주소", max_length=255)
+    query_param = models.TextField(null=True, blank=True)
+    method = models.CharField("", max_length=10)
+    status_code = models.SmallIntegerField("응답코드")
+    response_time = models.FloatField("응답시간")
+
+    class Meta:
+        verbose_name = "응답"
+        verbose_name_plural = "응답"
