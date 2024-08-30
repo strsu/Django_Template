@@ -5,7 +5,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import authenticate
 from django.template.response import TemplateResponse
 
-from api.common.models import ResponseModel
+from api.common.models import ResponseModel, measure_query_time
 
 from datetime import datetime
 import pytz
@@ -33,13 +33,17 @@ class LoggingMiddleware:
         """
         self.cached_request_body = request.body
         self.process_request(request)
-        response = self.get_response(request)
+        response = self._get_response(request)
         """
         @ 가장 마지막에 호출되는 구간 ->process_response 역할?
         JJ: 여기서 return response가 없으면 view쪽에서 response가 None으로 넘어가나 보다. <- response되는 상위 middleware에서 문제 발생
         """
         self.process_response(request, response)
         return response
+
+    @measure_query_time
+    def _get_response(self, request):
+        return self.get_response(request)
 
     def get_client_ip_address(self, request):
         req_headers = request.META

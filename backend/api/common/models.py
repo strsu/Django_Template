@@ -9,6 +9,10 @@ import time
 
 
 def measure_query_time(func):
+    """
+    DEBUG = True 에서만 동작한다
+    """
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         # 쿼리 로그 초기화
