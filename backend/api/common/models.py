@@ -38,6 +38,23 @@ def measure_query_time(func):
         print(f"Total time for all queries: {total_time} seconds")
         print(f"Time taken by {func.__name__}: {end_time - start_time} seconds")
 
+        if args:
+            request = args[0]
+            response_obj = ResponseModel.objects.create(
+                uri=request.get_full_path(),
+                method=request.method,
+                status_code=response.status_code,
+                response_time=round(end_time - request.start_time, 8),
+                query_count=len(connection.queries),
+                query_time=total_time,
+            )
+
+            if "QUERY_STRING" in request.META.keys():
+                if request.META["QUERY_STRING"]:
+                    response_obj.query_param = request.META["QUERY_STRING"]
+
+            response_obj.save()
+
         return response
 
     return wrapper
@@ -77,6 +94,8 @@ class ResponseModel(models.Model):
     method = models.CharField("", max_length=10)
     status_code = models.SmallIntegerField("응답코드")
     response_time = models.FloatField("응답시간")
+    query_count = models.SmallIntegerField("쿼리개수")
+    query_time = models.FloatField("쿼리시간")
 
     class Meta:
         verbose_name = "응답"

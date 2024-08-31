@@ -5,7 +5,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import authenticate
 from django.template.response import TemplateResponse
 
-from api.common.models import ResponseModel, measure_query_time
+from api.common.models import measure_query_time
 
 from datetime import datetime
 import pytz
@@ -152,13 +152,6 @@ class LoggingMiddleware:
             -> __call__ 때문엔지 실제로 호출되지 않는다.
         """
 
-        response_obj = ResponseModel.objects.create(
-            uri=request.get_full_path(),
-            method=request.method,
-            status_code=response.status_code,
-            response_time=round(time.time() - request.start_time, 8),
-        )
-
         try:
             seoul_tz = pytz.timezone("Asia/Seoul")
             seoul_time = datetime.now(seoul_tz)
@@ -182,7 +175,7 @@ class LoggingMiddleware:
                 "USER_NAME": (
                     request.user.username if not request.user.is_anonymous else None
                 ),
-                "RESPONSE_TIME": response_obj.response_time,
+                "RESPONSE_TIME": round(time.time() - request.start_time, 8),
                 "HTTP_USER_AGENT": (
                     request.META["HTTP_USER_AGENT"]
                     if "HTTP_USER_AGENT" in request.META.keys()
@@ -247,10 +240,6 @@ class LoggingMiddleware:
         except Exception as e:
             print(f"[LOGGING ERROR]", e)
             print(traceback.format_exc())
-        finally:
-            if log_data.get("QUERY_STRING"):
-                response_obj.query_param = log_data.get("QUERY_STRING")
-                response_obj.save()
 
         return response
 

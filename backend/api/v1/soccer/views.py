@@ -1,7 +1,7 @@
 from rest_framework import generics, mixins, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.authentication import BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.pagination import PageNumberPagination  # 👈 페이지 기반 파지네이션
 
@@ -50,6 +50,9 @@ class SoccerView(
     queryset = Soccer.actives.all()
     serializer_class = SoccerSerializer
     pagination_class = SoccerPagination  # 👈 pagination_class 값에 매핑
+    permission_classes = [
+        IsAuthenticated
+    ]  # 전역으로 설정한 권한이 IsAuthenticatedOrReadOnly 라서 Get도 인증을 요구하려면 Permission을 새로이 지정해야 한다.
 
     def get_queryset(self):
         """

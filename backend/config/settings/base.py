@@ -219,7 +219,8 @@ SECURE_SCHEMES = ["http", "https"]
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (
         # 모든 view에 Auth 체크가 적용된다.
-        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+        # "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",  # Get 은 호출 되도록 - 단점이 생김, UserFilter가 반드시 필요한 곳은 IsAuthenticated 설정을 따로 해줘야 한다.
     ),
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
