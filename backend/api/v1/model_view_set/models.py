@@ -1,4 +1,5 @@
 from django.db import models, transaction, connection
+from django.db.models import Prefetch
 from django.db.utils import OperationalError
 from django.core.cache import cache
 
@@ -29,6 +30,43 @@ class Product(models.Model):
     remaining_items = models.IntegerField(
         "남은 물건 개수", null=False, blank=False, default=0
     )
+
+    @classmethod
+    def get_product_with_order_list(cls):
+        """
+            to_attr 을 넣으면 
+                1. Prefetch 한 productorder_set 의 이름을 바꿀 수 있다.
+                2. list로 넘어오기 때문에 객체가 아닌 value의 형태로 자동변환된다.
+            order for문을 수행할 때 추가적인 쿼리가 실행되지 않는다.
+        """
+        products = Product.objects.all().prefetch_related(
+            Prefetch(
+                "productorder_set", queryset=ProductOrder.objects.all(), to_attr="product_order"
+            )
+        )
+
+        for product in products:
+            print(product.name, len(product.product_order))
+            for order in product.product_order:
+                print(order)
+
+    @classmethod
+    def get_product_with_order_orm(cls):
+        """
+            to_attr 을 안 넣으면 
+                1. queryset으로 넘어오기 때문에 추가적인 orm 작업을 할 수 있다.
+                2. 아래처럼 all()로 안하면 이터레이션이 안 됨.
+            order for문을 수행할 때 추가적인 쿼리가 실행되지 않는다.
+                -> queryset임에도 추가적인 쿼리 없음 (신기방기)
+        """
+        products = Product.objects.all().prefetch_related(
+            Prefetch("productorder_set", queryset=ProductOrder.objects.all())
+        )
+
+        for product in products:
+            print(product.name, product.productorder_set.all().count())
+            for order in product.productorder_set.all():
+                print(order)
 
     class Meta:
         db_table = "product"
