@@ -228,3 +228,65 @@ class ProductOrder(models.Model):
         db_table = "product_order"
         verbose_name = "상품 주문"
         verbose_name_plural = "상품 주문"
+
+
+class Account(models.Model):
+
+    customer = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        default=None,
+        blank=True,
+        null=True,
+    )
+
+    balance = models.FloatField("잔고", null=False, blank=False, default=0)
+
+    @classmethod
+    def deposit(cls, customer, deposit):
+        account_key = f"account_deposit_key:{customer.uuid}"
+
+        # 캐시 키가 존재하지 않을 때만 키를 설정하고, 설정에 성공하면 True 반환
+        if cache.set(
+            account_key, "1", nx=True, timeout=5
+        ):  # 5초 동안 잠금 유지, 실수로 캐시가 안 지워져도 5초 뒤에는 지워질 수 있도록!
+
+            try:
+                with transaction.atomic():
+                    locked_account = Account.objects.select_for_update().get(customer=customer)
+                    locked_account.balance += deposit
+                    locked_account.save()
+            except Account.DoesNotExist:
+                raise ValueError("고객의 계좌정보를 찾을 수 없습니다.")
+            except OperationalError:
+                raise ValueError("잠시 후 다시 시도해주세요")
+            except Exception as e:
+                raise ValueError(e)
+            finally:
+                # 어떤 Exception이 터지든 로직이 끝나면 캐시는 비워야 한다.
+                cache.delete(account_key)
+        else:
+            # 이미 다른 프로세스가 예약 중이므로 적절한 응답을 반환
+            raise ValueError("잠시 후 다시 시도해주세요")
+    
+    @classmethod
+    def withdraw(cls, customer, withdraw):
+        try:
+            with transaction.atomic():
+                locked_account = Account.objects.select_for_update().get(customer=customer)
+                if locked_account.balance >= withdraw:
+                    locked_account.balance -= withdraw
+                    locked_account.save()
+                else:
+                    raise ValueError("잔액이 부족합니다.")
+        except Account.DoesNotExist:
+            raise ValueError("고객의 계좌정보를 찾을 수 없습니다.")
+        except OperationalError:
+            raise ValueError("잠시 후 다시 시도해주세요")
+        except Exception as e:
+            raise ValueError(e)
+
+    class Meta:
+        db_table = "customer_account"
+        verbose_name = "계좌"
+        verbose_name_plural = "계좌"
