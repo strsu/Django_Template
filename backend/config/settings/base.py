@@ -198,7 +198,7 @@ TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
-        # "APP_DIRS": True, # loaders를 추가했더니 APP_DIRS가 False 여야 장고가 켜진다.
+        # "APP_DIRS": True,  # loaders를 추가했더니 APP_DIRS가 False 여야 장고가 켜진다. app_dirs must not be set when loaders is defined
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -360,12 +360,15 @@ ELASTICSEARCH_DSL = {
 DATABASES = {
     "default": {
         # "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        # "ENGINE": "django.contrib.gis.db.backends.postgis",
+        # "ENGINE": "dj_db_conn_pool.backends.postgresql", # postgis 사용 불가
+        "ENGINE": "django_db_geventpool.backends.postgis",
         "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
         "HOST": os.getenv("POSTGRES_HOST"),
         "PORT": os.getenv("POSTGRES_PORT"),
+        "OPTIONS": {"MAX_CONNS": 20, "REUSE_CONNS": 10},  # For 'django_db_geventpool'
     }
 }
 
@@ -516,6 +519,11 @@ LOGGING = {
             "handlers": ["console"],
             "level": "INFO",
         },
+        # "django.db.backends": {
+        #     "handlers": ["console"],
+        #     "level": "DEBUG",
+        #     "propagate": False,
+        # },
         "django.server": {
             "handlers": ["django.server"],
             "level": "INFO",
