@@ -1,6 +1,8 @@
 from celery import Task
 from celery.exceptions import SoftTimeLimitExceeded
 
+from django.db import close_old_connections
+
 import logging
 
 debug_logger = logging.getLogger("debug")
@@ -48,4 +50,16 @@ class BaseTask(Task):
         on_failure, on_auccess 함수 이후에 호출
          -> FAILURE / SUCCESS 후에 실행된다.
         """
+        """
+        django-db-geventpool 을 사용하면 close_old_connections() 를 꼭 호출해야 한다.
+
+        If you are using django with celery (or other), or have code that manually spawn greenlets it will not be sufficient to set CONN_MAX_AGE to 0. 
+        Django only checks for long-live connections when finishing a request - 
+        So if you manually spawn a greenlet (or task spawning one) its connections will not get cleaned up and will live until timeout. 
+        In production this can cause quite some open connections and while developing it can hamper your tests cases.
+
+        To solve it make sure that each greenlet function (or task) either sends 
+        the django.core.signals.request_finished signal or calls django.db.close_old_connections() right before it ends
+        """
+        close_old_connections()
         pass
