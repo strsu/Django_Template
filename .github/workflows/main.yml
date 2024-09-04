@@ -12,7 +12,7 @@ jobs:
       - name: ssh to ec2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.PRODHOST }} # 내가 변수로 저장한 ip
+          host: ${{ secrets.PROD_HOST }} # 내가 변수로 저장한 ip
           username: ${{ secrets.PROD_USER }} # 내가 변수로 저장한 User
           password: ${{ secrets.PROD_PEM }} # 내가 변수로 저장한 pem key
           script: |
