@@ -2,6 +2,9 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.types import OpenApiTypes
+
 from api.v1.model_view_set.models import Product, ProductType, ProductOrder
 from api.v1.model_view_set.serializer import (
     ProductSerializer,
@@ -36,6 +39,10 @@ class ProductView(viewsets.ModelViewSet):
         print("retrieve 이후 작업 정의")
         return response
 
+    @extend_schema(
+        request=ProductSerializer,
+        responses={201: ProductSerializer},
+    )
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         print("create 이후 작업 정의")

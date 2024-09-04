@@ -149,7 +149,7 @@ THIRD_APPS = [
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
     "channels",
-    "drf_yasg",
+    "drf_spectacular",
     "sass_processor",
     "corsheaders",  # CORS 관련 추가
     "django_elasticsearch_dsl",
@@ -244,9 +244,17 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "config.exceptions.api_exception.custom_exception_handler",
     # "EXCEPTION_HANDLER": "rest_framework.views.exception_handler",
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "PAGE_SIZE": 50,
 }
 
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Django Template",
+    "DESCRIPTION": "장고연습장",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    # OTHER SETTINGS
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {

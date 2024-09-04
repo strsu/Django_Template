@@ -7,7 +7,8 @@ django-filter==22.1
 
 django-crontab==0.7.1
 
-drf-yasg==1.21.5
+# drf-yasg==1.21.5
+drf-spectacular==0.27.2
 
 django-sass-processor==1.2.2
 django-compressor==4.4

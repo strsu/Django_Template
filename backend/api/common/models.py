@@ -70,6 +70,7 @@ class TimestampModel(models.Model):
 
     raw_objects = models.Manager()  # default manager
     actives = ActiveManager()
+    objects = ActiveManager()
 
     def delete(self):
         self.deleted_at = timezone.now()
