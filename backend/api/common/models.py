@@ -40,6 +40,11 @@ def measure_query_time(func):
 
         if args:
             request = args[0]
+            query_param = None
+            if "QUERY_STRING" in request.META.keys():
+                if request.META["QUERY_STRING"]:
+                    query_param = request.META["QUERY_STRING"]
+
             response_obj = ResponseModel.objects.create(
                 uri=request.get_full_path(),
                 method=request.method,
@@ -47,11 +52,8 @@ def measure_query_time(func):
                 response_time=round(end_time - request.start_time, 8),
                 query_count=len(connection.queries),
                 query_time=total_time,
+                query_param=query_param,
             )
-
-            if "QUERY_STRING" in request.META.keys():
-                if request.META["QUERY_STRING"]:
-                    response_obj.query_param = request.META["QUERY_STRING"]
 
             response_obj.save()
 
