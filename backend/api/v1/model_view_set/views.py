@@ -5,7 +5,10 @@ from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from drf_spectacular.types import OpenApiTypes
 
-from api.v1.model_view_set.models import Product, ProductType, ProductOrder
+from django.core.serializers import serialize
+from django.forms.models import model_to_dict
+
+from api.v1.model_view_set.models import Product, ProductType, ProductOrder, ProductTag
 from api.v1.model_view_set.serializer import (
     ProductSerializer,
     ProductRawSerializer,
@@ -71,6 +74,14 @@ class ProductTypeView(viewsets.ModelViewSet):
     queryset = ProductType.objects.all()
     serializer_class = ProductTypeSerializer
     http_method_names = ["post"]  # 이렇게 하면 simplerouter에서 post만 연결해준다.
+
+
+class ProductTagView(APIView):
+
+    def get(self, request):
+        name = request.GET.get("name")
+        tag = ProductTag.get_tag_by_name(name)
+        return Response(model_to_dict(tag), status=200)
 
 
 class ProductRawView(viewsets.ModelViewSet):

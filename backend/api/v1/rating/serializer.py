@@ -27,6 +27,7 @@ class GenreSerilizer(serializers.ModelSerializer):
 class MovieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movie
+        # fields = "__all__" # exclude 와 함께 사용할 수 없다.
         exclude = ["deleted_at"]
 
 

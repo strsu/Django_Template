@@ -1,15 +1,70 @@
 from django.db import models, transaction, connection
 from django.db.models import Prefetch
-from django.db.utils import OperationalError
+from django.db.utils import OperationalError, IntegrityError
 from django.core.cache import cache
 
 from api.v1.user.models import User
 
 import time
+import random
+class ProductTag(models.Model):
+    name = models.CharField("상품태그", max_length=64, unique=True)
+    who = models.IntegerField("")
 
+    @classmethod
+    def get_tag_by_name(cls, name):
+        """
+        https://www.notion.so/youngjae-park/get_or_create-a820dec8614240fcaa73cf2900c64d31?pvs=4
+
+        def get_or_create(self, defaults=None, **kwargs):
+            try:
+                return self.get(**kwargs), False
+            except self.model.DoesNotExist:
+                params = self._extract_model_params(defaults, **kwargs)
+                # Try to create an object using passed params.
+                try:
+                    with transaction.atomic(using=self.db):
+                        params = dict(resolve_callables(params))
+                        return self.create(**params), True
+                except IntegrityError:
+                    try:
+                        return self.get(**kwargs), False
+                    except self.model.DoesNotExist:
+                        pass
+                    raise
+        
+        이미 get_or_create 내부에서 atomic, integrity 검사를 하기 때문에 그냥 사용하면 된다.
+        이렇게 하면 동시요청이 와도 둘 다 원하는 결과를 얻는다.
+        """
+        id = random.randint(1, 100000)
+
+        # get_or_create 내부 구현체, 명시적 확인을 위한 코드
+        # try:
+        #     print(f"## try: {id}")
+        #     return ProductTag.objects.get(name=name)
+        # except ProductTag.DoesNotExist:
+        #     print(f"## DoesNotExist: {id}")
+        #     try:
+        #         with transaction.atomic():
+        #             print(f"## create: {id}")
+        #             return ProductTag.objects.create(name=name, who=id)
+        #     except IntegrityError:
+        #         try:
+        #             print(f"## IntegrityError: {id}")
+        #             return ProductTag.objects.get(name=name)
+        #         except ProductTag.DoesNotExist:
+        #             pass
+        #         raise
+        
+        tag, created = ProductTag.objects.get_or_create(name=name, defaults={"who": id})
+
+        return tag
+
+    class Meta:
+        db_table = "product_tag"
 
 class ProductType(models.Model):
-    name = models.CharField("상품종류이름", max_length=64)
+    name = models.CharField("상품종류이름", max_length=64, unique=True)
 
     class Meta:
         db_table = "product_type"
@@ -95,20 +150,22 @@ class ProductOrder(models.Model):
     def purchase(cls, product, purchaser, amount):
         """
         ## Race Condition
-            nowait : default는 False로, False일 경우 row lock이 잡혀있다면 대기하고 True일 경우 에러를 발생시킨다.
-                -> 잠금을 얻을 수 없을 때 즉시 실패하고 django.db.utils.OperationalError 예외를 발생시킨다. 이는 잠금 대기 시간을 피하고자 할 때 유용할 수 있다.
-            skip_locked : default는 False로, True일 경우 조회한 데이터가 lock이 잡혀있다면 이를 무시한다.
-                -> 현재 다른 트랜잭션에 의해 잠긴 행을 건너뛰고, 잠금을 획득할 수 있는 행만 선택한다.
-            of : select_for_update 은 select_related와 같이 사용할 경우 join 한 테이블의 행도 함께 lock을 잡습니다. 이때 of를 사용하여 lock을 잡을 테이블을 명시할 수 있다.
+            select_for_update : transaction.atomic() 와 함께 사용해야 한다.
+                -> 해당 행을 조회하면서 "쓰기 잠금"(write lock)을 걸어, 다른 트랜잭션이 해당 행을 수정할 수 없게 한다.
+                @Param
+                    nowait : default는 False로, False일 경우 row lock이 잡혀있다면 대기하고 True일 경우 에러를 발생시킨다.
+                        -> 잠금을 얻을 수 없을 때 즉시 실패하고 django.db.utils.OperationalError 예외를 발생시킨다. 이는 잠금 대기 시간을 피하고자 할 때 유용할 수 있다.
+                    skip_locked : default는 False로, True일 경우 조회한 데이터가 lock이 잡혀있다면 이를 무시한다.
+                        -> 현재 다른 트랜잭션에 의해 잠긴 행을 건너뛰고, 잠금을 획득할 수 있는 행만 선택한다.
+                    of : select_for_update 은 select_related와 같이 사용할 경우 join 한 테이블의 행도 함께 lock을 잡습니다. 이때 of를 사용하여 lock을 잡을 테이블을 명시할 수 있다.
 
-        select_for_update() 는 transaction.atomic() 와 함께 사용해야 한다.
-        """
-        """
             nowait 
                 True  : 2개 동시 요청이 올 시 1개는 Exception 발생
                 False : 2개 동시 요청이 와도 Exception 발생 안 함, 1개 처리 후 나머지 1개 처리되는 것 같다.
 
+        atomic으로 하지 않으면 최종적으로 남은 상품개수가 0개 이어도 주문한 상품개수는 기존 남은 상품개수를 넘어갈 수 있다.
         """
+
         try:
             with transaction.atomic():
                 locked_product = Product.objects.select_for_update().get(id=product)
@@ -188,12 +245,13 @@ class ProductOrder(models.Model):
     def purchase_with_retry(cls, product, purchaser, amount):
         for attempt in range(3):  # 3번의 재시도
             try:
-                with connection.cursor() as cursor:
-                    cursor.execute(
-                        "SET LOCAL statement_timeout = 5000;"
-                    )  # 5초로 타임아웃 설정
-
-                    with transaction.atomic():
+                # NOTE -  transaction 안에 connection이 있어야 정상 동작한다!!! 반대면 동작 안한다!!
+                with transaction.atomic():
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            "SET LOCAL statement_timeout = 5000;"
+                        )  # 5초로 타임아웃 설정
+    
                         locked_product = Product.objects.select_for_update().get(
                             id=product
                         )
@@ -223,6 +281,102 @@ class ProductOrder(models.Model):
                 raise Exception("상품 정보를 찾을 수 없습니다.")
             except Exception as e:
                 raise Exception(str(e))
+    
+    @classmethod
+    def purchase_with_retry_only_isolation(cls, product, purchaser, amount):
+        """
+        @SERIALIZABLE
+            이렇게 하면 최종적으로 성공은 할 수 있다.
+            그런데 retry가 충분히 커야 많은 요청에 대해 대비할 수 있다.
+            문제는 요청이 언제 끝날지 모르는 단점이 있다.
+        
+        @REPEATABLE READ
+            트랜잭션이 시작된 후 다른 트랜잭션이 데이터를 수정할 수 없도록 한다.
+                -> 동시에 읽을 순 있지만, save할 때 왜 OperationlError 가 발생
+
+            @ From postgresql doc
+                they will only find target rows that were committed as of the transaction start time.
+                    ->최초 트랜잭션 시작시 가져온 row를 찾는다.
+                However, such a target row might have already been updated (or deleted or locked) by another concurrent transaction by the time it is found. 
+                In this case, the repeatable read transaction will wait for the first updating transaction to commit or roll back (if it is still in progress).
+                    -> 만약 다른 트랜잭션에 의해서 데이터가 수정된 경우 업데이트를 기다리거나 롤백을 진행한다.
+                    --> 아직까진 대기
+                If the first updater rolls back, then its effects are negated and the repeatable read transaction can proceed with updating the originally found row. 
+                But if the first updater commits (and actually updated or deleted the row, not just locked it) then the repeatable read transaction will be rolled back with the message
+                because a repeatable read transaction cannot modify or lock rows changed by other transactions after the repeatable read transaction began.
+                    -> 여기서 다시 commit할 때 처음에 가져온 데이터랑 값이 다르면 변경할 수 없기 때문에 OperationlError를 발생시킨다!
+
+                결론 : 동시에 볼 순 있지만, 데이터가 바뀌면 롤백이 일어나서 최종적으로 성공할 수 있다.
+
+        """
+        max_retry = 10
+        for attempt in range(max_retry):
+            is_error = False
+            is_sold_out = False
+            msg = None
+            try:
+                # NOTE -  transaction 안에 connection이 있어야 정상 동작한다!!! 반대면 동작 안한다!!
+                with transaction.atomic():
+                    with connection.cursor() as cursor:
+                        """
+                        select_for_update는 Row에 대한 쓰기 잠금을 설정하지만, Isolation은 충돌에 대한 관리를 하기 때문에
+                        격리수준을 변경하는것 만으로는 동시성 문제를 해결하기 어렵다!!
+
+                            cursor.execute("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
+                                -> Dirty Read: 트랜잭션 1이 커밋되지 않은 데이터를 트랜잭션 2가 읽는 현상
+                            
+                            cursor.execute("SET TRANSACTION ISOLATION LEVEL READ COMMITTED")
+                                -> Non-repeatable Read: 트랜잭션 중에 같은 데이터를 여러 번 읽을 때 값이 바뀌는 현상
+                            
+                            cursor.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
+                                * NOTE - 트랜잭션이 시작된 후 다른 트랜잭션이 데이터를 수정할 수 없도록 합니다
+                                * 한 트랜잭션 내에서는 항상 동일한 데이터를 읽는다.
+                                * 재시도 과정은 트랜잭션 종료 후 다시 새로운 트랜잭션이기 때문에 변경된 데이터를 읽을 수 있다.
+                                -> Phantom Read: 트랜잭션 중에 새로운 행이 삽입되었을 때 이전에 보지 못한 새로운 행을 읽는 현상
+                            
+                            cursor.execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+                                -> 트랜잭션 1과 2가 동시에 실행되면 둘 중 하나에서 **OperationalError**가 발생
+                        """
+                        cursor.execute(
+                            "SET LOCAL statement_timeout = 5000;"
+                        )  # 5초로 타임아웃 설정
+                        cursor.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
+                        # cursor.execute("SET TRANSACTION ISOLATION LEVEL READ COMMITTED")
+
+                        locked_product = Product.objects.get(id=product)
+                        print(f"{purchaser.email}, attempt: {attempt}, remaining_items: {locked_product.remaining_items}")
+                        if locked_product.remaining_items >= amount:
+                            locked_product.remaining_items -= amount
+                            locked_product.save()
+                            ProductOrder.objects.create(
+                                product=locked_product, purchaser=purchaser, amount=amount
+                            )
+                        else:
+                            is_sold_out = True
+                            raise Exception("현재 남은 상품이 부족합니다.")
+
+                # 성공적으로 끝났다면 루프 종료
+                return "구매 성공"
+
+            except OperationalError:
+                is_error = True
+                msg = "주문 실패, 다시 시도해주세요."
+            except Product.DoesNotExist:
+                is_error = True
+                msg = "상품 정보를 찾을 수 없습니다."
+            except Exception as e:
+                is_error = True
+                msg = str(e)
+            finally:
+                print(f"{purchaser.email}, attempt: {attempt}, remaining_items: {locked_product.remaining_items}, {msg}")
+                if is_sold_out:
+                    raise Exception(msg)
+
+                if is_error:
+                    if attempt < max_retry:
+                        time.sleep(1)
+                    else:
+                        raise Exception(msg)
 
     class Meta:
         db_table = "product_order"
