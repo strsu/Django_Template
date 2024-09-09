@@ -1,6 +1,12 @@
 from rest_framework import serializers
 
-from api.v1.model_view_set.models import Product, ProductType
+from api.v1.model_view_set.models import (
+    Product,
+    ProductType,
+    ProductOrder,
+    ProductCarrier,
+    ProductOrderShipping,
+)
 
 
 class ProductTypeSerializer(serializers.ModelSerializer):
@@ -9,7 +15,68 @@ class ProductTypeSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class ProductCarrierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCarrier
+        fields = "__all__"
+
+
+class ProductOrderShippingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductOrderShipping
+        fields = "__all__"
+        extra_kwargs = {
+            "product_order": {
+                "write_only": True,
+            },
+        }
+
+
+class ProductOrderSerializer(serializers.ModelSerializer):
+    purchaser_uuid = serializers.SerializerMethodField()
+    shipping = ProductOrderShippingSerializer(read_only=True)
+
+    def get_purchaser_uuid(self, obj):
+        return obj.purchaser.uuid  # lender의 uuid를 반환
+
+    def create(self, validated_data):
+        # 요청된 사용자를 validated_data에 추가
+        validated_data["purchaser"] = self.context["request"].user
+        return super().create(validated_data)
+
+    class Meta:
+        model = ProductOrder
+        fields = "__all__"
+        extra_kwargs = {
+            "purchaser": {
+                "write_only": True,
+                "required": False,
+            },  # lender 필드는 쓰기 전용으로 설정
+            "product": {
+                "write_only": True,
+            },
+        }
+
+
 class ProductSerializer(serializers.ModelSerializer):
+    type = ProductTypeSerializer(read_only=True)
+
+    class Meta:
+        model = Product
+        fields = "__all__"
+
+
+class ProductDetailSerializer(ProductSerializer):
+    """
+    related_name으로 변수명을 만들지 않으면 데이터가 안 만들어진다;;
+    productorder_set 로 하면 결과로 order가 나오는데,
+    product_orders = ProductOrderSerializer() 는 결과로 order가 안 나온다,,
+    """
+
+    productorder_set = ProductOrderSerializer(many=True, read_only=True)
+
+
+class ProductUploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = "__all__"

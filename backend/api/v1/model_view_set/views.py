@@ -7,27 +7,69 @@ from drf_spectacular.types import OpenApiTypes
 
 from django.core.serializers import serialize
 from django.forms.models import model_to_dict
+from django.db.models import Prefetch, Q
 
-from api.v1.model_view_set.models import Product, ProductType, ProductOrder, ProductTag
+from api.v1.model_view_set.models import (
+    Product,
+    ProductType,
+    ProductOrder,
+    ProductTag,
+    ProductOrderShipping,
+)
 from api.v1.model_view_set.serializer import (
     ProductSerializer,
+    ProductDetailSerializer,
+    ProductUploadSerializer,
     ProductRawSerializer,
     ProductTypeSerializer,
 )
 
 
 class ProductView(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    """
+    (1) Product.objects.select_related("type").prefetch_related(
+        "productorder_set"
+    )
+        1. purchaser를 미리 가져올 수 없다
+        2. product_order에 조건을 걸 수 없다
+
+    (2) Product.objects.select_related("type").filter(
+        Q(productorder__id__isnull=False) | Q(productorder__id__isnull=True)
+    )
+        1. Q를 써야 모든 product를 가져올 수 있다
+        2. (1)에 비해 쿼리가 많다
+
+    """
+
+    queryset = Product.objects.select_related("type")
     serializer_class = ProductSerializer
 
     lookup_field = "pk"
 
     def get_serializer_class(self):
-        print(self.kwargs)
-        return self.serializer_class
+        if self.request.method == "GET":
+            if self.action == "list":
+                return ProductSerializer
+            elif self.action == "retrieve":
+                return ProductDetailSerializer
+        return ProductUploadSerializer
 
     def get_queryset(self):
-        return super().get_queryset().filter()
+        if self.request.method == "GET":
+            if self.action == "retrieve":
+                return self.queryset.prefetch_related(
+                    Prefetch(
+                        "productorder_set",
+                        queryset=ProductOrder.objects.select_related("purchaser")
+                        .all()
+                        .prefetch_related(
+                            Prefetch(
+                                "shipping", queryset=ProductOrderShipping.objects.all()
+                            )
+                        ),
+                    )
+                )
+        return super().get_queryset()
 
     def get_object(self):
         return super().get_object()

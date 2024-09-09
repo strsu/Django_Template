@@ -60,13 +60,12 @@ class SoccerView(
             -> 어차피 Mixin에서 get_queryset을 호출해서 query를 사용하기 때문에!
         아래 filter에 user를 넣었기 때문에 자동으로 user가 걸러진다!
         """
-        return (
-            super()
-            .get_queryset()
-            .filter(deleted_at__isnull=True, user=self.request.user)
-        )
+        return super().get_queryset().filter(user=self.request.user)
 
     def get_serializer_class(self):
+        """
+        self.action == "list" 는 modelViewSet에만 있나보다!
+        """
         if self.request.method == "GET":
             if "pk" not in self.kwargs:
                 return SoccerListSerializer
@@ -75,7 +74,7 @@ class SoccerView(
     def get_pagination_class(self):
         return self.pagination_class
 
-    def list(self, request):
+    def list(self, request, *args, **kwargs):
         if not ("view" in request.GET and "month" in request.GET):
             raise CustomException(UserFault.NOT_FOUND)
 
@@ -100,10 +99,13 @@ class SoccerView(
         return Response(soccer.data, status=200)
 
     def get(self, request, *args, **kwargs):
-        if "pk" in kwargs:
-            return self.retrieve(request, kwargs["pk"])
-        else:
-            return self.list(request)
+        """
+        self.action == "list"
+        여기서는 self.action 을 사용할 수 없다.
+        """
+        if "pk" not in kwargs:
+            return self.list(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         # 직접 serializer를 사용하는 경우

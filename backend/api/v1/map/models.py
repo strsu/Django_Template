@@ -10,7 +10,7 @@ from api.common.models import TimestampModel
 class Map(models.Model):
 
     class MapType(models.IntegerChoices):
-        cloth = 1
+        cloth = 1, "옷"  # 이렇게 하면 DB에는 1이 저장되고, admin에는 옷이 노출된다.
 
     map_type = models.IntegerField(
         "지도 데이터 타입", choices=MapType.choices, null=False

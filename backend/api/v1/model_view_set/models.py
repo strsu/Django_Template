@@ -113,6 +113,17 @@ class Product(models.Model):
                 2. 아래처럼 all()로 안하면 이터레이션이 안 됨.
             order for문을 수행할 때 추가적인 쿼리가 실행되지 않는다.
                 -> queryset임에도 추가적인 쿼리 없음 (신기방기)
+
+            1. Product.objects.all().prefetch_related(
+                "productorder_set"
+            )
+            2. Product.objects.all().prefetch_related(
+                Prefetch("productorder_set", queryset=ProductOrder.objects.all())
+            )
+
+            (1)은 모든 조작없이 product_order를 가져온다.
+            (2)는 세부적인 조작을 수행하여필요한 product_order를 가져올 수 있다.
+                -> queryset에 filter, order_by 등 각종 조건을 걸 수 있다.
         """
         products = Product.objects.all().prefetch_related(
             Prefetch("productorder_set", queryset=ProductOrder.objects.all())
@@ -382,6 +393,31 @@ class ProductOrder(models.Model):
         db_table = "product_order"
         verbose_name = "상품 주문"
         verbose_name_plural = "상품 주문"
+
+class ProductCarrier(models.Model):
+    name = models.CharField(max_length=100)
+    contact_number = models.CharField(max_length=20, null=True, blank=True)
+    tracking_url = models.URLField(max_length=200, null=True, blank=True)
+
+    class Meta:
+        db_table = "product_carrier"
+        verbose_name = "상품 배송업체"
+        verbose_name_plural = "상품 배송업체"
+
+class ProductOrderShipping(models.Model):
+    carrier = models.ForeignKey(ProductCarrier, on_delete=models.SET_NULL, null=True, related_name="shipments")
+    product_order = models.OneToOneField(
+        ProductOrder, on_delete=models.CASCADE, related_name="shipping"
+    )
+    shipping_address = models.CharField(max_length=255)
+    tracking_number = models.CharField(max_length=100, null=True, blank=True)
+    shipping_status = models.CharField(max_length=50)
+    shipped_date = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = "product_order_shipping"
+        verbose_name = "상품 주문 배송지"
+        verbose_name_plural = "상품 주문 배송지"
 
 
 class Account(models.Model):
