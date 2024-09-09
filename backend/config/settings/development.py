@@ -47,4 +47,5 @@ if DEBUG:
     DEBUG_TOOLBAR_CONFIG = {
         "SHOW_TOOLBAR_CALLBACK": show_toolbar,
         "ROOT_TAG_EXTRA_ATTRS": "hx-preserve",
+        "IS_RUNNING_TESTS": False,
     }

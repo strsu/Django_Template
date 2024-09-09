@@ -463,6 +463,10 @@ LOGGING = {
             "filters": ["require_debug_true"],
             "class": "logging.StreamHandler",
         },
+        "query": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+        },
         "file": {
             "level": "INFO",
             "class": "logging.handlers.TimedRotatingFileHandler",
@@ -527,11 +531,11 @@ LOGGING = {
             "handlers": ["console"],
             "level": "INFO",
         },
-        # "django.db.backends": {
-        #     "handlers": ["console"],
-        #     "level": "DEBUG",
-        #     "propagate": False,
-        # },
+        "django.db.backends": {
+            "handlers": ["query"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
         "django.server": {
             "handlers": ["django.server"],
             "level": "INFO",
