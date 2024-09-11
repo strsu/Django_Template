@@ -3,10 +3,8 @@ from django.db.models import Sum
 
 from api.v1.orm.models import PowerGeneration
 
-from decimal import Decimal, ROUND_HALF_UP, getcontext, Context
+from decimal import Decimal
 import random
-
-getcontext().prec = 50  # 이렇게 설정하는건 의미가 없다. 해당 파일에 적용되는게 아니라 전역 변수에만 적용된다.
 
 # python manage.py test api.v1.orm.tests.test_power_generation
 # python manage.py test api/v1/orm/tests --settings='config.settings.test_real_db'
@@ -31,18 +29,12 @@ class DecimalTest(TestCase):
             decimal=Sum("power_decimal"), float=Sum("power_float")
         )
 
-        # 현재의 함수의 context에 적용된다. class 밖에 설정하면 의미가 없다.
-        getcontext().prec = 20
-        getcontext().rounding = ROUND_HALF_UP
-        context = Context(prec=50, rounding=ROUND_HALF_UP)  # 이건 그냥 적용이 안된다.
-        context = None
         v_float_sum = 0
         v_decimal_sum = Decimal(0)
         v_decimal_str_sum = Decimal("0")
-
         for value in PowerGeneration.objects.all():
-            v_d = Decimal(value.power_float, context=context)
-            v_ds = Decimal(str(value.power_float), context=context)
+            v_d = Decimal(value.power_float)
+            v_ds = Decimal(str(value.power_float))
             v_float_sum += value.power_float
             v_decimal_sum += v_d
             v_decimal_str_sum += v_ds
