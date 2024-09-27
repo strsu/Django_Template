@@ -134,3 +134,32 @@ class PDFMergeView(APIView):
         os.remove(merged_pdf_path)
 
         return response
+
+
+class MultipartFormDataView(APIView):
+
+    def post(self, request):
+        """
+        multipart/form-data 연습
+
+        getlist를 써야 리스트로 읽어온다.
+            -> 아니면 for문이 이미지파일명 개수만큼 돌게됨.
+        """
+
+        ## 방법 1
+        files = request.FILES
+        for image in files.getlist("images"):
+            image_name = image.name
+            image_ext = image.content_type.split("/")[1]
+            pdf_path = os.path.join(settings.MEDIA_ROOT, image_name)
+            with open(pdf_path, "wb") as f:
+                f.write(image.read())
+
+        ## 방법 2
+        data = request.data
+        for image in data.getlist("images"):
+            image_name = image.name
+            image_ext = image.content_type.split("/")[1]
+            print(image_name, image_ext)
+
+        return Response(status=201)
