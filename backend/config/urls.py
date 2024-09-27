@@ -25,8 +25,8 @@ from drf_spectacular.views import (
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
-from rest_framework import permissions
 
+# from rest_framework import permissions
 # from drf_yasg.views import get_schema_view
 # from drf_yasg import openapi
 
@@ -65,7 +65,9 @@ handler500 = "config.admin_page.error_view.server_error"
 
 urlpatterns = [
     # YOUR PATTERNS
-    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/schema/", SpectacularAPIView.as_view(), name="schema"
+    ),  # 이거 꼭 있어야 한다!!
     # Optional UI:
     path(
         "api/schema/swagger-ui/",

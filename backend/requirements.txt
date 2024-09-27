@@ -62,3 +62,4 @@ django-storages
 graphene-django==3.2.2
 
 geopandas
+Pillow==10.4.0
