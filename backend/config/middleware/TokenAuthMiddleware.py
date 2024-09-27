@@ -33,8 +33,8 @@ class JWTTokenAuthMiddleware:
 
             if cookie_header is not None:
                 cookies = dict(
-                    cookie.split("=")
-                    for cookie in cookie_header.decode("utf-8").split("; ")
+                    cookie.lstrip().rstrip().split("=")
+                    for cookie in cookie_header.decode("utf-8").split(";")
                 )
                 cookies = {
                     key.lower(): value for key, value in cookies.items()
