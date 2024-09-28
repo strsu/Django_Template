@@ -1,20 +1,15 @@
 from django.shortcuts import render
 from django.http import HttpResponse, FileResponse
 from django.conf import settings
+from django.core.files.storage import default_storage
 
-from rest_framework import status, generics, mixins
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.authentication import BasicAuthentication
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import AllowAny
 
-from config.exceptions.custom_exceptions import CustomParameterException
-
-from api.v1.file.models import File
+from api.v1.file.models import File, ImageDB
 from api.v1.file.serializer import FileSerializer
 
-from datetime import datetime
 import requests
 import urllib3
 import PyPDF2
@@ -138,6 +133,11 @@ class PDFMergeView(APIView):
 
 class MultipartFormDataView(APIView):
 
+    def get(self, request):
+        imgs = ImageDB.objects.all().values_list()
+
+        return Response(imgs, status=200)
+
     def post(self, request):
         """
         multipart/form-data 연습
@@ -146,20 +146,30 @@ class MultipartFormDataView(APIView):
             -> 아니면 for문이 이미지파일명 개수만큼 돌게됨.
         """
 
-        ## 방법 1
+        ## 꺼내는 방법 1
         files = request.FILES
+
+        ## 꺼내는 방법 2
+        data = request.data
+
+        ## 저장 방법 1
         for image in files.getlist("images"):
             image_name = image.name
             image_ext = image.content_type.split("/")[1]
-            pdf_path = os.path.join(settings.MEDIA_ROOT, image_name)
-            with open(pdf_path, "wb") as f:
+            img_path = os.path.join(settings.MEDIA_ROOT, image_name)
+            with open(img_path, "wb") as f:
                 f.write(image.read())
 
-        ## 방법 2
-        data = request.data
+        ## 저장 방법 2
         for image in data.getlist("images"):
-            image_name = image.name
-            image_ext = image.content_type.split("/")[1]
-            print(image_name, image_ext)
+            """
+            default_storage(path, object)
+            -> default path = media_url 이다
+            """
+            image.name = "test_" + image.name
+            default_storage.save(image.name, image)
+
+            ## DB 저장 방법
+            ImageDB.objects.create(user=request.user, image=image)
 
         return Response(status=201)

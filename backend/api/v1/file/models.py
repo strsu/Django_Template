@@ -1,6 +1,7 @@
 from django.db import models
 from api.v1.user.models import User
 
+
 # Create your models here.
 class File(models.Model):
 
@@ -11,3 +12,35 @@ class File(models.Model):
 
     class Meta:
         verbose_name = "file"
+
+
+def user_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return "user_{0}/{1}".format(instance.user.uuid, filename)
+
+
+class ImageDB(models.Model):
+    """
+    pillow 라이브러리가 필요하다
+
+    image는 upload_to 경로에 저장되고, DB에는 url만 저장된다.
+
+    upload_to
+        1. 직접 path 입력하기
+        2. 함수를 통해서 동적인 path 만들기
+            이 방법은 사용할 instance가 model에 정의되어 있어야 한다.
+
+    별다른 설정을 하지 않아고, s3에 잘 올라간다.
+    -> storages 라이브러리가 알아서 해준다.
+    """
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        default=None,
+        blank=True,
+        null=True,
+        verbose_name="사용자 id",
+    )
+    # file will be uploaded to MEDIA_ROOT/uploads
+    image = models.ImageField(upload_to=user_directory_path)
