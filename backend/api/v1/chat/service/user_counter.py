@@ -16,10 +16,11 @@ class userCounter:
         # Redis 캐시에서 데이터를 가져옵니다.
         count = await self.redis.get_value(self.cache_key)
         if not count:
-            await self.redis.set_values(self.cache_key, 1)
+            await self.redis.set_value(self.cache_key, 1)
             return 1
         else:
-            await self.redis.set_values(self.cache_key, int(count) + 1)
+            count = count.decode()
+            await self.redis.set_value(self.cache_key, int(count) + 1)
 
         return int(count) + 1
 
@@ -27,9 +28,10 @@ class userCounter:
         # Redis 캐시에서 데이터를 가져옵니다.
         count = await self.redis.get_value(self.cache_key)
         if not count:
-            await self.redis.set_values(self.cache_key, 0)
+            await self.redis.set_value(self.cache_key, 0)
             return 0
         else:
-            await self.redis.set_values(self.cache_key, int(count) - 1)
+            count = count.decode()
+            await self.redis.set_value(self.cache_key, int(count) - 1)
 
         return int(count) - 1

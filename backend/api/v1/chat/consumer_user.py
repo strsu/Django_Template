@@ -22,8 +22,8 @@ from django.conf import settings
 """
     consumer의 코드반영은 바로 이루어 지지 않는다.
      -> websocket 특성이라는 것 같음
-     
     그래서 코드를 반영하려면 dephan을 restart해줘야 한다.
+      -> gunicorn도 코드반영 바로 안된다. 어떤 worker든 reload를 해줘야 한다.
     
     consumer는 사용자 마다 1개씩 부여되는 것 같다.
      -> 접속자 n 명 = consumer n개
@@ -55,10 +55,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.uc = None
         self.task = None
 
-        # 이건 token_auth_middleware 때문에 is_anonymous를 못 쓴다.
+        self.user = self.scope["user"]
+        self.uc = None
+
         if self.user is None:
             # await self.close(4004)
             ...
+        else:
+            user = self.user.username
+            print(user, self.channel_name)
 
         # 사용자 현황
         self.uc = userCounter(self.room_group_name)

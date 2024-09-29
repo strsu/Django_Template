@@ -14,51 +14,32 @@ class AsyncCacheManager:
         self.redis = None
 
     async def connect(self):
-        self.redis = await aioredis.from_url(
-            f"redis://:{settings.BROKER_PASSWORD}@{settings.BROKER_URL}"
-        )
-        try:
-            await self.redis.ping()
-        except Exception as e:
-            self.redis = None
-            debug_logger.info(f"Cache 연결 실패!! - {e}")
+        if self.redis is None:
+            self.redis = await aioredis.from_url(
+                f"redis://:{settings.BROKER_PASSWORD}@{settings.BROKER_URL}"
+            )
+            try:
+                await self.redis.ping()
+            except Exception as e:
+                self.redis = None
+                debug_logger.info(f"Cache 연결 실패!! - {e}")
 
     async def close(self):
         if self.redis:
             await self.redis.close()
+            self.redis = None
 
     async def get_value(self, key):
-        if not self.redis:
-            return None
+        await self.connect()
+        return await self.redis.get(key)
 
-        try:
-            value = await self.redis.get(key)
-        except Exception as e:
-            return None
+    async def set_value(self, key, value):
+        await self.connect()
+        await self.redis.set(key, value)
 
-        if value:
-            return value.decode("utf-8")
-        return None
-
-    async def get_bytes_value(self, key):
-        if not self.redis:
-            return None
-
-        try:
-            value = await self.redis.get(key)
-        except Exception as e:
-            return None
-        else:
-            return value
-
-    async def set_values(self, key, values):
-        if not self.redis:
-            return None
-
-        try:
-            await self.redis.set(key, values)
-        except Exception as e:
-            return None
+    async def execute_command(self, command):
+        await self.connect()
+        return await self.redis.execute_command(command)
 
 
 class CacheManager:
@@ -91,7 +72,7 @@ class CacheManager:
         else:
             return value
 
-    def set_values(self, key, values):
+    def set_value(self, key, values):
         if not self.redis:
             return None
 

@@ -32,13 +32,14 @@ class JWTTokenAuthMiddleware:
             )
 
             if cookie_header is not None:
-                cookies = dict(
-                    cookie.lstrip().rstrip().split("=")
-                    for cookie in cookie_header.decode("utf-8").split(";")
-                )
-                cookies = {
-                    key.lower(): value for key, value in cookies.items()
-                }  # 헤더 키를 소문자로 변환
+                cookies = {}
+                for cookie in cookie_header.decode("utf-8").split(";"):
+                    if "=" in cookie:
+                        cookie = cookie.rstrip().lstrip()
+                        idx = cookie.rfind("=")
+                        key = cookie[:idx].lower()  # 헤더 키를 소문자로 변환
+                        value = cookie[idx + 1 :]
+                        cookies[key] = value
 
                 x_authorization_value = cookies.get("x-authorization")
                 token = cookies.get("token")

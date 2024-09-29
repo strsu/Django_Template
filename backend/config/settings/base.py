@@ -129,7 +129,7 @@ CRONTAB_DJANGO_SETTINGS_MODULE = "config.settings.base"
 # Application definition
 
 DJANGO_APPS = [
-    "debug_toolbar",
+    "daphne",  # 이걸 넣으면 runserver를 asgi로 올릴 수 있다.
     "admin_tools",
     "admin_tools.theming",
     "admin_tools.menu",
@@ -145,10 +145,10 @@ DJANGO_APPS = [
 ]
 
 THIRD_APPS = [
+    "channels",
     "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
-    "channels",
     "drf_spectacular",
     "sass_processor",
     "corsheaders",  # CORS 관련 추가
@@ -157,6 +157,7 @@ THIRD_APPS = [
     "django_crontab",
     "storages",
     "graphene_django",
+    "debug_toolbar",  # 이걸 너무 빨리 import하면 제대로 동작하지 않는다!!!
 ]
 
 LOCAL_APPS = [
@@ -172,9 +173,10 @@ LOCAL_APPS = [
     "api.v1.celery",
     "api.v1.model_view_set",
     "api.v1.serializer_without_model",
-    "api.v1.board",
     "api.v1.orm",
     "api.v1.map",
+    "api.v1.carrot",
+    "api.v1.board",
     "api.v2.board",
 ]
 
@@ -224,7 +226,7 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.SessionAuthentication",  # test코드 돌릴 때 `self.client.force_login(self.owner)` 을 사용하려면 반드시 필요하다!!!
         "rest_framework.authentication.TokenAuthentication",  # airflow 등 변하지 않는 토큰이 필요한 곳에 필요.
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
@@ -234,7 +236,7 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.ScopedRateThrottle",  # UserRate와 같이 동작해서, 같이 선언하면 안된다.
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "100/day",
+        "anon": "1000/day",
         "user": "2000/minute",
         "board": "5/day",
         "premium_user": "2000/minute",

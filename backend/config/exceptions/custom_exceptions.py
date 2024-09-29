@@ -17,6 +17,12 @@ class Code403Exception(APIException):
     default_code = 403
 
 
+class Code404Exception(APIException):
+    status_code = 404
+    default_detail = "자원을 찾을 수 없습니다."
+    default_code = 404
+
+
 class CustomDictException(APIException):
     status_code = 500
     default_detail = "unknown error."
