@@ -33,7 +33,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-        await self.channel_layer.group_discard(self.user, self.channel_name)
+        await self.channel_layer.group_discard(self.user.uuid, self.channel_name)
 
         if self.redis:
             await self.redis.close()

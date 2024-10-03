@@ -180,6 +180,7 @@ LOCAL_APPS = [
     "api.v1.orm",
     "api.v1.map",
     "api.v1.carrot",
+    "api.v1.slack",
     "api.v1.board",
     "api.v2.board",
 ]
@@ -544,11 +545,11 @@ LOGGING = {
             "handlers": ["console"],
             "level": "INFO",
         },
-        "django.db.backends": {
-            "handlers": ["query"],
-            "level": "DEBUG",
-            "propagate": False,
-        },
+        # "django.db.backends": {
+        #     "handlers": ["query"],
+        #     "level": "DEBUG",
+        #     "propagate": False,
+        # },
         "django.server": {
             "handlers": ["django.server"],
             "level": "INFO",
