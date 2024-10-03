@@ -16,9 +16,7 @@ class SlackInteractiveView(APIView):
 
         slack = json.loads(slack)
 
-        user = slack.get(
-            "user"
-        )  # {'id': 'U05354JBYNR', 'username': 'jolie0215', 'name': 'jolie0215', 'team_id': 'T05382YA2QJ'}
+        user = slack.get("user")
         app_id = slack.get("api_app_id")
         token = slack.get("token")
         channel = slack.get("channel").get("id")
