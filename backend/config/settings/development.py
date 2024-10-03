@@ -1,4 +1,4 @@
-DEBUG = True
+DEBUG = True  # Test Code를 돌릴 땐 False 여야한다.
 
 # CORS_ALLOW_ALL_ORIGINS = True # 이건 True해도 WHITELIST 없으면 cors 발생함,,
 

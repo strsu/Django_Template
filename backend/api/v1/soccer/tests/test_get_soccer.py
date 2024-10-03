@@ -1,16 +1,23 @@
+from rest_framework.test import APIClient
 from django.test import Client, TestCase
 import base64
 
 from api.v1.user.models import User
 
-# python3 manage_local.py test api/v1/soccer/tests
+# python manage.py test api/v1/soccer/tests
 # python manage.py test api/v1/soccer/tests --settings='config.settings.test_real_db'
 
 
 class SoccerTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        pass
+        cls.test = User.objects.create_user(
+            username="test", email="test", password="test"
+        )
+
+    def setUp(self):
+        self.client = APIClient()
+        self.headers = {"Content-Type": "application/json"}
 
     def tearDown(self):
         pass
@@ -38,7 +45,7 @@ class SoccerTest(TestCase):
             "deleted_at": None,
         }
 
-        business_list = ["admin:admin"]
+        business_list = ["test:test"]
         for idx, business in enumerate(business_list):
             credentials = base64.b64encode(bytes(business, "utf-8")).decode("ascii")
             client.defaults["HTTP_AUTHORIZATION"] = "Basic " + credentials
@@ -47,3 +54,27 @@ class SoccerTest(TestCase):
                 "/api/v1/soccer/5/",
             )
             self.assertEqual(response.json(), result)
+
+    def test_get_data_v2(self):
+
+        data = {
+            "where": {
+                "name": "test1",
+                "address": "address",
+                "latitude": 37.13343,
+                "longitude": 127.21134,
+            },
+            "when": "2023-04-12",
+            "level": 1,
+            "score": 4.0,
+            "memo": "svsdv",
+        }
+
+        # self.client.force_login(self.test)
+        self.client.force_authenticate(user=self.test)
+        url = "/api/v1/soccer/"
+        response = self.client.post(url, headers=self.headers, data=data, format="json")
+
+        print(response.json())
+
+        self.assertEqual(response.status_code, 201)

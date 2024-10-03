@@ -157,8 +157,12 @@ THIRD_APPS = [
     "django_crontab",
     "storages",
     "graphene_django",
-    "debug_toolbar",  # 이걸 너무 빨리 import하면 제대로 동작하지 않는다!!!
 ]
+
+if WHOAMI != "prod":  # 운영이 아닌 경우에만!
+    THIRD_APPS.append(
+        "debug_toolbar"
+    )  # 이걸 너무 빨리 import하면 제대로 동작하지 않는다!!!
 
 LOCAL_APPS = [
     "config.admin_page",
@@ -186,7 +190,6 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",  # CORS 관련 추가
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.gzip.GZipMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -195,6 +198,11 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "config.middleware.LoggingMiddleware.LoggingMiddleware",  # Custom Middleware
 ]
+
+if WHOAMI != "prod":  # 운영이 아닌 경우에만!
+    MIDDLEWARE.insert(
+        3, "debug_toolbar.middleware.DebugToolbarMiddleware"
+    )  # 맨 앞에 넣으면 인식 안됨
 
 TEMPLATES = [
     {
@@ -224,9 +232,12 @@ REST_FRAMEWORK = {
         # "rest_framework.permissions.IsAuthenticated",
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",  # Get 은 호출 되도록 - 단점이 생김, UserFilter가 반드시 필요한 곳은 IsAuthenticated 설정을 따로 해줘야 한다.
     ),
+    # test코드 돌릴 때
+    # self.client.force_login(self.owner) 을 사용하려면 SessionAuthentication이 반드시 필요하다!
+    # self.client.force_authenticate(user=self.test) 이거는 SessionAuthentication 없어도 동작!
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.BasicAuthentication",
-        "rest_framework.authentication.SessionAuthentication",  # test코드 돌릴 때 `self.client.force_login(self.owner)` 을 사용하려면 반드시 필요하다!!!
+        "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",  # airflow 등 변하지 않는 토큰이 필요한 곳에 필요.
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ],
