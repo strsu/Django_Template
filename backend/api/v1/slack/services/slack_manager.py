@@ -7,6 +7,20 @@ class SlackManager:
         self.client = WebClient(token=token)
         self.channel = channel
 
+    def post_ephemeral_message(self, user, text=None, blocks=None, thread_ts=None):
+        try:
+            response = self.client.chat_postEphemeral(
+                user=user,
+                channel=self.channel,
+                text=text,
+                blocks=blocks,
+                thread_ts=thread_ts,
+            )
+            return self._handle_response(response)
+        except SlackApiError as e:
+            print(f"Slack API Error: {e.response['error']}")
+            return None
+
     def post_message(self, text=None, blocks=None, thread_ts=None):
         """Helper method to send a message with text or blocks."""
         try:
@@ -15,7 +29,6 @@ class SlackManager:
             )
             return self._handle_response(response)
         except SlackApiError as e:
-            print(e)
             print(f"Slack API Error: {e.response['error']}")
             return None
 

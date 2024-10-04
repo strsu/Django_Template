@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+{% load static %}
+
+<head>
+    <meta charset="utf-8" />
+    <title>슬랙 사용자 인증</title>
+    <style>
+        /* Reset CSS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            /* height: 100%; */
+            width: 100%;
+            align-content: center;
+            justify-content: center;
+            background-color: #f5f5f5;
+        }
+
+        .inner {
+            display: flex;
+            flex-direction: column;
+            width: 400px;
+            max-width: 400px;
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 1.75rem;
+            margin-bottom: 1.5em;
+        }
+
+        .login {
+            width: 100%;
+        }
+
+        .login input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 1.2em;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: #fafafa;
+            transition: background-color 0.3s ease;
+        }
+
+        .login input:focus {
+            background-color: #fff;
+            border-color: #ff7133;
+            outline: none;
+            box-shadow: 0 0 5px rgba(255, 113, 51, 0.4);
+        }
+
+        .login button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background-color: #ff7133;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .login button:hover {
+            background-color: #ff5722;
+        }
+
+        #response-message {
+            display: flex;
+            justify-content: center;
+            margin-top: 1.5em;
+            font-size: 0.9rem;
+            color: #ff5722;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="inner">
+            <h1>슬랙 사용자 인증</h1>
+            <div class="login">
+                <form id="loginForm">
+                    <label for="email" hidden>Email:</label>
+                    <input type="text" id="email" name="email" placeholder="이메일" required>
+                    <label for="password" hidden>Password:</label>
+                    <input type="password" id="password" name="password" placeholder="비밀번호" required>
+                    <input type="hidden" id="slack" value="{{ slack }}">
+                    <input type="hidden" id="token" value="{{ token }}">
+                    <button type="submit">인증하기</button>
+                </form>
+            </div>
+            <div id="response-message"></div>
+        </div>
+    </div>
+
+    <script>
+        document.querySelector("#email").focus();
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const token = document.getElementById('token').value;
+            const slack = document.getElementById('slack').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const csrfToken = "{{ csrf_token }}";
+
+            const formData = new FormData();
+            formData.append('slack', slack);
+            formData.append('token', token);
+            formData.append('email', email);
+            formData.append('password', password);
+
+            const response = await fetch("{% url 'verify' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            });
+
+            const result = await response.json();
+            document.getElementById('response-message').innerText = result.message || result.error;
+        });
+    </script>
+</body>
+
+</html>
