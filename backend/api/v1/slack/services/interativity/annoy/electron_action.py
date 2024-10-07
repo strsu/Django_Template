@@ -164,7 +164,13 @@ class ElectronAction(ActionInterface):
         action_id = action.get("action_id")
         action_ts = action.get("action_ts")
 
-        if self.ACTION_PREFIX not in action_id:
+        """
+        action prefix는 모두 동일하게 시작해도, 최종 행동 결정 action_id가 아니라면 로직을 수행할 필요가 없다.
+        """
+        if action_id not in [
+            f"{self.ACTION_PREFIX}__approve",
+            f"{self.ACTION_PREFIX}__deny",
+        ]:
             return False
 
         cache_key = f"{self.ACTION_PREFIX}_{thread_ts}"
