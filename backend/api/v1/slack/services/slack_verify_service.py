@@ -1,10 +1,13 @@
+from django.conf import settings
+
 from api.v1.slack.models import SlackAuth
 from api.v1.slack.services.slack_manager import SlackManager
 
 
 class SlackVerifyService:
 
-    BOT_TOKEN = ""
+    OAUTH_TOKEN = settings.SLACK["annoy"]["oauth_token"]
+    VERIFY_URL = settings.SLACK["annoy"]["auth_verify_url"]
 
     @classmethod
     def verify_user(cls, user_id, channel_id, actions=[]):
@@ -37,12 +40,12 @@ class SlackVerifyService:
                     "type": "button",
                     "text": {"type": "plain_text", "text": "인증하기", "emoji": True},
                     "value": "verify",
-                    "url": f"https://8d9a-59-10-5-91.ngrok-free.app/api/v1/slack/verify/?token={token}&slack={user_id}",
+                    "url": f"{cls.VERIFY_URL}/?token={token}&slack={user_id}",
                 },
             }
         ]
 
-        slack_manager = SlackManager(channel_id, cls.BOT_TOKEN)
+        slack_manager = SlackManager(channel_id, cls.OAUTH_TOKEN)
         slack_manager.post_ephemeral_message(user=user_id, blocks=blocks)
 
         return None

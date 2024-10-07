@@ -1,11 +1,13 @@
+from django.conf import settings
+
 from api.v1.slack.services.slack_manager import SlackManager
 
 
 class CommandCelery:
-    APP_ID = "A07Q5H96LF4"
-    COMMAND = "/celery"
-    TOKEN = ""
-    OAUTH_TOKEN = ""
+    APP_ID = settings.SLACK["annoy"]["app_id"]
+    COMMAND = settings.SLACK["annoy"]["command"]
+    TOKEN = settings.SLACK["annoy"]["token"]
+    OAUTH_TOKEN = settings.SLACK["annoy"]["oauth_token"]
 
     def __init__(self, channel, user):
         self.channel = channel

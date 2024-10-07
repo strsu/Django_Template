@@ -1,3 +1,5 @@
+from django.conf import settings
+
 from api.v1.slack.services.slack_manager import SlackManager
 
 from api.v1.slack.models import SlackAuth
@@ -20,9 +22,9 @@ class AnnoyApp:
     여러개의 액션을 지닌경우, 해당 block에 들어가는 모든 action이 한번에 오지 않는다.
     
     """
-    APP_ID = "A07Q5H96LF4"
-    TOKEN = ""
-    OAUTH_TOKEN = ""
+    APP_ID = settings.SLACK["annoy"]["app_id"]
+    TOKEN = settings.SLACK["annoy"]["token"]
+    OAUTH_TOKEN = settings.SLACK["annoy"]["oauth_token"]
 
     def __init__(self, channel: str, user: SlackAuth):
         self.slack_manager = SlackManager(channel, self.OAUTH_TOKEN)

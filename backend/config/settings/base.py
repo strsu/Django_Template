@@ -7,7 +7,7 @@ import socket
 import logging
 import re
 import os
-
+import toml
 
 WHOAMI = os.getenv("WHOAMI")
 if WHOAMI:
@@ -125,6 +125,19 @@ CRONTAB_DJANGO_SETTINGS_MODULE = "config.settings.base"
 #     ),
 # ]
 
+# --- TOML 파일 읽기
+config_path = os.path.join(BASE_DIR, "config.toml")
+config = toml.load(config_path)
+
+SLACK = {
+    "annoy": {
+        "app_id": config["annoy"]["app_id"],
+        "command": config["annoy"]["command"],
+        "token": config["annoy"]["token"],
+        "oauth_token": config["annoy"]["oauth_token"],
+        "auth_verify_url": config["annoy"]["auth_verify_url"],
+    }
+}
 
 # Application definition
 
