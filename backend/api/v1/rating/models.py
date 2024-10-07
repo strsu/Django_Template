@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import FileExtensionValidator
 
-from api.v1.user.models import User
+from django.contrib.auth import get_user_model
 
 from api.common.models import TimestampModel
 
@@ -98,7 +98,7 @@ class Actor(TimestampModel):
 
 class MovieRating(models.Model):
     user = models.ForeignKey(
-        User,
+        get_user_model(),
         on_delete=models.SET_NULL,
         default=None,
         blank=True,
@@ -134,7 +134,7 @@ class MovieRating(models.Model):
 
 class ActorRating(models.Model):
     user = models.ForeignKey(
-        User,
+        get_user_model(),
         on_delete=models.SET_NULL,
         default=None,
         blank=True,

@@ -2,7 +2,7 @@ from rest_framework.test import APIClient
 from django.test import Client, TestCase
 import base64
 
-from api.v1.user.models import User
+from django.contrib.auth import get_user_model
 
 # python manage.py test api/v1/soccer/tests
 # python manage.py test api/v1/soccer/tests --settings='config.settings.test_real_db'
@@ -11,7 +11,7 @@ from api.v1.user.models import User
 class SoccerTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.test = User.objects.create_user(
+        cls.test = get_user_model().objects.create_user(
             username="test", email="test", password="test"
         )
 

@@ -3,7 +3,7 @@ from django.db.models import Prefetch
 from django.db.utils import OperationalError, IntegrityError
 from django.core.cache import cache
 
-from api.v1.user.models import User
+from django.contrib.auth import get_user_model
 
 import time
 import random
@@ -148,7 +148,7 @@ class ProductOrder(models.Model):
         verbose_name="product_id",
     )
     purchaser = models.ForeignKey(
-        User,
+        get_user_model(),
         on_delete=models.SET_NULL,
         default=None,
         blank=True,
@@ -423,7 +423,7 @@ class ProductOrderShipping(models.Model):
 class Account(models.Model):
 
     customer = models.ForeignKey(
-        User,
+        get_user_model(),
         on_delete=models.SET_NULL,
         default=None,
         blank=True,

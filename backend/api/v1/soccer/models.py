@@ -4,7 +4,7 @@ from django.db import models
 
 from api.common.models import TimestampModel
 
-from api.v1.user.models import User
+from django.contrib.auth import get_user_model
 from api.v1.history.models import TrackedModel
 
 from datetime import datetime
@@ -54,7 +54,7 @@ class Soccer(TrackedModel, TimestampModel):
         GRAY = 10
 
     user = models.ForeignKey(
-        User,
+        get_user_model(),
         on_delete=models.SET_NULL,
         default=None,
         blank=True,
@@ -150,7 +150,7 @@ class SoccerWith(models.Model):
     """
 
     user_from = models.ForeignKey(
-        User,
+        get_user_model(),
         on_delete=models.SET_NULL,
         default=None,
         blank=True,
@@ -160,7 +160,7 @@ class SoccerWith(models.Model):
     )
 
     user_to = models.ForeignKey(
-        User,
+        get_user_model(),
         on_delete=models.SET_NULL,
         default=None,
         blank=True,

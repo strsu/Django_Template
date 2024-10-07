@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.db import transaction
 from django.contrib.auth.hashers import make_password
 
-from api.v1.user.models import User
+from django.contrib.auth import get_user_model
 from api.v1.board.models import Board, BoardCategory, BoardComment, BoardMedia
 
 from api.common.utils import save_base64, read_base64

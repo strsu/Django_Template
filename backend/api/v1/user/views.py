@@ -8,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from api.v1.user.models import User
+from django.contrib.auth import get_user_model
 from api.v1.user.serializer import MyTokenObtainPairSerializer, MyTokenVerifySerializer
 
 from config.exceptions.custom_exceptions import CustomException
@@ -30,7 +30,7 @@ class MyTokenVerifyView(TokenVerifyView):
 class SignViewSet(ModelViewSet):
     permission_classes = (AllowAny,)
 
-    queryset = User.objects.all()
+    queryset = get_user_model().objects.all()
     serializer_class = None
 
     def get_queryset(self):
@@ -45,7 +45,7 @@ class SignViewSet(ModelViewSet):
 
         try:
             user = self.get_queryset().get(email=email)
-        except User.DoesNotExist:
+        except get_user_model().DoesNotExist:
             raise CustomException(UserFault.NOT_FOUND)
         else:
             is_login = user.check_password(password)
@@ -99,9 +99,9 @@ class KakaoCallbackView(APIView):
             if user_id:
                 # 유저찾기 및 생성
                 try:
-                    user = User.objects.get(email=user_id)
+                    user = get_user_model().objects.get(email=user_id)
                 except Exception as e:
-                    user = User.objects.create(email=user_id)
+                    user = get_user_model().objects.create(email=user_id)
                 finally:
                     # 이후 인증은 자체 토큰으로 진행한다
                     refresh = RefreshToken.for_user(user)

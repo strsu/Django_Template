@@ -1,6 +1,6 @@
 from django.db import models
 
-from api.v1.user.models import User
+from django.contrib.auth import get_user_model
 
 from functools import wraps
 import uuid
@@ -27,7 +27,7 @@ def get_authenticated_user(func):
 class ModelHistory(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(
-        User,
+        get_user_model(),
         on_delete=models.SET_NULL,
         default=None,
         blank=True,

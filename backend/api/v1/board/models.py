@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.hashers import check_password
 
-from api.v1.user.models import User
+from django.contrib.auth import get_user_model
 from api.common.models import TimestampModel
 
 
@@ -25,7 +25,7 @@ class BoardComment(TimestampModel):
         null=True,
     )
 
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     password = models.CharField("삭제 비밀번호", max_length=128, null=True, blank=True)
 
     comment = models.TextField()
@@ -33,7 +33,7 @@ class BoardComment(TimestampModel):
         "self", null=True, blank=True, on_delete=models.CASCADE, related_name="replies"
     )
 
-    likes = models.ManyToManyField(User, related_name="liked_comment")
+    likes = models.ManyToManyField(get_user_model(), related_name="liked_comment")
 
     def toggle_like(self, user):
         if user.liked_comment.filter(id=self.id):
@@ -79,7 +79,7 @@ class BoardMedia(TimestampModel):
 # Create your models here.
 class Board(TimestampModel):
     author = models.ForeignKey(
-        User,
+        get_user_model(),
         on_delete=models.SET_NULL,
         default=None,
         blank=True,
@@ -100,7 +100,7 @@ class Board(TimestampModel):
     text = models.TextField("내용")
 
     views = models.IntegerField("조회수", default=0)
-    likes = models.ManyToManyField(User, related_name="liked_board")
+    likes = models.ManyToManyField(get_user_model(), related_name="liked_board")
 
     is_secret = models.BooleanField("비밀글", default=False)
 

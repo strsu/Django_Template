@@ -7,15 +7,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from api.v1.model_view_set.models import Account
 
-User = get_user_model()
-
 # python manage.py test api.v1.model_view_set.tests.test_account
 
 
 class AccountConcurrencyTest(TransactionTestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(
+        self.user = get_user_model().objects.create_user(
             username="test", email="test", password="test"
         )
         self.account = Account.objects.create(customer=self.user, balance=100)

@@ -2,46 +2,14 @@ from django.db import models
 from django.db.models import Q
 
 from api.common.models import TimestampModel
+from api.common.utils import kst_to_unixtime, unixtime_to_kst, now_unixtime
 
-from api.v1.user.models import User
+from django.contrib.auth import get_user_model
 
 from config.exceptions.custom_exceptions import Code400Exception, Code404Exception
 
 from datetime import datetime
-import pytz
 import time
-
-
-def unixtime_to_kst(unixtime):
-    return datetime.fromtimestamp(
-        unixtime, pytz.timezone("Asia/Seoul")
-    ).isoformat()  # KST로 변환
-
-
-def kst_to_unixtime(kst_time_str):
-    # KST 시간 문자열을 datetime 객체로 변환
-    kst = pytz.timezone("Asia/Seoul")
-    kst_time = datetime.strptime(kst_time_str, "%Y-%m-%dT%H:%M:%S")  # KST 시간 형식
-    kst_time = kst.localize(kst_time)  # KST 시간대 지정
-
-    # UTC로 변환 후 Unix 타임스탬프로 변환
-    utc_time = kst_time.astimezone(pytz.utc)
-    unix_time = int(utc_time.timestamp() * 1000)  # 밀리초 단위로 변환
-    return unix_time
-
-
-def now_unixtime():
-    # 현재 Unix 타임스탬프 (초 단위)
-    current_unix_time = time.time()
-
-    # Unix 타임스탬프를 UTC에서 KST로 변환
-    utc_time = datetime.fromtimestamp(current_unix_time, pytz.utc)  # UTC 시간
-    kst_time = utc_time.astimezone(pytz.timezone("Asia/Seoul"))  # KST로 변환
-
-    # KST 시간을 다시 Unix 타임스탬프 (밀리초 단위)로 변환
-    unix_time_in_kst = int(kst_time.timestamp() * 1000)  # 밀리초 단위로 변환
-
-    return unix_time_in_kst
 
 
 def user_directory_path(instance, filename):
@@ -52,7 +20,7 @@ def user_directory_path(instance, filename):
 class Goods(TimestampModel):
 
     owner = models.ForeignKey(
-        User,
+        get_user_model(),
         on_delete=models.SET_NULL,
         default=None,
         blank=True,
@@ -87,7 +55,7 @@ class GoodsBuyer(TimestampModel):
     )
     buyer = models.ForeignKey(
         verbose_name="빌리는사람",
-        to=User,
+        to=get_user_model(),
         on_delete=models.DO_NOTHING,
     )
 
@@ -104,7 +72,7 @@ class GoodsChatRoom(TimestampModel):
     )
     buyer = models.ForeignKey(
         verbose_name="회원",
-        to=User,
+        to=get_user_model(),
         on_delete=models.DO_NOTHING,
     )
 

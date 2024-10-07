@@ -1,10 +1,11 @@
 from django.db import models
-from api.v1.user.models import User
+from django.contrib.auth import get_user_model
+
 
 # Create your models here.
 class Blog(models.Model):
     user = models.ForeignKey(
-        User,
+        get_user_model(),
         on_delete=models.SET_NULL,
         default=None,
         blank=True,

@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from api.v1.user.models import User
+from django.contrib.auth import get_user_model
 
 """
     custom user model을 만들었기 때문에, Admin페이지에 이를 등록해줘야 사용할 수 있다.
@@ -22,7 +22,7 @@ class UserCreationForm(forms.ModelForm):
     )
 
     class Meta:
-        model = User
+        model = get_user_model()
         fields = ("email", "username")
 
     def clean_password2(self):
@@ -51,7 +51,7 @@ class UserChangeForm(forms.ModelForm):
     password = ReadOnlyPasswordHashField()
 
     class Meta:
-        model = User
+        model = get_user_model()
         fields = ("email", "password")
 
 
@@ -104,4 +104,4 @@ class UserAdmin(BaseUserAdmin):
 
 
 # Now register the new UserAdmin...
-admin.site.register(User, UserAdmin)
+admin.site.register(get_user_model(), UserAdmin)
