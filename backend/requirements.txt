@@ -65,3 +65,4 @@ geopandas
 Pillow==10.4.0
 
 slack_sdk
+toml
