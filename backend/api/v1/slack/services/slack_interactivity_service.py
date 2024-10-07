@@ -1,4 +1,4 @@
-from .bot.annoy_bot import AnnoyBot
+from .interativity.annoy_app import AnnoyApp
 
 
 class SlackInteractivityService:
@@ -8,8 +8,8 @@ class SlackInteractivityService:
     @classmethod
     def find_app(cls, app_id, token):
         match app_id:
-            case "A07Q5H96LF4":
-                if AnnoyBot.TOKEN == token:
-                    return AnnoyBot
+            case AnnoyApp.APP_ID:
+                if AnnoyApp.TOKEN == token:
+                    return AnnoyApp
 
         return None

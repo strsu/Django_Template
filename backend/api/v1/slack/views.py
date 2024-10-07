@@ -11,8 +11,6 @@ from .services.slack_interactivity_service import SlackInteractivityService
 from .services.slack_command_service import SlackCommandService
 from .services.slack_verify_service import SlackVerifyService
 
-from .models import SlackAuth
-
 import json
 
 
@@ -24,24 +22,25 @@ class SlackInteractiveView(APIView):
 
         slack = json.loads(slack)
 
-        # for key, value in slack.items():
-        #     print(key, value)
+        for key, value in slack.items():
+            print(key, value)
 
         user = slack.get("user")
         app_id = slack.get("api_app_id")
         token = slack.get("token")
         channel = slack.get("channel").get("id")
         thread_ts = slack.get("container").get("message_ts")
-        actions = slack.get("actions")
+
+        actions = slack.get("actions")  # 현재 선택한 액션
+        state = slack.get("state")  # 이제까지 선택된 상태값들
 
         slack_auth = SlackVerifyService.verify_user(user.get("id"), channel, actions)
 
         if slack_auth:
-            App = SlackInteractivityService.find_app(app_id, token)
-
-            if App:
-                bot = App(channel, slack_auth)
-                bot.actions(actions, thread_ts)
+            APP = SlackInteractivityService.find_app(app_id, token)
+            if APP:
+                bot = APP(channel, slack_auth)
+                bot.actions(actions, state, thread_ts)
 
         return Response(status=200)
 

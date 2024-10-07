@@ -2,14 +2,16 @@ from api.v1.slack.services.slack_manager import SlackManager
 
 
 class CommandCelery:
+    APP_ID = "A07Q5H96LF4"
+    COMMAND = "/celery"
     TOKEN = ""
-    BOT_TOKEN = ""
+    OAUTH_TOKEN = ""
 
     def __init__(self, channel, user):
         self.channel = channel
         self.user = user
 
-        self.slack_manager = SlackManager(channel.get("id"), self.BOT_TOKEN)
+        self.slack_manager = SlackManager(channel.get("id"), self.OAUTH_TOKEN)
 
     def execute(self, command):
         command = command.lower()

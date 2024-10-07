@@ -8,8 +8,8 @@ class SlackCommandService:
     @classmethod
     def find_command(cls, app_id, token, command):
         match app_id:
-            case "A07Q5H96LF4":
-                if CommandCelery.TOKEN == token and command == "/celery":
+            case CommandCelery.APP_ID:
+                if CommandCelery.TOKEN == token and command == CommandCelery.COMMAND:
                     return CommandCelery
 
         return None

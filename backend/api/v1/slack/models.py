@@ -2,7 +2,7 @@ from django.db import models
 from api.common.models import TimestampModel
 from api.common import cache
 
-from api.v1.user.models import User
+from django.contrib.auth import get_user_model
 
 import secrets
 import string
@@ -10,7 +10,7 @@ import string
 
 class SlackAuth(TimestampModel):
     user = models.ForeignKey(
-        User,
+        get_user_model(),
         on_delete=models.SET_NULL,
         default=None,
         blank=True,
@@ -41,3 +41,23 @@ class SlackAuth(TimestampModel):
         if cached_token:
             return True
         return False
+
+
+class SlackInteractivityHistory(TimestampModel):
+    executor = models.ForeignKey(
+        SlackAuth,
+        on_delete=models.SET_NULL,
+        default=None,
+        blank=True,
+        null=True,
+        verbose_name="사용자 id",
+    )
+
+    alerted_at = models.CharField("알림 발생 시점, unixtimestamp", max_length=20)
+    executed_at = models.CharField("액션 수행 시점, unixtimestamp", max_length=20)
+    action_prefix = models.CharField("액션 prefix", max_length=32)
+
+    execute_result = models.CharField("수행 결과", max_length=256)
+
+    class Meta:
+        unique_together = [["action_prefix", "alerted_at"]]

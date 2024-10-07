@@ -32,6 +32,17 @@ class SlackManager:
             print(f"Slack API Error: {e.response['error']}")
             return None
 
+    def update_message(self, text=None, blocks=None, thread_ts=None):
+        """Helper method to send a message with text or blocks."""
+        try:
+            response = self.client.chat_update(
+                channel=self.channel, text=text, blocks=blocks, ts=thread_ts
+            )
+            return self._handle_response(response)
+        except SlackApiError as e:
+            print(f"Slack API Error: {e.response['error']}")
+            return None
+
     def block_msg(self, blocks, thread_ts=None):
         """
         Sends a message with block elements.
