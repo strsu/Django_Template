@@ -1,5 +1,5 @@
-from rest_framework.views import exception_handler
 from rest_framework import exceptions
+from rest_framework.views import exception_handler
 from rest_framework.response import Response
 
 from django.db import connections
@@ -48,8 +48,6 @@ def custom_exception_handler(exc, context):
     message["trackback"] = traceback.format_exc()
     exception_logger.error(traceback.format_exc())
 
-    logger.info(traceback.format_exc())
-
     response = exception_handler(exc, context)
 
     """
@@ -63,6 +61,7 @@ def custom_exception_handler(exc, context):
         status_code = response.status_code
 
         msg = str(exc)
+        errors = []
 
         if hasattr(exc, "detail"):
             msg = exc.detail
@@ -73,6 +72,9 @@ def custom_exception_handler(exc, context):
         elif isinstance(exc, exceptions.AuthenticationFailed):
             code = response.status_code
             msg = exc.detail
+            if isinstance(msg, dict):
+                if exc.detail.get("detail"):
+                    msg = exc.detail.get("detail")
         elif isinstance(exc, exceptions.NotAuthenticated):
             code = response.status_code
             msg = exc.detail
@@ -95,18 +97,51 @@ def custom_exception_handler(exc, context):
             code = response.status_code
             msg = exc.detail
         elif isinstance(exc, exceptions.ValidationError):
+            """
+            serializer에서 field가 없거나 type이 안 맞는 경우 발생
+            """
+
+            def extract_msg(error_dict, parent_attr=None):
+                error = []
+                nested_error = []
+                for attr, detail in error_dict.items():
+                    _attr = attr
+                    if parent_attr:
+                        _attr = f"{parent_attr}.{attr}"
+                    if isinstance(detail, list):
+                        error.append(
+                            {
+                                "code": detail[0].code,
+                                "message": detail[0],
+                                "attr": _attr,
+                            }
+                        )
+                    elif isinstance(detail, dict):
+                        nested_error += extract_msg(detail, _attr)
+                    else:
+                        error.append(
+                            {
+                                "code": "error",
+                                "message": detail,
+                                "attr": _attr,
+                            }
+                        )
+
+                return error + nested_error
+
             code = response.status_code
             msg = exc.detail
+            errors = extract_msg(exc.detail)
         elif isinstance(exc, CustomParameterException):
             code = CustomParameterException.default_code
             msg = CustomParameterException.default_detail
-        if isinstance(exc, Code400Exception):
+        elif isinstance(exc, Code400Exception):
             msg = exc.detail
             code = Code400Exception.default_code
             if not msg:
                 msg = Code400Exception.default_detail
             status_code = Code400Exception.default_code
-        if isinstance(exc, Code403Exception):
+        elif isinstance(exc, Code403Exception):
             msg = exc.detail
             code = Code403Exception.default_code
             if not msg:
@@ -120,8 +155,11 @@ def custom_exception_handler(exc, context):
             code = response.status_code
             # msg = "unknown error"
 
+        if not errors:
+            errors.append({"message": msg})
+
         status_code = status_code
-        data = {"message": msg, "code": code}
+        data = {"errors": errors, "code": code}
 
         ## 위 handler에서 exception내용이 response에 들어가는 것 같다.
         # response.data.pop("status_code", None)
@@ -130,7 +168,7 @@ def custom_exception_handler(exc, context):
 
     else:
         """일반적으로 Err가 발생하면 이쪽으로 빠진다."""
-        msg = {"message": str(exc), "code": 500}
+        msg = {"errors": [{"message": str(exc)}], "code": 500}
 
         # context["request"]["_data"] = {
         #     **context["request"]["_data"],
