@@ -11,7 +11,7 @@ urlpatterns = [
         r"^token/$", views.MyTokenObtainPairView.as_view(), name="token_obtain_pair"
     ),
     re_path(r"^token/refresh/$", TokenRefreshView.as_view(), name="token_refresh"),
-    re_path(r"^token/verify/$", TokenVerifyView.as_view(), name="token_verify"),
+    re_path(r"^token/verify/$", views.MyTokenVerifyView.as_view(), name="token_verify"),
     re_path(r"^signin/$", views.SignViewSet.as_view({"post": "signin"}), name="signin"),
     re_path(r"^oauth/kakao/$", views.KakaoView.as_view(), name="kakao"),
     re_path(

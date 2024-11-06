@@ -22,9 +22,6 @@ class MyTokenVerifySerializer(TokenVerifySerializer):
 
         # 토큰에 추가로 주고 싶은 필드 넣기
         token["name"] = user.username
-        # ...
+        print("ASDFASFD")
 
         return token
-
-    def validate(self, attrs):
-        data = super().validate(attrs)
