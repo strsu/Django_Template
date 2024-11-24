@@ -37,7 +37,7 @@ class BoardCommentSerializer(serializers.Serializer):
     comment = serializers.CharField()
     parent_comment = serializers.PrimaryKeyRelatedField(
         queryset=BoardComment.actives.all(), allow_null=True
-    )
+    )  # id를 넘겨주면 PrimaryKeyRelatedField 가 object로 바꿔준다!!
 
     def validate(self, data):
         return data

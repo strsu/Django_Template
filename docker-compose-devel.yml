@@ -50,4 +50,24 @@ services:
     command: bash -c "redis-server --requirepass ${REDIS_PASSWORD}" # redis-cli 인증 : auth default password
     env_file: .env
 
+  celery:
+    build:
+      context: ./backend
+    volumes:
+      - ./backend:/opt
+    command: /opt/scripts/start_celery.sh
+    env_file: .env
+
+  flower:
+    build:
+      context: ./backend
+    depends_on:
+      - celery
+    volumes:
+      - ./backend:/opt
+    command: bash -c "cd /opt && celery -A config flower --basic-auth=${FLOWER_ID}:${FLOWER_PW}"
+    ports:
+      - "5555:5555"
+    env_file: .env
+
 # docker-compose -f docker-compose.yml -p <<원하는 이름>> up

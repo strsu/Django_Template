@@ -9,4 +9,5 @@ urlpatterns = [
     path("", views.BlogApiView.as_view(), name=""),
     path("list/", views.BlogListMixins.as_view(), name=""),
     path("detail/<int:pk>/", views.BlogDetailMixins.as_view(), name=""),
+    path("stream/", views.BlogStreamView.as_view(), name=""),
 ]

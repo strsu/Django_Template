@@ -141,6 +141,7 @@ class ProductOrderView(APIView):
             return Response({"message": "구매수량을 입력해주세요."}, status=400)
 
         user = request.user
-        ProductOrder.purchase(product_id, user, amount)
+        # ProductOrder.purchase(product_id, user, amount)
+        ProductOrder.purchase_with_retry_only_isolation(product_id, user, amount)
 
         return Response(status=200)

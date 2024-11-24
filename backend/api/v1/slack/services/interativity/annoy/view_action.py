@@ -11,13 +11,13 @@ from api.v1.slack.models import SlackInteractivityHistory
 from datetime import timedelta
 
 
-class ElectronAction(ActionInterface):
+class ViewAction(ActionInterface):
     """
     전기사용량을 가져올 때, 전기를 특정용량 이상 사용하고 있는 경우 운영팀에 이슈를 알리고,
     액션 타입에 따라 해결하는 기능
     """
 
-    ACTION_PREFIX = "electron"
+    ACTION_PREFIX = "control"
 
     def __init__(self, user, slack_manager):
         self.user = user
@@ -156,81 +156,50 @@ class ElectronAction(ActionInterface):
 
         return blocks
 
-    def resolve(self, action: dict, payload: dict):
-        """
-        전파된 이슈를 action 종료에 따라 비즈니스로직을 수행하는 함수
-        """
-
-        action_id = action.get("action_id")
-        action_ts = action.get("action_ts")
-
+    def resolve(self, action, payload):
         thread_ts = payload.get("container").get("message_ts")
         message = payload.get("message")  # 보낸 메세지 블록
-        state = message.get("state")
-
-        """
-        action prefix는 모두 동일하게 시작해도, 최종 행동 결정 action_id가 아니라면 로직을 수행할 필요가 없다.
-        """
-        if action_id not in [
-            f"{self.ACTION_PREFIX}__approve",
-            f"{self.ACTION_PREFIX}__deny",
-        ]:
-            return False
+        blocks = message.get("blocks")
 
         cache_key = f"{self.ACTION_PREFIX}_{thread_ts}"
+        data = cache.get(cache_key)
 
-        if cache.set(
-            cache_key, "1", nx=True, timeout=5
-        ):  # 5초 동안 잠금 유지, 실수로 캐시가 안 지워져도 5초 뒤에는 지워질 수 있도록!
-            with transaction.atomic():
-                try:
-                    sih = SlackInteractivityHistory.objects.get(
-                        alerted_at=thread_ts, action_prefix=self.ACTION_PREFIX
-                    )
-                except SlackInteractivityHistory.DoesNotExist:
-                    sih = SlackInteractivityHistory(
-                        executor=self.user,
-                        alerted_at=thread_ts,
-                        action_prefix=self.ACTION_PREFIX,
-                        executed_at=action_ts,
-                    )
-                else:
+        if data is None:
+            # 처리가능 시간이 지나면 액션버튼 삭제!
+            self.delete_action(blocks, thread_ts)
 
-                    executed_dt = unixtime_to_kst(float(sih.executed_at)).strftime(
-                        "%Y-%m-%d %H:%M"
-                    )
+            return False
 
-                    self.slack_manager.post_ephemeral_message(
-                        user=self.user.slack_user_id,
-                        text=f"이 작업은 {sih.executor.user.username}에 의해서 {executed_dt}에 이미 수행되었어요\n수행결과: {sih.execute_result}",
-                        thread_ts=thread_ts,
-                    )
-                    return False
+        trigger_id = payload.get("trigger_id")
 
-                alert_dt = unixtime_to_kst(float(thread_ts))
-                action_dt = unixtime_to_kst(float(action_ts))
+        view = {
+            "callback_id": trigger_id,
+            "title": {"type": "plain_text", "text": "변경입찰", "emoji": True},
+            "submit": {"type": "plain_text", "text": "네", "emoji": True},
+            "type": "modal",
+            "close": {"type": "plain_text", "text": "아니요", "emoji": True},
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "정말 취소할까요?",
+                        "emoji": True,
+                    },
+                }
+            ],
+        }
 
-                if action_dt > alert_dt + timedelta(minutes=10):
-                    self.slack_manager.post_ephemeral_message(
-                        user=self.user.slack_user_id,
-                        text="너무 오래된 알림이라 지금은 수행할 수 없어요",
-                        thread_ts=thread_ts,
-                    )
-                    return False
-
-                action_type = action.get("type")
-                data = self.extract(state)
-
-                match action_type:
-                    case "button":
-                        result = self.button(action, data, thread_ts)
-                        sih.execute_result = result
-                        sih.save()
-
+        result = self.slack_manager.modal_open(trigger_id, view)
+        if result:
+            if result.get("ok"):
+                data["channel"] = self.slack_manager.get_current_channel()
+                data["thread_ts"] = thread_ts
+                cache.set(trigger_id, data, 600)
         else:
             self.slack_manager.post_ephemeral_message(
                 user=self.user.slack_user_id,
-                text="작업을 수행중이에요, 잠시만 기다려주세요!",
+                text="요청이 올바르게 수행되지 않았습니다, 다시 눌러주세요",
                 thread_ts=thread_ts,
             )
 

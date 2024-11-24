@@ -1,6 +1,7 @@
 from django.conf import settings
 
 from api.v1.slack.services.slack_manager import SlackManager
+from api.v1.slack.services.slack_verify_service import SlackVerifyService
 
 
 class CommandCelery:
@@ -16,6 +17,12 @@ class CommandCelery:
         self.slack_manager = SlackManager(channel.get("id"), self.OAUTH_TOKEN)
 
     def execute(self, command):
+
+        slack_auth = SlackVerifyService.verify_user_by_command(self.user.get("id"), self.channel.get("id"))
+
+        if slack_auth is None:
+            return False
+
         command = command.lower()
 
         if self.channel["name"] == "directmessage":

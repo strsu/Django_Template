@@ -18,29 +18,42 @@ class SlackInteractiveView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        slack = request.data.get("payload")
+        payload = request.data.get("payload")
+        payload = json.loads(payload)
 
-        slack = json.loads(slack)
-
-        for key, value in slack.items():
+        for key, value in payload.items():
             print(key, value)
 
-        user = slack.get("user")
-        app_id = slack.get("api_app_id")
-        token = slack.get("token")
-        channel = slack.get("channel").get("id")
-        thread_ts = slack.get("container").get("message_ts")
+        user = payload.get("user")
+        app_id = payload.get("api_app_id")
+        token = payload.get("token")
+        type = payload.get("type")
 
-        actions = slack.get("actions")  # 현재 선택한 액션
-        state = slack.get("state")  # 이제까지 선택된 상태값들
+        actions = payload.get("actions")  # 현재 선택한 액션
+        callback_id = payload.get("view", {}).get("callback_id")
+
+        channel = None
+        data = {}
+
+        if type == "block_actions":
+            channel = payload.get("channel").get("id")
+        elif type == "view_submission":
+            data = cache.getKey(callback_id)
+            if data:
+                channel = data.get("channel")
+            else:
+                return Response(status=500)
 
         slack_auth = SlackVerifyService.verify_user(user.get("id"), channel, actions)
 
         if slack_auth:
-            APP = SlackInteractivityService.find_app(app_id, token)
-            if APP:
-                bot = APP(channel, slack_auth)
-                bot.actions(actions, state, thread_ts)
+            BOT = SlackInteractivityService.find_app(app_id, token)
+            if BOT:
+                bot = BOT(channel, slack_auth)
+                if type == "block_actions":
+                    bot.actions(actions, payload)
+                elif type == "view_submission":
+                    bot.view(payload, data)
 
         return Response(status=200)
 
@@ -97,9 +110,7 @@ class SlackUserVerifyView(APIView):
         if user is None:
             return Response({"error": "사용자 인증 실패"}, status=401)
 
-        is_validate, msg = SlackVerifyService.verify_validate(
-            user, slack_user_id, token
-        )
+        is_validate, msg = SlackVerifyService.verify_validate(user, slack_user_id, token)
 
         if is_validate:
             return Response({"message": msg}, status=200)

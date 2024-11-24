@@ -7,6 +7,8 @@ from django.contrib.auth import get_user_model
 
 import time
 import random
+
+
 class ProductTag(models.Model):
     name = models.CharField("상품태그", max_length=64, unique=True)
     who = models.IntegerField("")
@@ -32,9 +34,13 @@ class ProductTag(models.Model):
                     except self.model.DoesNotExist:
                         pass
                     raise
-        
-        이미 get_or_create 내부에서 atomic, integrity 검사를 하기 때문에 그냥 사용하면 된다.
-        이렇게 하면 동시요청이 와도 둘 다 원하는 결과를 얻는다.
+
+        * model에 integrity 조건이 있다면
+            이미 get_or_create 내부에서 atomic, integrity 검사를 하기 때문에 그냥 사용하면 된다.
+            이렇게 하면 동시요청이 와도 둘 다 원하는 결과를 얻는다.
+        * 하지만, integrity 조건이 없다면
+            get_or_create로 동시요청 문제를 해결할 수 없다.
+
         """
         id = random.randint(1, 100000)
 
@@ -55,13 +61,14 @@ class ProductTag(models.Model):
         #         except ProductTag.DoesNotExist:
         #             pass
         #         raise
-        
+
         tag, created = ProductTag.objects.get_or_create(name=name, defaults={"who": id})
 
         return tag
 
     class Meta:
         db_table = "product_tag"
+
 
 class ProductType(models.Model):
     name = models.CharField("상품종류이름", max_length=64, unique=True)
@@ -82,21 +89,21 @@ class Product(models.Model):
         verbose_name="type id",
     )
     memo = models.CharField("메모", max_length=256)
-    remaining_items = models.IntegerField(
-        "남은 물건 개수", null=False, blank=False, default=0
-    )
+    remaining_items = models.IntegerField("남은 물건 개수", null=False, blank=False, default=0)
 
     @classmethod
     def get_product_with_order_list(cls):
         """
-            to_attr 을 넣으면 
-                1. Prefetch 한 productorder_set 의 이름을 바꿀 수 있다.
-                2. list로 넘어오기 때문에 객체가 아닌 value의 형태로 자동변환된다.
-            order for문을 수행할 때 추가적인 쿼리가 실행되지 않는다.
+        to_attr 을 넣으면
+            1. Prefetch 한 productorder_set 의 이름을 바꿀 수 있다.
+            2. list로 넘어오기 때문에 객체가 아닌 value의 형태로 자동변환된다.
+        order for문을 수행할 때 추가적인 쿼리가 실행되지 않는다.
         """
         products = Product.objects.all().prefetch_related(
             Prefetch(
-                "productorder_set", queryset=ProductOrder.objects.all(), to_attr="product_order"
+                "productorder_set",
+                queryset=ProductOrder.objects.all(),
+                to_attr="product_order",
             )
         )
 
@@ -108,22 +115,22 @@ class Product(models.Model):
     @classmethod
     def get_product_with_order_orm(cls):
         """
-            to_attr 을 안 넣으면 
-                1. queryset으로 넘어오기 때문에 추가적인 orm 작업을 할 수 있다.
-                2. 아래처럼 all()로 안하면 이터레이션이 안 됨.
-            order for문을 수행할 때 추가적인 쿼리가 실행되지 않는다.
-                -> queryset임에도 추가적인 쿼리 없음 (신기방기)
+        to_attr 을 안 넣으면
+            1. queryset으로 넘어오기 때문에 추가적인 orm 작업을 할 수 있다.
+            2. 아래처럼 all()로 안하면 이터레이션이 안 됨.
+        order for문을 수행할 때 추가적인 쿼리가 실행되지 않는다.
+            -> queryset임에도 추가적인 쿼리 없음 (신기방기)
 
-            1. Product.objects.all().prefetch_related(
-                "productorder_set"
-            )
-            2. Product.objects.all().prefetch_related(
-                Prefetch("productorder_set", queryset=ProductOrder.objects.all())
-            )
+        1. Product.objects.all().prefetch_related(
+            "productorder_set"
+        )
+        2. Product.objects.all().prefetch_related(
+            Prefetch("productorder_set", queryset=ProductOrder.objects.all())
+        )
 
-            (1)은 모든 조작없이 product_order를 가져온다.
-            (2)는 세부적인 조작을 수행하여필요한 product_order를 가져올 수 있다.
-                -> queryset에 filter, order_by 등 각종 조건을 걸 수 있다.
+        (1)은 모든 조작없이 product_order를 가져온다.
+        (2)는 세부적인 조작을 수행하여필요한 product_order를 가져올 수 있다.
+            -> queryset에 filter, order_by 등 각종 조건을 걸 수 있다.
         """
         products = Product.objects.all().prefetch_related(
             Prefetch("productorder_set", queryset=ProductOrder.objects.all())
@@ -170,7 +177,7 @@ class ProductOrder(models.Model):
                         -> 현재 다른 트랜잭션에 의해 잠긴 행을 건너뛰고, 잠금을 획득할 수 있는 행만 선택한다.
                     of : select_for_update 은 select_related와 같이 사용할 경우 join 한 테이블의 행도 함께 lock을 잡습니다. 이때 of를 사용하여 lock을 잡을 테이블을 명시할 수 있다.
 
-            nowait 
+            nowait
                 True  : 2개 동시 요청이 올 시 1개는 Exception 발생
                 False : 2개 동시 요청이 와도 Exception 발생 안 함, 1개 처리 후 나머지 1개 처리되는 것 같다.
 
@@ -183,9 +190,7 @@ class ProductOrder(models.Model):
                 if locked_product.remaining_items >= amount:
                     locked_product.remaining_items -= amount
                     locked_product.save()
-                    ProductOrder.objects.create(
-                        product=locked_product, purchaser=purchaser, amount=amount
-                    )
+                    ProductOrder.objects.create(product=locked_product, purchaser=purchaser, amount=amount)
                 else:
                     raise Exception("현재 남은 상품이 부족합니다.")
         except Product.DoesNotExist:
@@ -224,19 +229,17 @@ class ProductOrder(models.Model):
 
             try:
                 """
-                    with transaction.atomic()
-                    내부에서 try except는 권장하지 않는다!!
-                    왜???
-                    안에서 exception 처리하다가 실수하면 rollback이 안될 수 있어서!
+                with transaction.atomic()
+                내부에서 try except는 권장하지 않는다!!
+                왜???
+                안에서 exception 처리하다가 실수하면 rollback이 안될 수 있어서!
                 """
                 with transaction.atomic():
                     locked_product = Product.objects.select_for_update().get(id=product)
                     if locked_product.remaining_items >= amount:
                         locked_product.remaining_items -= amount
                         locked_product.save()
-                        ProductOrder.objects.create(
-                            product=locked_product, purchaser=purchaser, amount=amount
-                        )
+                        ProductOrder.objects.create(product=locked_product, purchaser=purchaser, amount=amount)
                     else:
                         raise ValueError("현재 남은 상품이 부족합니다.")
             except Product.DoesNotExist:
@@ -259,13 +262,9 @@ class ProductOrder(models.Model):
                 # NOTE -  transaction 안에 connection이 있어야 정상 동작한다!!! 반대면 동작 안한다!!
                 with transaction.atomic():
                     with connection.cursor() as cursor:
-                        cursor.execute(
-                            "SET LOCAL statement_timeout = 5000;"
-                        )  # 5초로 타임아웃 설정
-    
-                        locked_product = Product.objects.select_for_update().get(
-                            id=product
-                        )
+                        cursor.execute("SET LOCAL statement_timeout = 5000;")  # 5초로 타임아웃 설정
+
+                        locked_product = Product.objects.select_for_update().get(id=product)
 
                         if locked_product.remaining_items >= amount:
                             locked_product.remaining_items -= amount
@@ -292,7 +291,7 @@ class ProductOrder(models.Model):
                 raise Exception("상품 정보를 찾을 수 없습니다.")
             except Exception as e:
                 raise Exception(str(e))
-    
+
     @classmethod
     def purchase_with_retry_only_isolation(cls, product, purchaser, amount):
         """
@@ -300,7 +299,7 @@ class ProductOrder(models.Model):
             이렇게 하면 최종적으로 성공은 할 수 있다.
             그런데 retry가 충분히 커야 많은 요청에 대해 대비할 수 있다.
             문제는 요청이 언제 끝날지 모르는 단점이 있다.
-        
+
         @REPEATABLE READ
             트랜잭션이 시작된 후 다른 트랜잭션이 데이터를 수정할 수 없도록 한다.
                 -> 동시에 읽을 순 있지만, save할 때 왜 OperationlError 가 발생
@@ -308,11 +307,11 @@ class ProductOrder(models.Model):
             @ From postgresql doc
                 they will only find target rows that were committed as of the transaction start time.
                     ->최초 트랜잭션 시작시 가져온 row를 찾는다.
-                However, such a target row might have already been updated (or deleted or locked) by another concurrent transaction by the time it is found. 
+                However, such a target row might have already been updated (or deleted or locked) by another concurrent transaction by the time it is found.
                 In this case, the repeatable read transaction will wait for the first updating transaction to commit or roll back (if it is still in progress).
                     -> 만약 다른 트랜잭션에 의해서 데이터가 수정된 경우 업데이트를 기다리거나 롤백을 진행한다.
                     --> 아직까진 대기
-                If the first updater rolls back, then its effects are negated and the repeatable read transaction can proceed with updating the originally found row. 
+                If the first updater rolls back, then its effects are negated and the repeatable read transaction can proceed with updating the originally found row.
                 But if the first updater commits (and actually updated or deleted the row, not just locked it) then the repeatable read transaction will be rolled back with the message
                 because a repeatable read transaction cannot modify or lock rows changed by other transactions after the repeatable read transaction began.
                     -> 여기서 다시 commit할 때 처음에 가져온 데이터랑 값이 다르면 변경할 수 없기 때문에 OperationlError를 발생시킨다!
@@ -335,32 +334,34 @@ class ProductOrder(models.Model):
 
                             cursor.execute("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED")
                                 -> Dirty Read: 트랜잭션 1이 커밋되지 않은 데이터를 트랜잭션 2가 읽는 현상
-                            
+
                             cursor.execute("SET TRANSACTION ISOLATION LEVEL READ COMMITTED")
                                 -> Non-repeatable Read: 트랜잭션 중에 같은 데이터를 여러 번 읽을 때 값이 바뀌는 현상
-                            
+
                             cursor.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
                                 * NOTE - 트랜잭션이 시작된 후 다른 트랜잭션이 데이터를 수정할 수 없도록 합니다
                                 * 한 트랜잭션 내에서는 항상 동일한 데이터를 읽는다.
                                 * 재시도 과정은 트랜잭션 종료 후 다시 새로운 트랜잭션이기 때문에 변경된 데이터를 읽을 수 있다.
                                 -> Phantom Read: 트랜잭션 중에 새로운 행이 삽입되었을 때 이전에 보지 못한 새로운 행을 읽는 현상
-                            
+
                             cursor.execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE")
                                 -> 트랜잭션 1과 2가 동시에 실행되면 둘 중 하나에서 **OperationalError**가 발생
                         """
-                        cursor.execute(
-                            "SET LOCAL statement_timeout = 5000;"
-                        )  # 5초로 타임아웃 설정
+                        cursor.execute("SET LOCAL statement_timeout = 5000;")  # 5초로 타임아웃 설정
                         cursor.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ")
                         # cursor.execute("SET TRANSACTION ISOLATION LEVEL READ COMMITTED")
 
                         locked_product = Product.objects.get(id=product)
-                        print(f"{purchaser.email}, attempt: {attempt}, remaining_items: {locked_product.remaining_items}")
+                        print(
+                            f"{purchaser.email}, attempt: {attempt}, remaining_items: {locked_product.remaining_items}"
+                        )
                         if locked_product.remaining_items >= amount:
                             locked_product.remaining_items -= amount
                             locked_product.save()
                             ProductOrder.objects.create(
-                                product=locked_product, purchaser=purchaser, amount=amount
+                                product=locked_product,
+                                purchaser=purchaser,
+                                amount=amount,
                             )
                         else:
                             is_sold_out = True
@@ -379,20 +380,21 @@ class ProductOrder(models.Model):
                 is_error = True
                 msg = str(e)
             finally:
-                print(f"{purchaser.email}, attempt: {attempt}, remaining_items: {locked_product.remaining_items}, {msg}")
+                print(
+                    f"{purchaser.email}, attempt: {attempt}, remaining_items: {locked_product.remaining_items}, {msg}"
+                )
                 if is_sold_out:
                     raise Exception(msg)
 
                 if is_error:
-                    if attempt < max_retry:
-                        time.sleep(1)
-                    else:
+                    if attempt > max_retry:
                         raise Exception(msg)
 
     class Meta:
         db_table = "product_order"
         verbose_name = "상품 주문"
         verbose_name_plural = "상품 주문"
+
 
 class ProductCarrier(models.Model):
     name = models.CharField(max_length=100)
@@ -404,11 +406,10 @@ class ProductCarrier(models.Model):
         verbose_name = "상품 배송업체"
         verbose_name_plural = "상품 배송업체"
 
+
 class ProductOrderShipping(models.Model):
     carrier = models.ForeignKey(ProductCarrier, on_delete=models.SET_NULL, null=True, related_name="shipments")
-    product_order = models.OneToOneField(
-        ProductOrder, on_delete=models.CASCADE, related_name="shipping"
-    )
+    product_order = models.OneToOneField(ProductOrder, on_delete=models.CASCADE, related_name="shipping")
     shipping_address = models.CharField(max_length=255)
     tracking_number = models.CharField(max_length=100, null=True, blank=True)
     shipping_status = models.CharField(max_length=50)
@@ -458,7 +459,7 @@ class Account(models.Model):
         else:
             # 이미 다른 프로세스가 예약 중이므로 적절한 응답을 반환
             raise ValueError("잠시 후 다시 시도해주세요")
-    
+
     @classmethod
     def withdraw(cls, customer, withdraw):
         try:

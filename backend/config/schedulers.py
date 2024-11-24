@@ -15,6 +15,8 @@ class CustomModelEntry(ModelEntry):
         * kwargs - https://www.notion.so/youngjae-park/Queue-11dd352a8ffe80aeb0a7c6c3bc06f38a?pvs=4
             Beat가 스케줄로 등록된 Task를 Queue에 넣을 때 넣는 시간을 넣기위한 작업
             이렇게 해야 Task가 작업을 수행할 때 정확히 해당작업이 언제를 기준으로 작업을 처리해야 하는지 알 수 있다.
+            단, beat가 실행하는게 아니라면 이 로직은 동작하지 않는다.
+                -> admin에서 직접실행, 코드로 직접실행 등등
         """
         kwargs = loads(model.kwargs or "{}")
         if kwargs.get("executed_at") is None:

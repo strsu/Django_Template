@@ -46,7 +46,45 @@ class SlackVerifyService:
         ]
 
         slack_manager = SlackManager(channel_id, cls.OAUTH_TOKEN)
-        slack_manager.post_ephemeral_message(user=user_id, blocks=blocks)
+        slack_manager.send_dm_from_bot(user_id=user_id, blocks=blocks)
+
+        return None
+
+    @classmethod
+    def verify_user_by_command(cls, user_id, channel_id):
+        slack_auth, created = SlackAuth.actives.get_or_create(slack_user_id=user_id)
+
+        # 인증된 회원인 경우
+        if slack_auth.user:
+            return slack_auth
+
+        msg = "풍부한 기능제공을 위해서는 사용자 인증이 필요해요"
+        if slack_auth.exist_token():
+            return None
+        else:
+            msg = "인증기한이 만료되었어요, 10분이내 인증을 완료해주세요!"
+
+        token = slack_auth.generate_auth_token()
+
+        blocks = [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": msg,
+                },
+                "accessory": {
+                    "action_id": "authorization",
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "인증하기", "emoji": True},
+                    "value": "verify",
+                    "url": f"{cls.VERIFY_URL}/?token={token}&slack={user_id}",
+                },
+            }
+        ]
+
+        slack_manager = SlackManager(channel_id, cls.OAUTH_TOKEN)
+        slack_manager.send_dm_from_bot(user_id=user_id, blocks=blocks)
 
         return None
 

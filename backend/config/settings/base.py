@@ -27,21 +27,20 @@ HOST = os.getenv("HOST").split(",")
 if WHOAMI in ("prod", "dev"):
     # 한국에서만 사용가능
     try:
-        req = requests.get("http://ipconfig.kr", timeout=10)
-        MY_PUBLIC_IP = re.search(
-            r"IP Address : (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", req.text
-        )[1]
+        req = requests.get("http://ipconfig.kr", timeout=3)
+        MY_PUBLIC_IP = re.search(r"(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})", req.text)[1]
     except Exception as e:
         print("##", e)
 
     if MY_PUBLIC_IP == "localhost":
         # 해외에서 사용가능
         try:
-            MY_PUBLIC_IP = requests.get(
-                "https://api.ipify.org", timeout=10
-            ).content.decode("utf8")
+            MY_PUBLIC_IP = requests.get("https://api.ipify.org", timeout=3)
         except Exception as e:
             print("##", e)
+        else:
+            MY_PUBLIC_IP = MY_PUBLIC_IP.content.decode("utf8")
+
 
 ## --- Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -153,6 +152,7 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.gis",  # admin에서 gis map 보기 위해서 필요, 없으면 'gis/openlayers.html' 오류
     "django_celery_results",
     "django_celery_beat",
 ]

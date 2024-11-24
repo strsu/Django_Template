@@ -28,6 +28,12 @@ def sleep_task(*args, **kwargs):
     return None
 
 
+@app.task(queue="hipri")
+def sleep_task_on_hipri(*args, **kwargs):
+    time.sleep(120)
+    return None
+
+
 @app.task(
     max_retries=3, autoretry_for=(Exception,), default_retry_delay=10, queue="hipri"
 )

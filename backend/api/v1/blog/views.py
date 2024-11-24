@@ -1,11 +1,11 @@
-from django.shortcuts import render
-
 from rest_framework import status, generics, mixins
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authentication import BasicAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from django.http import StreamingHttpResponse
 
 # from drf_yasg.utils import swagger_auto_schema
 # from drf_yasg import openapi
@@ -16,6 +16,7 @@ from api.v1.blog.models import Blog
 from api.v1.blog.serializer import BlogSerializer
 
 from datetime import datetime
+import time
 
 
 class BlogApiView(APIView):
@@ -141,3 +142,18 @@ class BlogDetailMixins(
 
     def delete(self, request, pk):
         return self.destroy(request, pk)
+
+
+class BlogStreamView(APIView):
+    def get(self, request):
+        # 스트리밍할 데이터를 생성하는 제너레이터 함수
+        def event_stream():
+            for i in range(1, 6):
+                yield f"data: Message {i}\n\n"  # 데이터를 전송할 때마다 줄바꿈을 포함해야 합니다.
+                time.sleep(1)  # 데이터를 1초 간격으로 보냄
+
+        response = StreamingHttpResponse(
+            event_stream(), content_type="text/event-stream"
+        )
+        response["Cache-Control"] = "no-cache"
+        return response

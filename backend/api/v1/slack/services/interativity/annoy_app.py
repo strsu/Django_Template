@@ -4,6 +4,7 @@ from api.v1.slack.services.slack_manager import SlackManager
 
 from api.v1.slack.models import SlackAuth
 from .annoy.electron_action import ElectronAction
+from .annoy.view_action import ViewAction
 
 import logging
 
@@ -30,7 +31,7 @@ class AnnoyApp:
         self.slack_manager = SlackManager(channel, self.OAUTH_TOKEN)
         self.user = user
 
-    def actions(self, actions: list, state: dict, thread_ts: str):
+    def actions(self, actions: list, payload: dict):
         """
         동일한 기능에 대해 action_id를 여러개 정의헤야 하기 때문에!!
         반드시 `prefix__` 로 action_id를 정의해야 한다!!!
@@ -40,7 +41,20 @@ class AnnoyApp:
 
             if action_id.startswith(ElectronAction.ACTION_PREFIX):
                 actor = ElectronAction(self.user, self.slack_manager)
-                actor.resolve(action, state, thread_ts)
+                actor.resolve(action, payload)
+            elif action_id.startswith(ViewAction.ACTION_PREFIX):
+                actor = ViewAction(self.user, self.slack_manager)
+                actor.resolve(action, payload)
             else:
                 # 정의되지 않았거나, 정의하면 안되는
                 pass
+
+    def view(self, payload: dict, data: dict):
+        action = data.get("action", "")
+
+        if action == ElectronAction.ACTION_PREFIX:
+            actor = ElectronAction(self.user, self.slack_manager)
+            actor.resolve_view(payload, data)
+        elif action == ViewAction.ACTION_PREFIX:
+            actor = ViewAction(self.user, self.slack_manager)
+            actor.resolve_view(payload, data)
