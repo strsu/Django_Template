@@ -88,11 +88,7 @@ class SoccerView(
         except ValueError:  # 변환 실패 시 예외 발생
             return Response({"message": "yyyy-mm 형식"}, status=400)
 
-        soccer = (
-            self.get_queryset()
-            .select_related("where")
-            .filter(when__startswith=request.GET.get("month"))
-        )
+        soccer = self.get_queryset().select_related("where").filter(when__startswith=request.GET.get("month"))
         serializer = self.get_serializer_class()
 
         soccer = serializer(instance=soccer, many=True)

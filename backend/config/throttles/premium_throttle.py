@@ -1,6 +1,6 @@
 from rest_framework.throttling import UserRateThrottle
 
-from config.exceptions.custom_exceptions import Code403Exception
+from config.exceptions.custom_exceptions import CustomException
 
 
 class PremiumThrottle(UserRateThrottle):
@@ -16,7 +16,7 @@ class PremiumThrottle(UserRateThrottle):
         light_scope = getattr(view, "light_scope", None)
 
         if request.user.is_anonymous:
-            raise Code403Exception
+            raise CustomException(detail="요청권한이 없습니다", code=401)
         else:
             if request.user.auth:
                 if not premium_scope:
