@@ -9,7 +9,7 @@ from api.v1.history.models import TrackedModel
 
 from datetime import datetime
 
-from config.exceptions.custom_exceptions import Code400Exception
+from config.exceptions.custom_exceptions import CustomException
 
 
 class SoccerPlace(models.Model):
@@ -25,8 +25,8 @@ class SoccerPlace(models.Model):
     def save(self, *args, **kwargs):
         ## 할 일 정의
         if self.pk:
-            ## NOTE - 내가 만든 Code400Exception 같은 Exception은 django에서 500으로 인지하기 때문에 Handler400을 사용하려면 django에서 만든 400 Exception을 사용해야한다.
-            raise Code400Exception("수정금지")
+            ## NOTE - 내가 만든 CustomException 같은 Exception은 django에서 500으로 인지하기 때문에 Handler400을 사용하려면 django에서 만든 400 Exception을 사용해야한다.
+            raise CustomException(detail="수정금지", code=400)
 
     def __str__(self):
         if self.name:
@@ -72,17 +72,11 @@ class Soccer(TrackedModel, TimestampModel):
     )
 
     when = models.DateField("언제", blank=True, null=True)
-    level = models.IntegerField(
-        "레벨", choices=Level.choices, default=Level.RED, blank=True, null=True
-    )
+    level = models.IntegerField("레벨", choices=Level.choices, default=Level.RED, blank=True, null=True)
     score = models.FloatField("내 점수", blank=True, null=True)
     memo = models.CharField("메모", max_length=100, blank=True, null=True)
-    picture = ArrayField(
-        models.CharField("사진명", max_length=100), blank=True, null=True
-    )
-    video = ArrayField(
-        models.CharField("비디오명", max_length=100), blank=True, null=True
-    )
+    picture = ArrayField(models.CharField("사진명", max_length=100), blank=True, null=True)
+    video = ArrayField(models.CharField("비디오명", max_length=100), blank=True, null=True)
     tags = ArrayField(
         models.CharField("태그", max_length=20), blank=True, null=True
     )  # 이건 혹시 나중에 공유하기 생기거나 태그별로 모아보기 있으면 좋을 것 같아서,,
@@ -119,9 +113,7 @@ class SoccerTime(models.Model):
     )
     time_from = models.TimeField("시작 시간", blank=True, null=True)
     time_to = models.TimeField("종료 시간", blank=True, null=True)
-    soccer_time = models.TimeField(
-        "운동 시간 = 종료시간 - 시간시작", blank=True, null=True
-    )
+    soccer_time = models.TimeField("운동 시간 = 종료시간 - 시간시작", blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if self.time_from and self.time_to:

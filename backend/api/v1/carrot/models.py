@@ -6,7 +6,7 @@ from api.common.utils import kst_to_unixtime, unixtime_to_kst, now_unixtime
 
 from django.contrib.auth import get_user_model
 
-from config.exceptions.custom_exceptions import Code400Exception, Code404Exception
+from config.exceptions.custom_exceptions import CustomException
 
 from datetime import datetime
 import time
@@ -37,7 +37,7 @@ class Goods(TimestampModel):
         try:
             obj = Goods.actives.get(**kwargs)
         except Goods.DoesNotExist:
-            raise Code400Exception("상품을 찾을 수 없습니다.")
+            raise CustomException(detail="상품을 찾을 수 없습니다", code=404)
         else:
             return obj
 
@@ -81,9 +81,7 @@ class GoodsChatRoom(TimestampModel):
 
     @classmethod
     def get_rooms(cls, user):
-        return cls.actives.select_related("product").filter(
-            Q(product__owner=user) | Q(buyer=user)
-        )
+        return cls.actives.select_related("product").filter(Q(product__owner=user) | Q(buyer=user))
 
     def get_messages(self, timestamp: datetime | None, cnt=100):
         if timestamp is None:
@@ -94,16 +92,14 @@ class GoodsChatRoom(TimestampModel):
         if self.goodschatconversation_set:
             return self.goodschatconversation_set.all()[:cnt]
 
-        return GoodsChatConversation.objects.filter(
-            room=self, timestamp__lte=timestamp
-        ).order_by("-timestamp")[:cnt]
+        return GoodsChatConversation.objects.filter(room=self, timestamp__lte=timestamp).order_by("-timestamp")[:cnt]
 
     def save(self, *args, **kwargs):
         try:
             if self.buyer == self.product.owner:
-                raise Code400Exception("자신과의 채팅방은 생성할 수 없습니다.")
+                raise CustomException(detail="자신과의 채팅방은 생성할 수 없습니다", code=400)
         except Goods.DoesNotExist:
-            raise Code404Exception("상품을 찾을 수 없습니다.")
+            raise CustomException(detail="상품을 찾을 수 없습니다", code=404)
         super().save(*args, **kwargs)
 
     class Meta:

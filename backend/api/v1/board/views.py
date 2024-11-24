@@ -18,8 +18,6 @@ from django.utils import timezone
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Permission, User
 
-from config.exceptions.custom_exceptions import CustomParameterException
-
 from api.v1.board.models import Board, BoardCategory, BoardComment, BoardMedia
 from api.v1.board.serializer import BoardSerializer, BoardCommentSerializer
 

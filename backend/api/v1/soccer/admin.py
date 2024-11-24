@@ -24,7 +24,7 @@ class SoccerPlaceAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         # 할 일 정의
         if obj.pk:
-            ## NOTE - 내가 만든 Code400Exception 같은 Exception은 django에서 500으로 인지하기 때문에 Handler400을 사용하려면 django에서 만든 400 Exception을 사용해야한다.
+            ## NOTE - 내가 만든 CustomException 같은 Exception은 django에서 500으로 인지하기 때문에 Handler400을 사용하려면 django에서 만든 400 Exception을 사용해야한다.
             ## [x] - Admin Page에서 수정하는 경우 해당 함수를 통해서 호출된다.
             ## Admin에서 기능을 막고 싶으면 여기서 하면 된다!!
             raise BadRequest("수정금지")

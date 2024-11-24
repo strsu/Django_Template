@@ -14,7 +14,7 @@ from drf_spectacular.types import OpenApiTypes
 from django.utils import timezone
 from django.db.models import Prefetch
 
-from config.exceptions.custom_exceptions import Code403Exception
+from config.exceptions.custom_exceptions import CustomException
 
 from .models import GoodsChatRoom, GoodsChatConversation
 from .serializer import GoodsChatRoomSerializer, GoodsChatConversationSerializer
@@ -38,9 +38,7 @@ class ChatRoomListView(
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = self.get_serializer(
-            queryset, many=True, context={"request": request}
-        )
+        serializer = self.get_serializer(queryset, many=True, context={"request": request})
         return Response(serializer.data)
 
 
@@ -82,15 +80,13 @@ class ChatConversationListView(
             .get(id=self.kwargs.get("pk"))
         )
         if room.buyer != user and room.product.owner != user:
-            raise Code403Exception()
+            raise CustomException()
         timestamp = self.request.GET.get("timestamp")
         return room.get_messages(timestamp)
 
     def get(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = self.get_serializer(
-            queryset, many=True, context={"request": request}
-        )
+        serializer = self.get_serializer(queryset, many=True, context={"request": request})
 
         ## 마지막 확인시간 갱신
         room = GoodsChatRoom.actives.get(id=self.kwargs.get("pk"))
@@ -122,8 +118,6 @@ class ChatConversationListView(
 class CreateChatRoom(APIView):
 
     def post(self, request, *args, **kwargs):
-        chat_room, created = GoodsChatRoom.objects.get_or_create(
-            product_id=kwargs.get("pk"), buyer=request.user
-        )
+        chat_room, created = GoodsChatRoom.objects.get_or_create(product_id=kwargs.get("pk"), buyer=request.user)
 
         return Response({"room": chat_room.id}, status=201)

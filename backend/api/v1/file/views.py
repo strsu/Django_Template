@@ -10,6 +10,8 @@ from rest_framework.permissions import AllowAny
 from api.v1.file.models import File, ImageDB
 from api.v1.file.serializer import FileSerializer
 
+from config.exceptions.custom_exceptions import CustomException
+
 import requests
 import urllib3
 import PyPDF2
@@ -132,9 +134,13 @@ class PDFMergeView(APIView):
 class MultipartFormDataView(APIView):
 
     def get(self, request):
-        imgs = ImageDB.objects.all().values_list()
+        response = []
 
-        return Response(imgs, status=200)
+        imgs = ImageDB.objects.all()
+        for img in imgs:
+            response.append({"name": img.user.username if img.user else None, "imgae": img.get_url_path(request)})
+
+        return Response(response, status=200)
 
     def post(self, request):
         """

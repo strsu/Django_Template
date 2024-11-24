@@ -4,13 +4,7 @@ from rest_framework.response import Response
 
 from django.db import connections
 
-from config.exceptions.custom_exceptions import (
-    CustomException,
-    CustomDictException,
-    CustomParameterException,
-    Code400Exception,
-    Code403Exception,
-)
+from config.exceptions.custom_exceptions import CustomException
 
 from config.exceptions.exception_codes import STATUS_RSP_INTERNAL_ERROR
 
@@ -132,25 +126,10 @@ def custom_exception_handler(exc, context):
             code = response.status_code
             msg = exc.detail
             errors = extract_msg(exc.detail)
-        elif isinstance(exc, CustomParameterException):
-            code = CustomParameterException.default_code
-            msg = CustomParameterException.default_detail
-        elif isinstance(exc, Code400Exception):
-            msg = exc.detail
-            code = Code400Exception.default_code
-            if not msg:
-                msg = Code400Exception.default_detail
-            status_code = Code400Exception.default_code
-        elif isinstance(exc, Code403Exception):
-            msg = exc.detail
-            code = Code403Exception.default_code
-            if not msg:
-                msg = Code403Exception.default_detail
-            status_code = Code403Exception.default_code
         elif isinstance(exc, CustomException):
-            msg = exc.detail.get("message")
-            code = exc.detail.get("code")
-            status_code = int(exc.detail.get("status_code"))
+            msg = exc.detail
+            code = exc.detail.code
+            status_code = code
         else:
             code = response.status_code
             # msg = "unknown error"

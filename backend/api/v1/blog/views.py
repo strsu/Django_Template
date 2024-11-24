@@ -10,7 +10,7 @@ from django.http import StreamingHttpResponse
 # from drf_yasg.utils import swagger_auto_schema
 # from drf_yasg import openapi
 
-from config.exceptions.custom_exceptions import CustomParameterException
+from config.exceptions.custom_exceptions import CustomException
 
 from api.v1.blog.models import Blog
 from api.v1.blog.serializer import BlogSerializer
@@ -55,7 +55,7 @@ class BlogApiView(APIView):
     # )
     def get(self, request):
         if not ("id" in request.GET):
-            raise CustomParameterException
+            raise CustomException(detail="게시글을 찾을 수 없습니다", code=404)
 
         id = request.GET.get("id")
         data = Blog.objects.get(id=id)
@@ -88,9 +88,6 @@ class BlogApiView(APIView):
             content, tags 있어야한다.
             date, user는 back에서 설정
         """
-        if not ("content" in request.data):
-            raise CustomParameterException
-
         deserializer = BlogSerializer(data=request.data)
         if deserializer.is_valid():
             # user는 다음과 같이 설정할 수 있다.
@@ -101,9 +98,7 @@ class BlogApiView(APIView):
             return Response(status=400)
 
 
-class BlogListMixins(
-    mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView
-):
+class BlogListMixins(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
     """
     CreateModelMixin : post 요청 받았을 때, 생성할 때 create하는 로직
     ListModelMixin : get 요청 받앗을 때, 목록 조회
@@ -152,8 +147,6 @@ class BlogStreamView(APIView):
                 yield f"data: Message {i}\n\n"  # 데이터를 전송할 때마다 줄바꿈을 포함해야 합니다.
                 time.sleep(1)  # 데이터를 1초 간격으로 보냄
 
-        response = StreamingHttpResponse(
-            event_stream(), content_type="text/event-stream"
-        )
+        response = StreamingHttpResponse(event_stream(), content_type="text/event-stream")
         response["Cache-Control"] = "no-cache"
         return response
