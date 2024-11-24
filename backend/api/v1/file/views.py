@@ -119,9 +119,7 @@ class PDFMergeView(APIView):
 
         # 병합된 PDF 파일을 HTTP 응답으로 반환
         with open(merged_pdf_path, "rb") as merged_pdf_file:
-            response = HttpResponse(
-                merged_pdf_file.read(), content_type="application/pdf"
-            )
+            response = HttpResponse(merged_pdf_file.read(), content_type="application/pdf")
             response["Content-Disposition"] = f'attachment; filename="merged.pdf"'
             response["Content-Disposition"] = f'inline; filename="merged.pdf"'
 
@@ -160,6 +158,8 @@ class MultipartFormDataView(APIView):
             with open(img_path, "wb") as f:
                 f.write(image.read())
 
+        full_urls = []
+
         ## 저장 방법 2
         for image in data.getlist("images"):
             """
@@ -167,9 +167,10 @@ class MultipartFormDataView(APIView):
             -> default path = media_url 이다
             """
             image.name = "test_" + image.name
-            default_storage.save(image.name, image)
+            # default_storage.save(image.name, image) # ImageDB에서 알아서 저장해준다
 
             ## DB 저장 방법
-            ImageDB.objects.create(user=request.user, image=image)
+            image_obj = ImageDB.objects.create(user=request.user, image=image)
+            full_urls.append(image_obj.get_url_path(request))
 
-        return Response(status=201)
+        return Response(full_urls, status=201)

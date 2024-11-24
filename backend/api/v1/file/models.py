@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 
-# Create your models here.
 class File(models.Model):
 
     date = models.DateTimeField("등록일", auto_now_add=True)
@@ -16,6 +15,7 @@ class File(models.Model):
 
 def user_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    image_ext = instance.image.content_type.split("/")[1]
     return "user_{0}/{1}".format(instance.user.uuid, filename)
 
 
@@ -44,3 +44,12 @@ class ImageDB(models.Model):
     )
     # file will be uploaded to MEDIA_ROOT/uploads
     image = models.ImageField(upload_to=user_directory_path)
+
+    def get_url_path(self, request):
+        """
+        image full url 생성방법
+        request필요
+            -> requst에서 header로 host를 알아와야 하기 때문에
+        """
+        image_url = self.image.url
+        return request.build_absolute_uri(image_url)
