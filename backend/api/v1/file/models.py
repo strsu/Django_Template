@@ -15,7 +15,7 @@ class File(models.Model):
 
 def user_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    image_ext = instance.image.content_type.split("/")[1]
+    image_ext = instance.image.file.content_type.split("/")[1]
     return "user_{0}/{1}".format(instance.user.uuid, filename)
 
 
