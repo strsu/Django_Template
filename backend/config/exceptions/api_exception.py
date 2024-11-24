@@ -1,5 +1,5 @@
 from rest_framework import exceptions
-from rest_framework.views import exception_handler
+from rest_framework.views import exception_handler, set_rollback
 from rest_framework.response import Response
 
 from django.db import connections
@@ -14,12 +14,6 @@ import traceback
 logger = logging.getLogger("django")
 exception_logger = logging.getLogger("exception")
 logger_error = logging.getLogger("logstash_error")
-
-
-def set_rollback():
-    for db in connections.all():
-        if db.settings_dict["ATOMIC_REQUESTS"] and db.in_atomic_block:
-            db.set_rollback(True)
 
 
 def custom_exception_handler(exc, context):
@@ -156,4 +150,5 @@ def custom_exception_handler(exc, context):
         #         status_code: 500,
         #     },
         # }
+        set_rollback()
         return Response(msg, status=500)
