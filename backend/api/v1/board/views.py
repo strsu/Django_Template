@@ -37,7 +37,9 @@ class BoardView(viewsets.ModelViewSet, PermissionRequiredMixin):
     filterset_class = custom_filters.BoardFilter
     # filterset_fields = {"author": ["icontain"]}  # filtering 기능을 사용할 field 입력
     ordering_fields = ["author", "category"]  # 정렬 대상이 될 field 지정
-    ordering = ["author"]  # Default 정렬 기준 지정
+    ordering = ["-created_at"]  # Default 정렬 기준 지정
+
+    filters.OrderingFilter.ordering_description = "정렬가능한 변수리스트 - `author`, `category` "  # For swagger
 
     permission_classes = [DjangoModelPermissions]
 
@@ -145,9 +147,7 @@ class BoardImageView(APIView):
         except Exception as e:
             raise Exception("게시물을 찾을 수 없습니다.")
         else:
-            filenames = BoardMedia.actives.filter(board=board).values_list(
-                "filename", flat=True
-            )
+            filenames = BoardMedia.actives.filter(board=board).values_list("filename", flat=True)
 
             for filename in filenames:
                 image = read_base64(filename)
