@@ -64,10 +64,8 @@ def measure_query_time(func):
 
 # Create your models here.
 class TimestampModel(models.Model):
-    created_at = models.DateTimeField(
-        "생성일", auto_now_add=True, blank=True, null=True
-    )
-    modified_at = models.DateTimeField("수정일", auto_now=True, blank=True, null=True)
+    created_at = models.DateTimeField("생성일", auto_now_add=True, blank=True, null=True)
+    updated_at = models.DateTimeField("수정일", auto_now=True, blank=True, null=True)
     deleted_at = models.DateTimeField("삭제일", blank=True, null=True)
 
     raw_objects = models.Manager()  # default manager
@@ -88,9 +86,7 @@ class TimestampModel(models.Model):
 
 class ResponseModel(models.Model):
 
-    request_at = models.DateTimeField(
-        "생성일", auto_now_add=True, blank=True, null=True
-    )
+    request_at = models.DateTimeField("생성일", auto_now_add=True, blank=True, null=True)
 
     uri = models.CharField("주소", max_length=255)
     query_param = models.TextField(null=True, blank=True)

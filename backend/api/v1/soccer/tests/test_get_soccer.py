@@ -11,9 +11,7 @@ from django.contrib.auth import get_user_model
 class SoccerTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.test = get_user_model().objects.create_user(
-            username="test", email="test", password="test"
-        )
+        cls.test = get_user_model().objects.create_user(username="test", email="test", password="test")
 
     def setUp(self):
         self.client = APIClient()
@@ -41,7 +39,7 @@ class SoccerTest(TestCase):
             "video": [],
             "tags": [],
             "created_at": "2023-04-09T10:12:14.700741",
-            "modified_at": "2023-05-20T08:50:17.132467",
+            "updated_at": "2023-05-20T08:50:17.132467",
             "deleted_at": None,
         }
 

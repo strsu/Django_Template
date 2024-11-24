@@ -34,7 +34,7 @@ class ModelHistory(models.Model):
         null=True,
         verbose_name="사용자 id",
     )
-    modified_at = models.DateTimeField("수정일", auto_now=True, blank=True, null=True)
+    updated_at = models.DateTimeField("수정일", auto_now=True, blank=True, null=True)
 
     class Meta:
         db_table = "model_history"

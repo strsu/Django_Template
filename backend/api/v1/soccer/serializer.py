@@ -6,9 +6,7 @@ from copy import deepcopy
 
 
 class SoccerPlaceSerializer(serializers.Serializer):
-    id = serializers.IntegerField(
-        required=False
-    )  # 이렇게 해야 id로 조회, 수정이 가능하다.
+    id = serializers.IntegerField(required=False)  # 이렇게 해야 id로 조회, 수정이 가능하다.
     name = serializers.CharField(max_length=30)
     address = serializers.CharField(max_length=100)
     latitude = serializers.FloatField()
@@ -63,24 +61,16 @@ class SoccerSerializer(serializers.Serializer):
 
     level = serializers.ChoiceField(choices=Soccer.Level)
     score = serializers.FloatField()
-    memo = serializers.CharField(
-        required=False, allow_null=True, allow_blank=True, max_length=100
-    )
+    memo = serializers.CharField(required=False, allow_null=True, allow_blank=True, max_length=100)
 
-    picture = serializers.ListField(
-        required=False, allow_null=True, child=serializers.CharField()
-    )
-    video = serializers.ListField(
-        required=False, allow_null=True, child=serializers.CharField()
-    )
-    tags = serializers.ListField(
-        required=False, allow_null=True, child=serializers.CharField()
-    )
+    picture = serializers.ListField(required=False, allow_null=True, child=serializers.CharField())
+    video = serializers.ListField(required=False, allow_null=True, child=serializers.CharField())
+    tags = serializers.ListField(required=False, allow_null=True, child=serializers.CharField())
 
     created_at = serializers.DateTimeField(
         required=False,
     )
-    modified_at = serializers.DateTimeField(required=False, allow_null=True)
+    updated_at = serializers.DateTimeField(required=False, allow_null=True)
     deleted_at = serializers.DateTimeField(required=False, allow_null=True)
 
     def get_where(self, where_data):
@@ -114,4 +104,4 @@ class SoccerSerializer(serializers.Serializer):
     class Meta:
         model = Soccer
         fields = "__all__"
-        exclude = ["modified_at", "deleted_at"]
+        exclude = ["updated_at", "deleted_at"]
