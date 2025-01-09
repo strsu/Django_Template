@@ -9,6 +9,8 @@ import re
 import os
 import toml
 
+IS_ZEAL = False
+
 WHOAMI = os.getenv("WHOAMI")
 if WHOAMI:
     WHOAMI = WHOAMI.lower()
@@ -170,12 +172,15 @@ THIRD_APPS = [
     "django_crontab",
     "storages",
     "graphene_django",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 ]
 
-if WHOAMI != "prod":  # 운영이 아닌 경우에만!
-    THIRD_APPS.append(
-        "debug_toolbar"
-    )  # 이걸 너무 빨리 import하면 제대로 동작하지 않는다!!!
+if IS_ZEAL:  # zeal 활성필요시
+    THIRD_APPS.append("debug_toolbar")  # 이걸 너무 빨리 import하면 제대로 동작하지 않는다!!!
+    THIRD_APPS.append("zeal")
 
 LOCAL_APPS = [
     "config.admin_page",
@@ -210,13 +215,14 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "config.middleware.LoggingMiddleware.LoggingMiddleware",  # Custom Middleware
 ]
 
-if WHOAMI != "prod":  # 운영이 아닌 경우에만!
-    MIDDLEWARE.insert(
-        3, "debug_toolbar.middleware.DebugToolbarMiddleware"
-    )  # 맨 앞에 넣으면 인식 안됨
+if IS_ZEAL:  # zeal 활성필요시
+    MIDDLEWARE.insert(3, "debug_toolbar.middleware.DebugToolbarMiddleware")  # 맨 앞에 넣으면 인식 안됨
+    MIDDLEWARE.append("zeal.middleware.zeal_middleware")
+    ZEAL_SHOW_ALL_CALLERS = True  # 호출되는 모든 파일을 보고싶은경우
 
 TEMPLATES = [
     {
@@ -229,6 +235,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.request",  # `allauth` needs this from django
             ],
             "loaders": [
                 "admin_tools.template_loaders.Loader",
@@ -238,6 +245,34 @@ TEMPLATES = [
         },
     },
 ]
+
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+    # `allauth` specific authentication methods, such as login by email
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"  # google oauth에서 https 사용하려면 이게 꼭 필요!!
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        # For each OAuth based provider, either add a ``SocialApp``
+        # (``socialaccount`` app) containing the required client
+        # credentials, or list them here:
+        "APP": {
+            "client_id": "",
+            "secret": "",
+            "key": "",
+        },
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    }
+}
 
 SECURE_SCHEMES = ["http", "https"]
 REST_FRAMEWORK = {
@@ -380,16 +415,10 @@ Changing that setting to 0 will allow the worker to keep consuming as many messa
 """
 
 # CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
-CELERY_BEAT_SCHEDULER = (
-    "config.schedulers:CustomDatabaseScheduler"  # custom 스케줄러 적용
-)
+CELERY_BEAT_SCHEDULER = "config.schedulers:CustomDatabaseScheduler"  # custom 스케줄러 적용
 
 # Elastic
-ELASTICSEARCH_DSL = {
-    "default": {
-        "hosts": f"{os.getenv('ELASTICSEARCH_DSL_IP')}:{os.getenv('ELASTICSEARCH_DSL_PORT')}"
-    }
-}
+ELASTICSEARCH_DSL = {"default": {"hosts": f"{os.getenv('ELASTICSEARCH_DSL_IP')}:{os.getenv('ELASTICSEARCH_DSL_PORT')}"}}
 
 # --- Databse
 DATABASES = {
@@ -432,9 +461,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.pubsub.RedisPubSubChannelLayer",
         "CONFIG": {
-            "hosts": [
-                f"redis://:{BROKER_PASSWORD}@{BROKER_URL}:{BROKER_PORT}"  # RedisPubSubChannelLayer
-            ],
+            "hosts": [f"redis://:{BROKER_PASSWORD}@{BROKER_URL}:{BROKER_PORT}"],  # RedisPubSubChannelLayer
             "capacity": 1500,  # default 100, Once a channel is at capacity, it will refuse more messages.
             "expiry": 10,  # default 60 seconds
         },
@@ -480,9 +507,7 @@ LOGGING = {
         "standard": {"format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"},
         "simple": {"format": "%(message)s"},
         "loki": {"format": "%(message)s"},
-        "debug": {
-            "format": "%(asctime)s pid:%(process)s {%(pathname)s:%(lineno)d} - %(message)s"
-        },
+        "debug": {"format": "%(asctime)s pid:%(process)s {%(pathname)s:%(lineno)d} - %(message)s"},
     },
     "handlers": {
         "console": {

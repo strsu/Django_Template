@@ -65,9 +65,7 @@ handler500 = "config.admin_page.error_view.server_error"
 
 urlpatterns = [
     # YOUR PATTERNS
-    path(
-        "api/schema/", SpectacularAPIView.as_view(), name="schema"
-    ),  # 이거 꼭 있어야 한다!!
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),  # 이거 꼭 있어야 한다!!
     # Optional UI:
     path(
         "api/schema/swagger-ui/",
@@ -91,6 +89,8 @@ if settings.DEBUG:
 urlpatterns += [
     re_path(r"^admin_tools/", include("admin_tools.urls")),
     path("admin/", admin.site.urls),
+    path("api/oauth/", include("allauth.urls")),
+    path("api/oauth/", include("allauth.socialaccount.urls")),
     path("api/chat/", include("api.v1.chat.urls")),
     re_path("api/v1/file/", include("api.v1.file.urls")),
     re_path("api/v1/blog/", include("api.v1.blog.urls")),
