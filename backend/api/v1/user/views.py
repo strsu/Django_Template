@@ -124,3 +124,59 @@ class KakaoView(APIView):
         url = f"{kakao_api}?response_type=code&client_id={client_id}&redirect_uri={redirect_url}"
 
         return redirect(url)
+
+
+class GoogleCallbackView(APIView):
+    def get(self, request):
+        code = request.GET.get("code")
+
+        if not code:
+            return Response({"error": "No code provided"}, status=400)
+
+        token_url = "https://oauth2.googleapis.com/token"
+        client_id = "605635713755-m2jjabhhl3b0hfo0bl6l7un81q9pmcpk.apps.googleusercontent.com"
+        client_secret = ""
+        redirect_uri = "https://localhost/api/v1/user/oauth/google/callback/"
+
+        data = {
+            "code": code,
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "redirect_uri": redirect_uri,
+            "grant_type": "authorization_code",
+        }
+
+        response = requests.post(token_url, data=data)
+        token_json = response.json()
+
+        if "access_token" in token_json:
+            access_token = token_json["access_token"]
+
+            # 구글 사용자 정보 가져오기
+            user_info_url = "https://www.googleapis.com/oauth2/v2/userinfo"
+            headers = {"Authorization": f"Bearer {access_token}"}
+            user_info_response = requests.get(user_info_url, headers=headers)
+            user_info = user_info_response.json()
+
+            print(user_info)
+
+            return Response({"user": user_info})
+
+        return Response({"error": "Failed to get access token"}, status=400)
+
+
+class GoogleView(APIView):
+    def get(self, request):
+        google_api = "https://accounts.google.com/o/oauth2/auth"
+        redirect_url = "https://localhost/api/v1/user/oauth/google/callback/"
+        client_id = "605635713755-m2jjabhhl3b0hfo0bl6l7un81q9pmcpk.apps.googleusercontent.com"
+
+        url = (
+            f"{google_api}?response_type=code"
+            f"&client_id={client_id}"
+            f"&redirect_uri={redirect_url}"
+            f"&scope=email%20profile"
+            f"&access_type=offline"
+        )
+
+        return redirect(url)

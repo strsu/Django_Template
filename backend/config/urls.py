@@ -89,12 +89,10 @@ if settings.DEBUG:
 urlpatterns += [
     re_path(r"^admin_tools/", include("admin_tools.urls")),
     path("admin/", admin.site.urls),
-    path("api/oauth/", include("allauth.urls")),
-    path("api/oauth/", include("allauth.socialaccount.urls")),
     path("api/chat/", include("api.v1.chat.urls")),
+    re_path("api/v1/user/", include("api.v1.user.urls")),
     re_path("api/v1/file/", include("api.v1.file.urls")),
     re_path("api/v1/blog/", include("api.v1.blog.urls")),
-    re_path("api/v1/user/", include("api.v1.user.urls")),
     re_path("api/v1/soccer/", include("api.v1.soccer.urls")),
     re_path("api/v1/movie/", include("api.v1.rating.urls")),
     re_path("api/v1/celery/", include("api.v1.celery.urls")),

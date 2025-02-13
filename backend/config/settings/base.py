@@ -50,11 +50,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 STATIC_URL = "staticfiles/"
 STATIC_ROOT = os.path.join(BASE_DIR, STATIC_URL)
 
-
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
-# --- sass
+## --- sass
 SASS_OUTPUT_STYLE = "compact"
 SASS_PROCESSOR_ENABLED = True
 SASS_PROCESSOR_ROOT = os.path.join(BASE_DIR, STATIC_URL)
@@ -172,10 +171,6 @@ THIRD_APPS = [
     "django_crontab",
     "storages",
     "graphene_django",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
 ]
 
 if IS_ZEAL:  # zeal 활성필요시
@@ -215,7 +210,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "allauth.account.middleware.AccountMiddleware",
     "config.middleware.LoggingMiddleware.LoggingMiddleware",  # Custom Middleware
 ]
 
@@ -235,7 +229,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "django.template.context_processors.request",  # `allauth` needs this from django
             ],
             "loaders": [
                 "admin_tools.template_loaders.Loader",
@@ -246,33 +239,6 @@ TEMPLATES = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = [
-    # Needed to login by username in Django admin, regardless of `allauth`
-    "django.contrib.auth.backends.ModelBackend",
-    # `allauth` specific authentication methods, such as login by email
-    "allauth.account.auth_backends.AuthenticationBackend",
-]
-
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"  # google oauth에서 https 사용하려면 이게 꼭 필요!!
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        # For each OAuth based provider, either add a ``SocialApp``
-        # (``socialaccount`` app) containing the required client
-        # credentials, or list them here:
-        "APP": {
-            "client_id": "",
-            "secret": "",
-            "key": "",
-        },
-        "SCOPE": [
-            "profile",
-            "email",
-        ],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-    }
-}
 
 SECURE_SCHEMES = ["http", "https"]
 REST_FRAMEWORK = {
