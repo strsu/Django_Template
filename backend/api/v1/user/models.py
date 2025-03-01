@@ -20,9 +20,7 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(
-        self, username=None, email=None, password=None, **extra_fields
-    ):
+    def create_superuser(self, username=None, email=None, password=None, **extra_fields):
         superuser = self.create_user(
             username=username,
             email=email,
@@ -56,9 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     password = models.CharField(max_length=100)
     auth = models.IntegerField(default=0)
 
-    USERNAME_FIELD = (
-        "email"  # 사용자 로그인 필드로 user_id가 아니라 email을 기본값으로 지정
-    )
+    USERNAME_FIELD = "email"  # 사용자 로그인 필드로 user_id가 아니라 email을 기본값으로 지정
     REQUIRED_FIELDS = ["username"]
 
     """
@@ -93,6 +89,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_staff(self):
+        """
+        is_staff 필드는 사용자가 관리자 페이지에 접근할 수 있는지 여부를 결정합니다.
+        이 필드가 True로 설정되면 사용자는 관리자 페이지에 접근할 수 있습니다.
+        """
         return self.auth
 
     def __str__(self):
