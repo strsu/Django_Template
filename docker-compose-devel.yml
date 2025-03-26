@@ -20,6 +20,7 @@ services:
       - ./backend/media/:/media/
       - ./backend/staticfiles/:/staticfiles/
       - ./nginx/nginx_devel.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.celery.conf:/etc/nginx/nginx.celery.conf:ro
       - ./nginx/error-page.conf:/etc/nginx/snippets/error-page.conf:ro
       - ./nginx/log:/var/log/nginx/
       - ./nginx/ssl:/usr/share/nginx/ssl/

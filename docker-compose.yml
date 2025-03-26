@@ -24,6 +24,13 @@ services:
     env_file: .env
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+    memswap_limit: 1G
 
   nginx:
     build:
@@ -32,6 +39,7 @@ services:
       - ./backend/media/:/media/
       - ./backend/staticfiles/:/staticfiles/
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.celery.conf:/etc/nginx/nginx.celery.conf:ro
       - ./nginx/error-page.conf:/etc/nginx/snippets/error-page.conf:ro
       - ./nginx/log:/var/log/nginx/
       - ./nginx/ssl:/usr/share/nginx/ssl/
@@ -69,6 +77,9 @@ services:
       - ./backend/log:/var/log
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    command: -config.file=/mnt/config/promtail-config.yml
+    env_file: .env
+    command:
+      - -config.file=/mnt/config/promtail-config.yml
+      - -config.expand-env=true # 이게 없으면 환경변수를 인식하지 못함
 
 # docker-compose -f docker-compose.yml -p <<원하는 이름>> up
